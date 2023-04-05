@@ -101,9 +101,11 @@ public class BossAlienEntity extends Entity{
         if (other instanceof ShotEntity) {
 
             life--;
+            sprite = SpriteStore.get().getSprite("sprites/ufo_boss_alien4.png");
 
             if (life < 0) {
                 game.removeEntity(this);
+
 
                 // notify the game that the alien has been killed
                 game.notifyAlienKilled();
