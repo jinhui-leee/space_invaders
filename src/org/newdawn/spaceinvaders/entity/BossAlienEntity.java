@@ -19,7 +19,7 @@ public class BossAlienEntity extends Entity{
     /** The current frame of animation being displayed */
     private int frameNumber;
 
-    private int life = 10;
+    private int life = 100;
 
 
 
@@ -82,7 +82,7 @@ public class BossAlienEntity extends Entity{
         //dx 변수의 값을 반전시키고, y 변수의 값을 10만큼 증가시킵니다.
         //이를 통해 스프라이트가 왼쪽과 오른쪽을 번갈아 이동하며, 점점 아래로 내려가는 동작을 구현합니다.
         dx = -dx;
-        //y += 10;
+        y += 10;
 
         // if we've reached the bottom of the screen then the player
         // dies
@@ -91,22 +91,24 @@ public class BossAlienEntity extends Entity{
         }
     }
 
-
-
-
+    public int getLife() {
+        return life;
+    }
 
     @Override
     public void collidedWith(Entity other) {
 
         if (other instanceof ShotEntity) {
+
             life--;
-            System.out.println("life = " + life);
+
             if (life < 0) {
                 game.removeEntity(this);
 
                 // notify the game that the alien has been killed
                 game.notifyAlienKilled();
             }
+
         }
 
 
