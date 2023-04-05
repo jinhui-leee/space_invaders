@@ -40,6 +40,7 @@ public abstract class Entity {
 
 	/** The rectangle used for other entities during collision resolution */
 	private Rectangle him = new Rectangle();
+
 	
 	/**
 	 * Construct a entity based on a sprite image and a location.

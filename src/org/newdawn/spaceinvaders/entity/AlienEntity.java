@@ -88,8 +88,8 @@ public class AlienEntity extends Entity {
 	 * Update the game logic related to aliens
 	 */
 	public void doLogic() {
-		// swap over horizontal movement and move down the
-		// screen a bit
+		//dx 변수의 값을 반전시키고, y 변수의 값을 10만큼 증가시킵니다.
+		//이를 통해 스프라이트가 왼쪽과 오른쪽을 번갈아 이동하며, 점점 아래로 내려가는 동작을 구현합니다.
 		dx = -dx;
 		y += 10;
 		

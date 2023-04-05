@@ -14,10 +14,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.newdawn.spaceinvaders.entity.AlienEntity;
-import org.newdawn.spaceinvaders.entity.Entity;
-import org.newdawn.spaceinvaders.entity.ShipEntity;
-import org.newdawn.spaceinvaders.entity.ShotEntity;
+import org.newdawn.spaceinvaders.entity.*;
 
 /**
  * The main hook of our game. This class with both act as a manager
@@ -39,7 +36,7 @@ public class Game extends Canvas
 	/** The stragey that allows us to use accelerate page flipping */
 	private BufferStrategy strategy;
 
-	public static enum GameState{STARTING, VISUALIZING, GAME_CONTENT_LOADING, MAIN_MENU, OPTIONS, PLAYING, GAME_OVER}
+	public static enum GameState{STARTING, MAIN_MENU, OPTIONS, PLAYING, GAME_OVER, STORE, RANKING, }
 	public static GameState gameState;
 
 	/** True if the game is currently "running", i.e. the game loop is looping */
@@ -78,6 +75,10 @@ public class Game extends Canvas
 	/** True if the right cursor key is currently pressed */
 	private boolean rightPressed = false;
 
+	private boolean upPressed = false;
+
+	private boolean downPressed = false;
+
 	/** True if we are firing */
 	private boolean firePressed = false;
 
@@ -95,7 +96,14 @@ public class Game extends Canvas
 
 	/** The game window that we'll update with the frame count */
 	private JFrame container;
-	
+
+	/**스테이지 레벨*/
+	private int stageLevel = 0;
+
+	/** 0 : easy, 1 : normal, 2: hard*/
+	private int bossStageLevel = 0;
+
+
 	/**
 	 * Construct our game and set it running.
 	 */
@@ -158,6 +166,8 @@ public class Game extends Canvas
 		// blank out any keyboard settings we might currently have
 		leftPressed = false;
 		rightPressed = false;
+		upPressed = false;
+		downPressed = false;
 		firePressed = false;
 	}
 	
@@ -171,15 +181,26 @@ public class Game extends Canvas
 		entities.add(ship);
 		
 		// create a block of aliens (5 rows, by 12 aliens, spaced evenly)
-		alienCount = 0;
-		//적(외계인) 생성 : 12x5 크기
-		for (int row=0;row<5;row++) {
-			for (int x=0;x<12;x++) {
-				Entity alien = new AlienEntity(this,100+(x*50),(50)+row*30);
-				entities.add(alien);
-				alienCount++;
+		if (stageLevel < bossStageLevel) {
+			alienCount = 0;
+			//적(외계인) 생성 : 12x5 크기
+			for (int row = 0; row < 3+stageLevel; row++) {
+				for (int x = 0; x < 5+stageLevel; x++) {
+					Entity alien = new AlienEntity(this,100+(x*50),(50)+row*30);
+					entities.add(alien);
+					alienCount++;
+				}
 			}
 		}
+		else { //보스전
+			alienCount = 0;
+
+			Entity bossAlien = new BossAlienEntity(this, 100, 50);
+			entities.add(bossAlien);
+
+			alienCount++;
+		}
+
 	}
 	
 	/**
@@ -216,6 +237,7 @@ public class Game extends Canvas
 	public void notifyWin() {
 		message = "Well done! You Win!";
 		waitingForKeyPress = true;
+		stageLevel++;
 	}
 	
 	/**
@@ -225,7 +247,7 @@ public class Game extends Canvas
 		// reduce the alient count, if there are none left, the player has won!
 		alienCount--;
 		
-		if (alienCount == 0) {
+		if (alienCount <= 0) {
 			notifyWin();
 		}
 		
@@ -257,6 +279,17 @@ public class Game extends Canvas
 		ShotEntity shot = new ShotEntity(this,"sprites/shot.gif",ship.getX()+10,ship.getY()-30);
 		entities.add(shot);
 	}
+
+	public void shotShip() {
+
+		for (int i=0; i<3; i++) {
+			BossShotEntity shot = new BossShotEntity(this,"sprites/stone_boss_shot.png",ship.getX()+(i*30-30),100);
+			entities.add(shot);
+		}
+
+	}
+
+
 	
 	/**
 	 * The main game loop. This loop is running during all game
@@ -275,9 +308,6 @@ public class Game extends Canvas
 		long lastLoopTime = SystemTimer.getTime();
 		
 		// keep looping round til the game ends
-
-
-
 
 		while (gameRunning) {
 			// work out how long its been since the last update, this
@@ -371,6 +401,7 @@ public class Game extends Canvas
 			// isn't moving. If either cursor key is pressed then
 			// update the movement appropraitely
 			ship.setHorizontalMovement(0);
+			ship.setVerticalMovement(0);
 
 			if ((leftPressed) && (!rightPressed)) {
 				ship.setHorizontalMovement(-moveSpeed);
@@ -378,10 +409,23 @@ public class Game extends Canvas
 				ship.setHorizontalMovement(moveSpeed);
 			}
 
+			if ((upPressed)&&(!downPressed)) {
+				ship.setVerticalMovement(-moveSpeed);
+			}
+			else if ((downPressed)&&(!upPressed)) {
+				ship.setVerticalMovement(moveSpeed);
+			}
+
 			// if we're pressing fire, attempt to fire
 			if (firePressed) {
 				tryToFire();
+
+				if (stageLevel >= bossStageLevel) {
+					shotShip();
+				}
+
 			}
+
 
 			// we want each frame to take 10 milliseconds, to do this
 			// we've recorded when we started the frame. We add 10 milliseconds
@@ -389,6 +433,13 @@ public class Game extends Canvas
 			// us our final value to wait for
 			SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
 		}
+
+
+
+
+
+
+
 	}
 	
 	/**
@@ -431,6 +482,12 @@ public class Game extends Canvas
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 				firePressed = true;
 			}
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				upPressed = true;
+			}
+			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+				downPressed = true;
+			}
 		} 
 		
 		/**
@@ -453,6 +510,12 @@ public class Game extends Canvas
 			}
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 				firePressed = false;
+			}
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				upPressed = false;
+			}
+			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+				downPressed = false;
 			}
 		}
 
@@ -501,6 +564,7 @@ public class Game extends Canvas
 		// Start the main game loop, note: this method will not
 		// return until the game has finished running. Hence we are
 		// using the actual main thread to run the game.
+
 		g.gameLoop();
 	}
 }
