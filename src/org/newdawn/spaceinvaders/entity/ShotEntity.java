@@ -14,6 +14,7 @@ public class ShotEntity extends Entity {
 	private Game game;
 	/** True if this shot has been "used", i.e. its hit something */
 	private boolean used = false;
+
 	
 	/**
 	 * Create a new shot from the player
@@ -45,6 +46,8 @@ public class ShotEntity extends Entity {
 			game.removeEntity(this);
 		}
 	}
+
+
 	
 	/**
 	 * Notification that this shot has collided with another
@@ -69,5 +72,14 @@ public class ShotEntity extends Entity {
 			game.notifyAlienKilled();
 			used = true;
 		}
+
+		if (other instanceof BossAlienEntity) {
+			// remove the affected entities
+			game.removeEntity(this);
+			used = true;
+			other.collidedWith(this);
+		}
+
+
 	}
 }
