@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import com.sun.xml.internal.bind.v2.TODO;
 import org.newdawn.spaceinvaders.entity.*;
 
 /**
@@ -149,6 +150,13 @@ public class Game extends Canvas
 
 
 		initEntities();
+
+//		TODO 시작 버튼 클릭 시 실행되게 조건 줘야 함
+		Music.mainAudioOn();
+
+		// 로그인 창 띄우기
+		Login.login();
+
 	}
 
 
@@ -284,6 +292,8 @@ public class Game extends Canvas
 		lastFire = System.currentTimeMillis();
 		ShotEntity shot = new ShotEntity(this,"sprites/shot.gif",ship.getX()+10,ship.getY()-30);
 		entities.add(shot);
+		// 총알 발사 시 효과음 재생
+		Music.shotAudio();
 	}
 
 	public void shotShip() {
