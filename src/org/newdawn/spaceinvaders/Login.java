@@ -1,6 +1,7 @@
 package org.newdawn.spaceinvaders;
 
 public class Login {
+    // 주석 추가
     public void login(){
         System.out.println("helloworld!");
     }
