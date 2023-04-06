@@ -17,6 +17,9 @@ public class Window extends JPanel implements ActionListener {
 
     ImageIcon btnImage[];
 
+    Toolkit toolkit = Toolkit.getDefaultToolkit();
+    Dimension screenSize = toolkit.getScreenSize();
+
 
 
     public Window() {
@@ -26,6 +29,7 @@ public class Window extends JPanel implements ActionListener {
         //panel = new JPanel();
         panel.setLayout(null);
         panel.setPreferredSize(new Dimension(800,600));
+        jFrame.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
 
         // setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
         setBounds(0,0,800,600);

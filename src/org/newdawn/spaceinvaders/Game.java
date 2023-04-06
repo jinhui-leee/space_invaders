@@ -147,7 +147,8 @@ public class Game extends Canvas
 
 		
 		// add a listener to respond to the user closing the window. If they
-		// do we'd like to exit the game
+		// do we'd like to exit the gameㅊ
+		// 소리도 꺼지게
 		container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 
@@ -169,7 +170,7 @@ public class Game extends Canvas
 
 		initEntities();
 
-//		TODO 시작 버튼 클릭 시 실행되게 조건 줘야 함
+		// 배경 음악 재생
 		Music.mainAudioOn();
 
 		// 로그인 창 띄우기
