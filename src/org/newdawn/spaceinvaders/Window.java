@@ -10,6 +10,9 @@ import java.net.URL;
 
 public class Window extends JPanel implements ActionListener {
 
+    enum GameState {MAIN_MENU, DESCRIPTION, THEME, CHARACTER, RANKING}
+    GameState gameState;
+
     private JFrame frame;
     private JLabel label;
 
@@ -72,12 +75,29 @@ public class Window extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        //게임시작
         if (e.getSource() == btn[0]) {
 
             Game game = new Game();
             game.requestFocus();
-            Thread gameThread = new Thread(() -> game.gameLoop());
+            Thread gameThread = new Thread(game::gameLoop);
             gameThread.start();
+        }
+        //게임설명
+        else if (e.getSource() == btn[1]) {
+
+        }
+        //테마설정
+        else if (e.getSource() == btn[2]) {
+
+        }
+        //캐릭터설정
+        else if (e.getSource() == btn[3]) {
+
+        }
+        //랭킹보기
+        else if (e.getSource() == btn[4]) {
+
         }
     }
 }

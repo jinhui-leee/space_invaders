@@ -96,6 +96,9 @@ public class Game extends Canvas
 
 	private int bossStageLevel = 5;
 
+	Toolkit toolkit = Toolkit.getDefaultToolkit();
+	Dimension screenSize = toolkit.getScreenSize();
+
 
 
 	/**
@@ -112,6 +115,7 @@ public class Game extends Canvas
 		//panel = new JPanel();
 		panel.setLayout(null);
 		panel.setPreferredSize(new Dimension(800,600));
+		container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
 
 		// setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
 		setBounds(0,0,800,600);
@@ -149,6 +153,7 @@ public class Game extends Canvas
 
 
 		initEntities();
+		Music.mainAudioOn();
 	}
 
 
@@ -284,6 +289,7 @@ public class Game extends Canvas
 		lastFire = System.currentTimeMillis();
 		ShotEntity shot = new ShotEntity(this,"sprites/shot.gif",ship.getX()+10,ship.getY()-30);
 		entities.add(shot);
+		Music.shotAudio();
 	}
 
 	public void shotShip() {
