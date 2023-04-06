@@ -97,6 +97,8 @@ public class Game extends Canvas
 
 	private int bossStageLevel = 5;
 
+	Toolkit toolkit = Toolkit.getDefaultToolkit();
+	Dimension screenSize = toolkit.getScreenSize();
 
 
 	/**
@@ -113,6 +115,22 @@ public class Game extends Canvas
 		//panel = new JPanel();
 		panel.setLayout(null);
 		panel.setPreferredSize(new Dimension(800,600));
+		container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
+
+		// 소리 끄기
+		// 이미지 로드
+		ImageIcon audioOn = new ImageIcon("src/sprites/audioOn.png");
+		ImageIcon audioOff = new ImageIcon("src/sprites/audioOff.png");
+		Image img = audioOn.getImage();
+
+		// 이미지 크기 변경
+		Image changeImg = img.getScaledInstance(30,30, Image.SCALE_SMOOTH);
+		ImageIcon changeIcon = new ImageIcon(changeImg);
+
+		// 버튼 생성
+		JButton AudioBtn = new JButton(changeIcon);
+		AudioBtn.setBounds(753,20,30,30);
+		panel.add(AudioBtn);
 
 		// setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
 		setBounds(0,0,800,600);

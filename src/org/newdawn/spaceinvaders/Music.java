@@ -1,21 +1,14 @@
 package org.newdawn.spaceinvaders;
 
 import java.io.File;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class Music {
     public static void mainAudioOn(){
 
         try {
-            File file = new File("src/Game.wav");
+            File file = new File("src/audio/Game.wav");
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(file));
             clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -27,7 +20,7 @@ public class Music {
     }
     public static void shotAudio(){
         try {
-            File file = new File("src/shot.wav");
+            File file = new File("src/audio/shot.wav");
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(file));
 //            clip.loop(Clip.LOOP_CONTINUOUSLY);
