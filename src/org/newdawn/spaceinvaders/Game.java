@@ -94,7 +94,7 @@ public class Game extends Canvas
 	/**스테이지 레벨*/
 	private int stageLevel = 0;
 
-	private int bossStageLevel = 5;
+	private int bossStageLevel = 1;
 
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
@@ -431,7 +431,7 @@ public class Game extends Canvas
 			if (firePressed) {
 				tryToFire();
 
-				if (stageLevel >= bossStageLevel) {
+				if ((stageLevel >= bossStageLevel) && (!waitingForKeyPress)) {
 					shotShip();
 				}
 

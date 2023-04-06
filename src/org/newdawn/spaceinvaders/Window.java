@@ -1,103 +1,50 @@
 package org.newdawn.spaceinvaders;
 
+import javafx.scene.layout.BackgroundImage;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class Window extends JPanel implements ActionListener {
+public class Window extends JFrame {
 
-    enum GameState {MAIN_MENU, DESCRIPTION, THEME, CHARACTER, RANKING}
-    GameState gameState;
+    public Window()
+    {
+        // Sets the title for this frame.
+        this.setTitle("Space Invaders Main Menu");
 
-    private JFrame frame;
-    private JLabel label;
-
-    JButton btn[];
-
-    ImageIcon btnImage[];
-
-
-
-    public Window() {
-        JFrame jFrame = new JFrame("Space Invaders Main Menu");
-        JPanel panel = (JPanel) jFrame.getContentPane();
-
-        //panel = new JPanel();
-        panel.setLayout(null);
-        panel.setPreferredSize(new Dimension(800,600));
-
-        // setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
-        setBounds(0,0,800,600);
-        panel.add(this);
-        setLayout(new BorderLayout());
-
-        // 이미지를 배경으로 설정
-        URL backgroundUrl = getClass().getResource("/sprites/background1.png");
-        ImageIcon image = new ImageIcon(backgroundUrl);
-        label = new JLabel(image);
-        add(label);
-
-        btnImage = new ImageIcon[5];
-
-        URL btnImageUrl[] = new URL[5];
-        btnImageUrl[0] = getClass().getResource("/sprites/btn1.png");
-        btnImageUrl[1] = getClass().getResource("/sprites/btn2.png");
-        btnImageUrl[2] = getClass().getResource("/sprites/btn3.png");
-        btnImageUrl[3] = getClass().getResource("/sprites/btn4.png");
-        btnImageUrl[4] = getClass().getResource("/sprites/btn5.png");
-
-        btn = new JButton[5];
-
-        for (int i = 0; i < 5; i++) {
-            btnImage[i] = new ImageIcon(btnImageUrl[i]);
-            btn[i] = new JButton(btnImage[i]);
-            btn[i].setBounds(110 + 120 * i, 450, 100, 40);
-            btn[i].addActionListener(this);
-            label.add(btn[i]);
-            btn[i].setVisible(true);
-
+        // Sets size of the frame.
+        if(false) // Full screen mode
+        {
+            // Disables decorations for this frame.
+            this.setUndecorated(true);
+            // Puts the frame to full screen.
+            this.setExtendedState(this.MAXIMIZED_BOTH);
+        }
+        else // Window mode
+        {
+            // Size of the frame.
+            this.setSize(800, 600);
+            // Puts frame to center of the screen.
+            this.setLocationRelativeTo(null);
+            // So that frame cannot be resizable by the user.
+            this.setResizable(false);
         }
 
-        jFrame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                System.exit(0); //윈도우 닫히면 종료
-            }
-        });
+        // Exit the application when user close frame.
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        jFrame.pack();
-        jFrame.setResizable(false);
-        jFrame.setVisible(true);
-    }
+        this.setContentPane(new Framework());
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        //게임시작
-        if (e.getSource() == btn[0]) {
-
-            Game game = new Game();
-            game.requestFocus();
-            Thread gameThread = new Thread(game::gameLoop);
-            gameThread.start();
-        }
-        //게임설명
-        else if (e.getSource() == btn[1]) {
-
-        }
-        //테마설정
-        else if (e.getSource() == btn[2]) {
-
-        }
-        //캐릭터설정
-        else if (e.getSource() == btn[3]) {
-
-        }
-        //랭킹보기
-        else if (e.getSource() == btn[4]) {
-
-        }
+        this.setVisible(true);
     }
 }
