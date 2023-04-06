@@ -97,7 +97,7 @@ public class Game extends Canvas
 	/**스테이지 레벨*/
 	private int stageLevel = 0;
 
-	private int bossStageLevel = 0;
+	private int bossStageLevel = 5;
 
 
 
@@ -133,6 +133,8 @@ public class Game extends Canvas
 		// add a listener to respond to the user closing the window. If they
 		// do we'd like to exit the game
 		container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
 
 
 		// add a key input system (defined below) to our canvas
@@ -233,6 +235,7 @@ public class Game extends Canvas
 	 */
 	public void notifyDeath() {
 		message = "Oh no! They got you, try again?";
+		stageLevel = 0;
 		waitingForKeyPress = true;
 	}
 	
@@ -294,11 +297,6 @@ public class Game extends Canvas
 		}
 
 	}
-
-	private void onFullScreenButtonClicked() {
-		container.setExtendedState(JFrame.MAXIMIZED_BOTH);
-	}
-
 
 	
 	/**
@@ -547,7 +545,6 @@ public class Game extends Canvas
 					// event we can mark it as such and start 
 					// our new game
 					waitingForKeyPress = false;
-					System.out.println("pressCount = " + pressCount);
 					startGame();
 					pressCount = 0;
 				} else {
