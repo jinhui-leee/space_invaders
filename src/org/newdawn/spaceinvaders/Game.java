@@ -33,9 +33,6 @@ public class Game extends Canvas
 	/** The stragey that allows us to use accelerate page flipping */
 	private BufferStrategy strategy;
 
-	public static enum GameState{STARTING, MAIN_MENU, OPTIONS, PLAYING, GAME_OVER, STORE, RANKING, }
-	public static GameState gameState;
-
 	/** True if the game is currently "running", i.e. the game loop is looping */
 	private boolean gameRunning = true;
 
