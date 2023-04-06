@@ -1,18 +1,15 @@
 package org.newdawn.spaceinvaders;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 import org.newdawn.spaceinvaders.entity.*;
 
@@ -31,7 +28,7 @@ import org.newdawn.spaceinvaders.entity.*;
  * 
  * @author Kevin Glass
  */
-public class Game extends Canvas 
+public class Game extends Canvas
 {
 	/** The stragey that allows us to use accelerate page flipping */
 	private BufferStrategy strategy;
@@ -100,8 +97,8 @@ public class Game extends Canvas
 	/**스테이지 레벨*/
 	private int stageLevel = 0;
 
-	/** 0 : easy, 1 : normal, 2: hard*/
 	private int bossStageLevel = 0;
+
 
 
 	/**
@@ -112,35 +109,37 @@ public class Game extends Canvas
 		container = new JFrame("Space Invaders 102");
 		
 		// get hold the content of the frame and set up the resolution of the game
+		//JPanel
 		JPanel panel = (JPanel) container.getContentPane();
-		panel.setPreferredSize(new Dimension(800,600));
+
+		//panel = new JPanel();
 		panel.setLayout(null);
-		
+		panel.setPreferredSize(new Dimension(800,600));
+
 		// setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
 		setBounds(0,0,800,600);
 		panel.add(this);
-		
+
+
 		// Tell AWT not to bother repainting our canvas since we're
 		// going to do that our self in accelerated mode
-		setIgnoreRepaint(true);
-		
-		// finally make the window visible 
+		//setIgnoreRepaint(true);
 		container.pack();
 		container.setResizable(false);
 		container.setVisible(true);
 		
+
+		
 		// add a listener to respond to the user closing the window. If they
 		// do we'd like to exit the game
-		container.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				System.exit(0); //윈도우 닫히면 종료
-			}
-		});
-		
+		container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
 		// add a key input system (defined below) to our canvas
 		// so we can respond to key pressed
 		addKeyListener(new KeyInputHandler());
-		
+
+
 		// request the focus so key events come to us
 		requestFocus();
 
@@ -148,12 +147,19 @@ public class Game extends Canvas
 		// to manage our accelerated graphics
 		createBufferStrategy(2);
 		strategy = getBufferStrategy();
-		
-		// initialise the entities in our game so there's something
-		// to see at startup
+
+
 		initEntities();
 	}
-	
+
+
+
+	public void requestFocus() {
+		container.requestFocus();
+	}
+
+
+
 	/**
 	 * Start a fresh game, this should clear out any old data and
 	 * create a new set.
@@ -289,6 +295,10 @@ public class Game extends Canvas
 
 	}
 
+	private void onFullScreenButtonClicked() {
+		container.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	}
+
 
 	
 	/**
@@ -336,7 +346,7 @@ public class Game extends Canvas
 			g.fillRect(0,0,800,600);
 
 			// cycle round asking each entity to move itself
-			//아무 키나 입력받았다면, 적 무리 만들고 움직이게 하기
+			//, 적 무리 만들고 움직이게 하기
 			if (!waitingForKeyPress) {
 				for (int i=0; i<entities.size(); i++) {
 					//i번째 entities 가져온다
@@ -537,6 +547,7 @@ public class Game extends Canvas
 					// event we can mark it as such and start 
 					// our new game
 					waitingForKeyPress = false;
+					System.out.println("pressCount = " + pressCount);
 					startGame();
 					pressCount = 0;
 				} else {
@@ -550,6 +561,8 @@ public class Game extends Canvas
 			}
 		}
 	}
+
+
 	
 	/**
 	 * The entry point into the game. We'll simply create an
@@ -559,12 +572,13 @@ public class Game extends Canvas
 	 * @param argv The arguments that are passed into our game
 	 */
 	public static void main(String argv[]) {
-		Game g = new Game();
+		//Game g = new Game();
 
 		// Start the main game loop, note: this method will not
 		// return until the game has finished running. Hence we are
 		// using the actual main thread to run the game.
 
-		g.gameLoop();
+		//g.gameLoop();
+		Window w = new Window();
 	}
 }
