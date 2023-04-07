@@ -12,14 +12,14 @@ public class ItemEntity extends Entity{
     private Game game;
 
 
-    public ItemEntity(Game game,String ref,int x,int y){
-        super(ref,x,y);
+    public ItemEntity(Game game,String ref){
+        super(ref,0,0);
         this.game=game;
 
-        //int x=400;//(int)(random()*500)+100;
-        //int y=300;//(int)(random()*300)+200;
-        //setX(x);
-        //setY(y);
+        int x = (int)(Math.random() * (game.getWidth() - sprite.getWidth()));
+        int y = (int)(Math.random() * (game.getHeight() - sprite.getHeight()));
+        super.setLocation(x, y);
+
 
     }
 

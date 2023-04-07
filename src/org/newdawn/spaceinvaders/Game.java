@@ -185,7 +185,7 @@ public class Game extends Canvas
 		// create the player ship and place it roughly in the center of the screen
 		ship = new ShipEntity(this,"sprites/ship.gif",370,550);
 		entities.add(ship);
-		item=new ItemEntity(this,"sprites/item.gif",170,400);
+		item=new ItemEntity(this,"sprites/item.gif");
 		entities.add(item);
 		
 		// create a block of aliens (5 rows, by 12 aliens, spaced evenly)
