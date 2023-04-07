@@ -137,7 +137,7 @@ public class Framework extends JPanel implements ActionListener {
         }
 
         for(int i=5; i<7; i++) {
-            btn[i].setBounds(380 + (i-6)*40, 350, 150, 80);
+            btn[i].setBounds(230 + (i-5)*190, 350, 150, 80);
             this.add(btn[i]);
             btn[i].setVisible(true);
         }
@@ -159,7 +159,7 @@ public class Framework extends JPanel implements ActionListener {
             }
 
             for(int i=5; i<7; i++) {
-                btn[i].setBounds(380 + (i-6)*40, 350, 150, 80);
+                btn[i].setBounds(230 + (i-5)*190, 350, 150, 80);
             }
 
             for (int i=0; i<7; i++) {
@@ -312,11 +312,11 @@ public class Framework extends JPanel implements ActionListener {
         }
         //로그인
         else if (e.getSource() == btn[5]) {
-
+            Login.login();
         }
         //회원가입
         else if (e.getSource() == btn[6]) {
-
+            Register.register();
         }
 
         //뒤로가기
