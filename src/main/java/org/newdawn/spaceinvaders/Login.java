@@ -1,5 +1,9 @@
 package org.newdawn.spaceinvaders;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -76,6 +80,8 @@ public class Login {
         login.setResizable(false);
         login.setVisible(true);
 
+
+
         //로그인 버튼을 눌렀을때
         loginbtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -131,4 +137,5 @@ public class Login {
             }
         });
     }
+
 }

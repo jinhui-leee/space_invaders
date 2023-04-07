@@ -37,7 +37,7 @@ public class Window extends JPanel implements ActionListener {
         setLayout(new BorderLayout());
 
         // 이미지를 배경으로 설정
-        URL backgroundUrl = getClass().getResource("/sprites/background1.png");
+        URL backgroundUrl = getClass().getResource("src/main/java/sprites/background1.png");
         ImageIcon image = new ImageIcon(backgroundUrl);
         label = new JLabel(image);
         add(label);
