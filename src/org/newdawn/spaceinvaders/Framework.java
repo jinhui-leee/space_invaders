@@ -19,7 +19,15 @@ public class Framework extends JPanel implements ActionListener {
 
     JButton[] btn;
 
+    JButton[] themeBtn;
+
+    JButton[] characterBtn;
+
     ImageIcon[] btnImage;
+
+    ImageIcon[] themeBtnImage;
+
+    ImageIcon[] characterBtnImage;
 
     BufferedImage[] backgroundImage;
 
@@ -71,15 +79,15 @@ public class Framework extends JPanel implements ActionListener {
             backgroundImage[1] = ImageIO.read(descriptionUrl);
 
             //테마설정 배경
-            URL themeUrl = this.getClass().getResource("/sprites/description.png");
+            URL themeUrl = this.getClass().getResource("/sprites/background_d.png");
             backgroundImage[2] = ImageIO.read(themeUrl);
 
             //캐릭터설정 배경
-            URL characterUrl = this.getClass().getResource("/sprites/description.png");
+            URL characterUrl = this.getClass().getResource("/sprites/background_d.png");
             backgroundImage[3] = ImageIO.read(characterUrl);
 
             //랭킹보기 배경
-            URL rankingUrl = this.getClass().getResource("/sprites/description.png");
+            URL rankingUrl = this.getClass().getResource("/sprites/background_d.png");
             backgroundImage[4] = ImageIO.read(rankingUrl);
 
 
@@ -91,18 +99,19 @@ public class Framework extends JPanel implements ActionListener {
 
 
 
-        btnImage = new ImageIcon[6];
-        btn = new JButton[6];
+        btnImage = new ImageIcon[8];
+        btn = new JButton[8];
 
 
-        URL[] btnImageUrl = new URL[6];
+        URL[] btnImageUrl = new URL[8];
         btnImageUrl[0] = getClass().getResource("/sprites/btn1.png");
         btnImageUrl[1] = getClass().getResource("/sprites/btn2.png");
         btnImageUrl[2] = getClass().getResource("/sprites/btn3.png");
         btnImageUrl[3] = getClass().getResource("/sprites/btn4.png");
         btnImageUrl[4] = getClass().getResource("/sprites/btn5.png");
         btnImageUrl[5] = getClass().getResource("/sprites/btn6.png");
-
+        btnImageUrl[6] = getClass().getResource("/sprites/btn7.png");
+        btnImageUrl[7] = getClass().getResource("/sprites/btn7.png");
 
 
         for (int i = 0; i < btn.length; i++) {
@@ -123,8 +132,11 @@ public class Framework extends JPanel implements ActionListener {
     /**
      * 메인 화면 버튼 관리*/
     public void btnManager() {
+        //다른 곳의 버튼 없애기 + 메인화면에서 버튼 만들기
         if (gameState == GameState.MAIN_MENU) {
             btn[5].setVisible(false);
+            btn[6].setVisible(false);
+            btn[7].setVisible(false);
             setLayout(null);
             for (int i=0; i<5; i++) {
                 btn[i].setBounds(110 + 120 * i, 450, 100, 40);
@@ -134,6 +146,7 @@ public class Framework extends JPanel implements ActionListener {
         }
         else
         {
+            //메인화면 버튼 없애기 + 뒤로가기 버튼 만들기
             for (int i=0; i<5; i++) btn[i].setVisible(false);
             setLayout(null);
             btn[5].setBounds(20, 15, 60, 60);
@@ -141,6 +154,17 @@ public class Framework extends JPanel implements ActionListener {
             btn[5].setVisible(true);
             btn[5].setContentAreaFilled(false);
             btn[5].setBorderPainted(false);
+
+            if (gameState == GameState.THEME) {
+                btn[6].setBounds(350, 450, 100, 40);
+                add(btn[6]);
+                btn[6].setVisible(true);
+            }
+            else if (gameState == GameState.CHARACTER) {
+                btn[7].setBounds(350, 450, 100, 40);
+                add(btn[7]);
+                btn[7].setVisible(true);
+            }
         }
     }
 
@@ -263,10 +287,20 @@ public class Framework extends JPanel implements ActionListener {
             gameState = GameState.RANKING;
             btnManager();
         }
+        //뒤로가기
         else if (e.getSource() == btn[5]) {
             gameState = GameState.MAIN_MENU;
             btnManager();
-
+        }
+        //테마 선택
+        else if (e.getSource() == btn[6]) {
+            gameState = GameState.MAIN_MENU;
+            btnManager();
+        }
+        //캐릭터선택
+        else if (e.getSource() == btn[7]) {
+            gameState = GameState.MAIN_MENU;
+            btnManager();
         }
 
 
