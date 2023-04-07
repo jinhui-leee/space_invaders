@@ -42,25 +42,34 @@ public class Window extends JPanel implements ActionListener {
         label = new JLabel(image);
         add(label);
 
-        btnImage = new ImageIcon[5];
+        btnImage = new ImageIcon[7];
 
-        URL btnImageUrl[] = new URL[5];
+        URL btnImageUrl[] = new URL[7];
         btnImageUrl[0] = getClass().getResource("/sprites/btn1.png");
         btnImageUrl[1] = getClass().getResource("/sprites/btn2.png");
         btnImageUrl[2] = getClass().getResource("/sprites/btn3.png");
         btnImageUrl[3] = getClass().getResource("/sprites/btn4.png");
         btnImageUrl[4] = getClass().getResource("/sprites/btn5.png");
+        btnImageUrl[5] = getClass().getResource("/sprites/btn6.png");
+        btnImageUrl[6] = getClass().getResource("/sprites/btn7.png");
 
-        btn = new JButton[5];
+        btn = new JButton[7];
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 7; i++) {
             btnImage[i] = new ImageIcon(btnImageUrl[i]);
             btn[i] = new JButton(btnImage[i]);
-            btn[i].setBounds(110 + 120 * i, 450, 100, 40);
+            if(i<=4) {
+                btn[i].setBounds(110 + 120 * i, 450, 100, 40);
+            }
+            if(i==5){
+                btn[5].setBounds(250,520,100,40);
+            }
+            if(i==6){
+                btn[6].setBounds(450,520,100,40);
+            }
             btn[i].addActionListener(this);
             label.add(btn[i]);
             btn[i].setVisible(true);
-
         }
 
         jFrame.addWindowListener(new WindowAdapter() {
@@ -76,12 +85,21 @@ public class Window extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        // 게임 시작 버튼 클릭 시 게임 화면 뜸
         if (e.getSource() == btn[0]) {
-
             Game game = new Game();
+            game.setVisible(true);
             game.requestFocus();
             Thread gameThread = new Thread(() -> game.gameLoop());
             gameThread.start();
+        }
+        // 로그인 버튼 클릭 시 로그인 화면 뜸
+        else if(e.getSource() == btn[5]){
+            Login.login();
+        }
+        // 회원가입 버튼 클릭 시 회원가입 화면 뜸
+        else if(e.getSource() == btn[6]){
+            Register.register();
         }
     }
 }
