@@ -168,6 +168,7 @@ public class Game extends Canvas
 		// clear out any existing entities and intialise a new set
 		entities.clear();
 		initEntities();
+		CreateitemEntities();
 		
 		// blank out any keyboard settings we might currently have
 		leftPressed = false;
@@ -185,8 +186,7 @@ public class Game extends Canvas
 		// create the player ship and place it roughly in the center of the screen
 		ship = new ShipEntity(this,"sprites/ship.gif",370,550);
 		entities.add(ship);
-		item=new ItemEntity(this,"sprites/item.gif");
-		entities.add(item);
+
 		
 		// create a block of aliens (5 rows, by 12 aliens, spaced evenly)
 		if (stageLevel < bossStageLevel) {
@@ -208,6 +208,11 @@ public class Game extends Canvas
 
 			alienCount++;
 		}
+
+	}
+	private void CreateitemEntities(){
+		item=new ItemEntity(this,"sprites/item.gif");
+		entities.add(item);
 
 	}
 	
