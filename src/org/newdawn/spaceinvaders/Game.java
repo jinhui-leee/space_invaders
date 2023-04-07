@@ -3,29 +3,26 @@ package org.newdawn.spaceinvaders;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import org.newdawn.spaceinvaders.entity.*;
 
+import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
+
 /**
  * The main hook of our game. This class with both act as a manager
- * for the display and central mediator for the game logic. 
- * 
+ * for the display and central mediator for the game logic.
+ *
  * Display management will consist of a loop that cycles round all
  * entities in the game asking them to move and then drawing them
  * in the appropriate place. With the help of an inner class it
  * will also allow the player to control the main ship.
- * 
+ *
  * As a mediator it will be informed when entities within our game
  * detect events (e.g. alient killed, played died) and will take
  * appropriate game actions.
- * 
+ *
  * @author Kevin Glass
  */
 public class Game extends Canvas implements ActionListener, WindowListener
@@ -56,7 +53,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 	/** The number of aliens left on the screen */
 	private int alienCount;
-	
+
 	/** The message to display which waiting for a key press */
 	private String message = "";
 
@@ -99,8 +96,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
 
-	Music music;
+	private JButton audioBtn;
 
+	private Music music;
+
+	private ImageIcon changeIconAudioOff;
+	private ImageIcon changeIconAudioOn;
 
 
 	/**
@@ -109,7 +110,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	public Game() {
 		// create a frame to contain our game
 		container = new JFrame("Space Invaders 102");
-		
+
 		// get hold the content of the frame and set up the resolution of the game
 		//JPanel
 		JPanel panel = (JPanel) container.getContentPane();
@@ -117,20 +118,46 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		//panel = new JPanel();
 		panel.setLayout(null);
 		panel.setPreferredSize(new Dimension(800,600));
-		container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
-
-		music = new Music();
-		music.playMusic();
 
 		// setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
 		setBounds(0,0,800,600);
+		container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
+
+		// Music 객체 받아오고 재생
+		music = new Music();
+		music.playMusic();
+		System.out.print(music.isPlaying());
+
+		// 음악 재생 및 정지
+		// 이미지 로드
+		ImageIcon audioOn = new ImageIcon("src/sprites/audioOn.png");
+		ImageIcon audioOff = new ImageIcon("src/sprites/audioOff.png");
+		Image imgAudioOff = audioOff.getImage();
+		Image imgAudioOn = audioOn.getImage();
+
+		// 이미지 크기 변경
+		Image changeImgAudioOff = imgAudioOff.getScaledInstance(30,30, Image.SCALE_SMOOTH);
+		ImageIcon changeIconAudioOff = new ImageIcon(changeImgAudioOff);
+
+		Image changeAudioOn = imgAudioOn.getScaledInstance(30,30, Image.SCALE_SMOOTH);
+		ImageIcon changeIconAudioOn = new ImageIcon(changeAudioOn);
+
+		this.changeIconAudioOff = changeIconAudioOff;
+		this.changeIconAudioOn = changeIconAudioOn;
+
+		// 음악 재생 버튼 생성
+		audioBtn = new JButton(changeIconAudioOff);
+		audioBtn.setBounds(753,20,30,30);
+		audioBtn.addActionListener(this);
+		panel.add(audioBtn);
+
+		// 윈도우 리스너 이벤트 add
+		addWindowListener(this);
+
 
 
 
 		panel.add(this);
-
-
-
 
 
 		// Tell AWT not to bother repainting our canvas since we're
@@ -139,20 +166,14 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		container.pack();
 		container.setResizable(false);
 		container.setVisible(true);
-		
 
-		
 		// add a listener to respond to the user closing the window. If they
 		// do we'd like to exit the game
 		container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-
-
-
 		// add a key input system (defined below) to our canvas
 		// so we can respond to key pressed
 		addKeyListener(new KeyInputHandler());
-
 
 		// request the focus so key events come to us
 		requestFocus();
@@ -162,11 +183,66 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		createBufferStrategy(2);
 		strategy = getBufferStrategy();
 
-
 		initEntities();
 	}
 
+	// 음악 재생 및 정지
+	public void actionPerformed(ActionEvent e) {
+		// 오디오 버튼 클릭 시 이미지 변경 및 소리 조절
+		if (e.getSource() == audioBtn) {
+			if (music.isPlaying()) {
+				music.stopMusic();
+				System.out.print(music.isPlaying());
+				audioBtn.setIcon(this.changeIconAudioOn);
+			} else {
+				music.playMusic();
+				System.out.print(music.isPlaying());
+				audioBtn.setIcon(this.changeIconAudioOff);
+			}
+		}
+	}
+	@Override
+	public void windowOpened(WindowEvent e) {
+		// 윈도우 창이 열릴 때 처리할 내용
+//		music.playMusic();
+	}
 
+	@Override
+	public void windowClosing(WindowEvent e) {
+		// 윈도우 창이 닫힐 때 처리할 내용
+//		if (music != null) {
+		if (music.isPlaying()) {
+			music.stopMusic();
+//			audioBtn.setIcon(this.changeIconAudioOn);
+		}
+//			music.stopMusic();
+//		}
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		// 윈도우 창이 닫힌 후 처리할 내용
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// 윈도우 창이 최소화될 때 처리할 내용
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// 윈도우 창이 최소화에서 복원될 때 처리할 내용
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		// 윈도우 창이 활성화될 때 처리할 내용
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// 윈도우 창이 비활성화될 때 처리할 내용
+	}
 
 	public void requestFocus() {
 		container.requestFocus();
@@ -182,7 +258,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		// clear out any existing entities and intialise a new set
 		entities.clear();
 		initEntities();
-		
+
 		// blank out any keyboard settings we might currently have
 		leftPressed = false;
 		rightPressed = false;
@@ -190,7 +266,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		downPressed = false;
 		firePressed = false;
 	}
-	
+
 	/**
 	 * Initialise the starting state of the entities (ship and aliens). Each
 	 * entitiy will be added to the overall list of entities in the game.
@@ -199,7 +275,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		// create the player ship and place it roughly in the center of the screen
 		ship = new ShipEntity(this,"sprites/ship.gif",370,550);
 		entities.add(ship);
-		
+
 		// create a block of aliens (5 rows, by 12 aliens, spaced evenly)
 		if (stageLevel < bossStageLevel) {
 			alienCount = 0;
@@ -222,7 +298,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		}
 
 	}
-	
+
 	/**
 	 * Notification from a game entity that the logic of the game
 	 * should be run at the next opportunity (normally as a result of some
@@ -231,26 +307,26 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	public void updateLogic() {
 		logicRequiredThisLoop = true;
 	}
-	
+
 	/**
 	 * Remove an entity from the game. The entity removed will
 	 * no longer move or be drawn.
-	 * 
+	 *
 	 * @param entity The entity that should be removed
 	 */
 	public void removeEntity(Entity entity) {
 		removeList.add(entity);
 	}
-	
+
 	/**
-	 * Notification that the player has died. 
+	 * Notification that the player has died.
 	 */
 	public void notifyDeath() {
 		message = "Oh no! They got you, try again?";
 		stageLevel = 0;
 		waitingForKeyPress = true;
 	}
-	
+
 	/**
 	 * Notification that the player has won since all the aliens
 	 * are dead.
@@ -260,33 +336,33 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		waitingForKeyPress = true;
 		stageLevel++;
 	}
-	
+
 	/**
 	 * Notification that an alien has been killed
 	 */
 	public void notifyAlienKilled() {
 		// reduce the alient count, if there are none left, the player has won!
 		alienCount--;
-		
+
 		if (alienCount <= 0) {
 			notifyWin();
 		}
-		
+
 		// if there are still some aliens left then they all need to get faster, so
 		// speed up all the existing aliens
 		for (int i=0;i<entities.size();i++) {
 			Entity entity = (Entity) entities.get(i);
-			
+
 			if (entity instanceof AlienEntity) {
 				// speed up by 2%
 				entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02);
 			}
 		}
 	}
-	
+
 	/**
 	 * Attempt to fire a shot from the player. Its called "try"
-	 * since we must first check that the player can fire at this 
+	 * since we must first check that the player can fire at this
 	 * point, i.e. has he/she waited long enough between shots
 	 */
 	public void tryToFire() {
@@ -294,11 +370,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		if (System.currentTimeMillis() - lastFire < firingInterval) {
 			return;
 		}
-		
+
 		// if we waited long enough, create the shot entity, and record the time.
 		lastFire = System.currentTimeMillis();
 		ShotEntity shot = new ShotEntity(this,"sprites/shot.gif",ship.getX()+10,ship.getY()-30);
 		entities.add(shot);
+		// 총알 발사 시 효과음 재생
 		Music.shotAudio();
 	}
 
@@ -311,7 +388,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 	}
 
-	
+
 	/**
 	 * The main game loop. This loop is running during all game
 	 * play as is responsible for the following activities:
@@ -327,7 +404,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 		long lastLoopTime = SystemTimer.getTime();
-		
+
 		// keep looping round til the game ends
 
 		while (gameRunning) {
@@ -441,7 +518,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 			if (firePressed) {
 				tryToFire();
 
-				if ((stageLevel >= bossStageLevel) && (!waitingForKeyPress)) {
+				if (stageLevel >= bossStageLevel) {
 					shotShip();
 				}
 
@@ -463,77 +540,37 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-
-	}
-
-	@Override
-	public void windowOpened(WindowEvent e) {
-
-	}
-
-	@Override
-	public void windowClosing(WindowEvent e) {
-
-	}
-
-	@Override
-	public void windowClosed(WindowEvent e) {
-
-	}
-
-	@Override
-	public void windowIconified(WindowEvent e) {
-
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-
-	}
-
-	@Override
-	public void windowActivated(WindowEvent e) {
-
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent e) {
-
-	}
-
 	/**
 	 * A class to handle keyboard input from the user. The class
-	 * handles both dynamic input during game play, i.e. left/right 
+	 * handles both dynamic input during game play, i.e. left/right
 	 * and shoot, and more static type input (i.e. press any key to
 	 * continue)
-	 * 
-	 * This has been implemented as an inner class more through 
+	 *
+	 * This has been implemented as an inner class more through
 	 * habbit then anything else. Its perfectly normal to implement
 	 * this as seperate class if slight less convienient.
-	 * 
+	 *
 	 * @author Kevin Glass
 	 */
 	private class KeyInputHandler extends KeyAdapter {
 		/** The number of key presses we've had while waiting for an "any key" press */
 		private int pressCount = 1;
-		
+
 		/**
 		 * Notification from AWT that a key has been pressed. Note that
 		 * a key being pressed is equal to being pushed down but *NOT*
 		 * released. Thats where keyTyped() comes in.
 		 *
-		 * @param e The details of the key that was pressed 
+		 * @param e The details of the key that was pressed
 		 */
 		public void keyPressed(KeyEvent e) {
-			// if we're waiting for an "any key" typed then we don't 
+			// if we're waiting for an "any key" typed then we don't
 			// want to do anything with just a "press"
 			if (waitingForKeyPress) {
 				return;
 			}
-			
-			
+
+
 			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				leftPressed = true;
 			}
@@ -549,20 +586,20 @@ public class Game extends Canvas implements ActionListener, WindowListener
 			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 				downPressed = true;
 			}
-		} 
-		
+		}
+
 		/**
 		 * Notification from AWT that a key has been released.
 		 *
-		 * @param e The details of the key that was released 
+		 * @param e The details of the key that was released
 		 */
 		public void keyReleased(KeyEvent e) {
-			// if we're waiting for an "any key" typed then we don't 
+			// if we're waiting for an "any key" typed then we don't
 			// want to do anything with just a "released"
 			if (waitingForKeyPress) {
 				return;
 			}
-			
+
 			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				leftPressed = false;
 			}
@@ -584,7 +621,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		 * Notification from AWT that a key has been typed. Note that
 		 * typing a key means to both press and then release it.
 		 *
-		 * @param e The details of the key that was typed. 
+		 * @param e The details of the key that was typed.
 		 */
 		public void keyTyped(KeyEvent e) {
 			// if we're waiting for a "any key" type then
@@ -595,7 +632,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 			if (waitingForKeyPress) {
 				if (pressCount == 1) {
 					// since we've now recieved our key typed
-					// event we can mark it as such and start 
+					// event we can mark it as such and start
 					// our new game
 					waitingForKeyPress = false;
 					startGame();
@@ -604,7 +641,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 					pressCount++;
 				}
 			}
-			
+
 			// if we hit escape, then quit the game
 			if (e.getKeyChar() == 27) {
 				System.exit(0);
@@ -613,22 +650,22 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	}
 
 
-	
+
 	/**
 	 * The entry point into the game. We'll simply create an
 	 * instance of class which will start the display and game
 	 * loop.
-	 * 
+	 *
 	 * @param argv The arguments that are passed into our game
 	 */
 	public static void main(String argv[]) {
-		//Game g = new Game();
+//		Game g = new Game();
 
 		// Start the main game loop, note: this method will not
 		// return until the game has finished running. Hence we are
 		// using the actual main thread to run the game.
 
-		//g.gameLoop();
+//		g.gameLoop();
 		Window w = new Window();
 	}
 }
