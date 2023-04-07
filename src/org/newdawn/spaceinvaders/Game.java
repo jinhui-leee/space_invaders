@@ -44,6 +44,7 @@ public class Game extends Canvas
 
 	/** The entity representing the player */
 	private Entity ship;
+	private Entity item;
 
 	/** The speed at which the player's ship should move (pixels/sec) */
 	private double moveSpeed = 300;
@@ -184,6 +185,8 @@ public class Game extends Canvas
 		// create the player ship and place it roughly in the center of the screen
 		ship = new ShipEntity(this,"sprites/ship.gif",370,550);
 		entities.add(ship);
+		item=new ItemEntity(this,"sprites/item.gif",170,400);
+		entities.add(item);
 		
 		// create a block of aliens (5 rows, by 12 aliens, spaced evenly)
 		if (stageLevel < bossStageLevel) {
