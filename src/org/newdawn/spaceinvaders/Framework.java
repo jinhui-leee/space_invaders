@@ -10,8 +10,7 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Framework extends JPanel implements ActionListener, KeyListener, MouseListener {
-
+public class Framework extends JPanel implements ActionListener {
 
 
     enum GameState {STARTING, PLAYING, MAIN_MENU, DESCRIPTION, THEME, CHARACTER, RANKING}
@@ -19,8 +18,6 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
 
 
     JButton[] btn;
-
-    JButton backBtn;
 
     ImageIcon[] btnImage;
 
@@ -33,30 +30,17 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
         this.setDoubleBuffered(true);
         this.setFocusable(true);
 
-
-        // If you will draw your own mouse cursor or if you just want that mouse cursor disapear,
-        // insert "true" into if condition and mouse cursor will be removed.
-        if(false)
-        {
+        if(false) {
             BufferedImage blankCursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
             Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(blankCursorImg, new Point(0, 0), null);
             this.setCursor(blankCursor);
         }
 
-        // Adds the keyboard listener to JPanel to receive key events from this component.
-        this.addKeyListener(this);
-        // Adds the mouse listener to JPanel to receive mouse events from this component.
-        this.addMouseListener(this);
 
 
-
-
-        // setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
-        //setBounds(0,0,800,600);
 
 
         gameState = GameState.STARTING;
-
 
         Thread gameThread = new Thread() {
             @Override
@@ -78,11 +62,27 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
         backgroundImage = new BufferedImage[5];
 
         try {
+            //메인화면 배경
             URL backgroundUrl = this.getClass().getResource("/sprites/background1.png");
             backgroundImage[0] = ImageIO.read(backgroundUrl);
 
+            //게임설명 배경
             URL descriptionUrl = this.getClass().getResource("/sprites/description.png");
             backgroundImage[1] = ImageIO.read(descriptionUrl);
+
+            //테마설정 배경
+            URL themeUrl = this.getClass().getResource("/sprites/description.png");
+            backgroundImage[2] = ImageIO.read(themeUrl);
+
+            //캐릭터설정 배경
+            URL characterUrl = this.getClass().getResource("/sprites/description.png");
+            backgroundImage[3] = ImageIO.read(characterUrl);
+
+            //랭킹보기 배경
+            URL rankingUrl = this.getClass().getResource("/sprites/description.png");
+            backgroundImage[4] = ImageIO.read(rankingUrl);
+
+
 
         }
         catch (IOException e) {
@@ -109,15 +109,19 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
             btnImage[i] = new ImageIcon(btnImageUrl[i]);
             btn[i] = new JButton(btnImage[i]);
             btn[i].addActionListener(this);
+        }
+
+        for(int i=0; i<5; i++) {
             btn[i].setBounds(110 + 120 * i, 450, 100, 40);
             this.add(btn[i]);
             btn[i].setVisible(true);
-
         }
 
 
     }
 
+    /**
+     * 메인 화면 버튼 관리*/
     public void btnManager() {
         if (gameState == GameState.MAIN_MENU) {
             btn[5].setVisible(false);
@@ -148,6 +152,7 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
         Draw(g2d);
     }
 
+    /**스레드 */
     private void frameworkLoop() {
 
         while (true){
@@ -186,6 +191,8 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
         }
     }
 
+    /**
+     * 배경화면 그리기*/
     public void Draw(Graphics2D g2d) {
 
         switch (gameState) {
@@ -202,25 +209,27 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
                 break;
 
             case THEME:
-
+                g2d.drawImage(backgroundImage[2], 0, 0, 800, 600, null);
                 break;
 
             case CHARACTER:
+                g2d.drawImage(backgroundImage[3], 0, 0, 800, 600, null);
 
                 break;
 
             case RANKING:
-
+                g2d.drawImage(backgroundImage[4], 0, 0, 800, 600, null);
                 break;
 
             case STARTING:
-
                 break;
         }
 
     }
 
 
+    /**
+     * 버튼 이벤트 처리*/
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -241,15 +250,18 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
         //테마설정
         else if (e.getSource() == btn[2]) {
             gameState = GameState.THEME;
+            btnManager();
 
         }
         //캐릭터설정
         else if (e.getSource() == btn[3]) {
             gameState = GameState.CHARACTER;
+            btnManager();
         }
         //랭킹보기
         else if (e.getSource() == btn[4]) {
             gameState = GameState.RANKING;
+            btnManager();
         }
         else if (e.getSource() == btn[5]) {
             gameState = GameState.MAIN_MENU;
@@ -257,46 +269,6 @@ public class Framework extends JPanel implements ActionListener, KeyListener, Mo
 
         }
 
-
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
 
     }
 
