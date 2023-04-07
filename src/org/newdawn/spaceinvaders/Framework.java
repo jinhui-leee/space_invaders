@@ -99,19 +99,29 @@ public class Framework extends JPanel implements ActionListener {
 
 
 
-        btnImage = new ImageIcon[8];
-        btn = new JButton[8];
+        btnImage = new ImageIcon[10];
+        btn = new JButton[10];
 
 
-        URL[] btnImageUrl = new URL[8];
+        URL[] btnImageUrl = new URL[10];
+        //메인화면
         btnImageUrl[0] = getClass().getResource("/sprites/btn1.png");
         btnImageUrl[1] = getClass().getResource("/sprites/btn2.png");
         btnImageUrl[2] = getClass().getResource("/sprites/btn3.png");
         btnImageUrl[3] = getClass().getResource("/sprites/btn4.png");
         btnImageUrl[4] = getClass().getResource("/sprites/btn5.png");
+
+
+        //로그인 회원가입
         btnImageUrl[5] = getClass().getResource("/sprites/btn6.png");
         btnImageUrl[6] = getClass().getResource("/sprites/btn7.png");
-        btnImageUrl[7] = getClass().getResource("/sprites/btn7.png");
+
+        //뒤로가기
+        btnImageUrl[7] = getClass().getResource("/sprites/btn8.png");
+
+        //선택하기
+        btnImageUrl[8] = getClass().getResource("/sprites/btn9.png");
+        btnImageUrl[9] = getClass().getResource("/sprites/btn9.png");
 
 
         for (int i = 0; i < btn.length; i++) {
@@ -126,6 +136,12 @@ public class Framework extends JPanel implements ActionListener {
             btn[i].setVisible(true);
         }
 
+        for(int i=5; i<7; i++) {
+            btn[i].setBounds(380 + (i-6)*40, 350, 150, 80);
+            this.add(btn[i]);
+            btn[i].setVisible(true);
+        }
+
 
     }
 
@@ -134,12 +150,19 @@ public class Framework extends JPanel implements ActionListener {
     public void btnManager() {
         //다른 곳의 버튼 없애기 + 메인화면에서 버튼 만들기
         if (gameState == GameState.MAIN_MENU) {
-            btn[5].setVisible(false);
-            btn[6].setVisible(false);
             btn[7].setVisible(false);
+            btn[8].setVisible(false);
+            btn[9].setVisible(false);
             setLayout(null);
             for (int i=0; i<5; i++) {
                 btn[i].setBounds(110 + 120 * i, 450, 100, 40);
+            }
+
+            for(int i=5; i<7; i++) {
+                btn[i].setBounds(380 + (i-6)*40, 350, 150, 80);
+            }
+
+            for (int i=0; i<7; i++) {
                 this.add(btn[i]);
                 btn[i].setVisible(true);
             }
@@ -147,23 +170,23 @@ public class Framework extends JPanel implements ActionListener {
         else
         {
             //메인화면 버튼 없애기 + 뒤로가기 버튼 만들기
-            for (int i=0; i<5; i++) btn[i].setVisible(false);
+            for (int i=0; i<7; i++) btn[i].setVisible(false);
             setLayout(null);
-            btn[5].setBounds(20, 15, 60, 60);
-            add(btn[5]);
-            btn[5].setVisible(true);
-            btn[5].setContentAreaFilled(false);
-            btn[5].setBorderPainted(false);
+            btn[7].setBounds(20, 15, 60, 60);
+            add(btn[7]);
+            btn[7].setVisible(true);
+            btn[7].setContentAreaFilled(false);
+            btn[7].setBorderPainted(false);
 
             if (gameState == GameState.THEME) {
-                btn[6].setBounds(350, 450, 100, 40);
-                add(btn[6]);
-                btn[6].setVisible(true);
+                btn[8].setBounds(350, 450, 100, 40);
+                add(btn[8]);
+                btn[8].setVisible(true);
             }
             else if (gameState == GameState.CHARACTER) {
-                btn[7].setBounds(350, 450, 100, 40);
-                add(btn[7]);
-                btn[7].setVisible(true);
+                btn[8].setBounds(350, 450, 100, 40);
+                add(btn[8]);
+                btn[8].setVisible(true);
             }
         }
     }
@@ -287,18 +310,27 @@ public class Framework extends JPanel implements ActionListener {
             gameState = GameState.RANKING;
             btnManager();
         }
-        //뒤로가기
+        //로그인
         else if (e.getSource() == btn[5]) {
+
+        }
+        //회원가입
+        else if (e.getSource() == btn[6]) {
+
+        }
+
+        //뒤로가기
+        else if (e.getSource() == btn[7]) {
             gameState = GameState.MAIN_MENU;
             btnManager();
         }
         //테마 선택
-        else if (e.getSource() == btn[6]) {
+        else if (e.getSource() == btn[8]) {
             gameState = GameState.MAIN_MENU;
             btnManager();
         }
         //캐릭터선택
-        else if (e.getSource() == btn[7]) {
+        else if (e.getSource() == btn[9]) {
             gameState = GameState.MAIN_MENU;
             btnManager();
         }

@@ -28,7 +28,7 @@ import org.newdawn.spaceinvaders.entity.*;
  * 
  * @author Kevin Glass
  */
-public class Game extends Canvas
+public class Game extends Canvas implements ActionListener, WindowListener
 {
 	/** The stragey that allows us to use accelerate page flipping */
 	private BufferStrategy strategy;
@@ -99,6 +99,8 @@ public class Game extends Canvas
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
 
+	Music music;
+
 
 
 	/**
@@ -117,9 +119,18 @@ public class Game extends Canvas
 		panel.setPreferredSize(new Dimension(800,600));
 		container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
 
+		music = new Music();
+		music.playMusic();
+
 		// setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
 		setBounds(0,0,800,600);
+
+
+
 		panel.add(this);
+
+
+
 
 
 		// Tell AWT not to bother repainting our canvas since we're
@@ -153,7 +164,6 @@ public class Game extends Canvas
 
 
 		initEntities();
-		Music.mainAudioOn();
 	}
 
 
@@ -452,7 +462,47 @@ public class Game extends Canvas
 
 
 	}
-	
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+
+	}
+
 	/**
 	 * A class to handle keyboard input from the user. The class
 	 * handles both dynamic input during game play, i.e. left/right 
