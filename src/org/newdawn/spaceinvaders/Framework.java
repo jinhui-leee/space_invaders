@@ -10,7 +10,9 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Framework extends JPanel implements ActionListener {
+public class Framework extends JPanel implements ActionListener, MouseListener{
+
+
 
 
     enum GameState {STARTING, PLAYING, MAIN_MENU, DESCRIPTION, THEME, CHARACTER, RANKING}
@@ -29,7 +31,16 @@ public class Framework extends JPanel implements ActionListener {
 
     ImageIcon[] characterBtnImage;
 
-    BufferedImage[] backgroundImage;
+    BufferedImage[][] backgroundImage;
+
+    ImageIcon[] themeChoiceImage;
+
+    int themeChoice = 0;
+
+    int theme = 0;
+
+    JLabel []themeLabel;
+
 
 
 
@@ -67,41 +78,50 @@ public class Framework extends JPanel implements ActionListener {
 
     private void loadContent() {
 
-        backgroundImage = new BufferedImage[5];
+        //배경화면 생성
+        backgroundImage = new BufferedImage[9][5];
+        URL []backgroundUrl = new URL[9];
+
+        backgroundUrl[0] = this.getClass().getResource("/sprites/background1.png");
+        backgroundUrl[1] = this.getClass().getResource("/sprites/background2.png");
+        backgroundUrl[2] = this.getClass().getResource("/sprites/background3.png");
+        backgroundUrl[3] = this.getClass().getResource("/sprites/background4.png");
+        backgroundUrl[4] = this.getClass().getResource("/sprites/background5.png");
+        backgroundUrl[5] = this.getClass().getResource("/sprites/background6.png");
+        backgroundUrl[6] = this.getClass().getResource("/sprites/background7.png");
+        backgroundUrl[7] = this.getClass().getResource("/sprites/background8.png");
+        backgroundUrl[8] = this.getClass().getResource("/sprites/background9.png");
+
+
 
         try {
-            //메인화면 배경
-            URL backgroundUrl = this.getClass().getResource("/sprites/background1.png");
-            backgroundImage[0] = ImageIO.read(backgroundUrl);
+
+            for (int i=0; i<9; i++) backgroundImage[i][0] = ImageIO.read(backgroundUrl[i]);
 
             //게임설명 배경
             URL descriptionUrl = this.getClass().getResource("/sprites/description.png");
-            backgroundImage[1] = ImageIO.read(descriptionUrl);
+            backgroundImage[0][1] = ImageIO.read(descriptionUrl);
 
             //테마설정 배경
             URL themeUrl = this.getClass().getResource("/sprites/background_d.png");
-            backgroundImage[2] = ImageIO.read(themeUrl);
+            backgroundImage[0][2] = ImageIO.read(themeUrl);
 
             //캐릭터설정 배경
             URL characterUrl = this.getClass().getResource("/sprites/background_d.png");
-            backgroundImage[3] = ImageIO.read(characterUrl);
+            backgroundImage[0][3] = ImageIO.read(characterUrl);
 
             //랭킹보기 배경
             URL rankingUrl = this.getClass().getResource("/sprites/background_d.png");
-            backgroundImage[4] = ImageIO.read(rankingUrl);
-
-
-
+            backgroundImage[0][4] = ImageIO.read(rankingUrl);
         }
         catch (IOException e) {
             Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, e);
         }
 
 
-
+        //버튼 생성
         btnImage = new ImageIcon[10];
         btn = new JButton[10];
-
 
         URL[] btnImageUrl = new URL[10];
         //메인화면
@@ -110,7 +130,6 @@ public class Framework extends JPanel implements ActionListener {
         btnImageUrl[2] = getClass().getResource("/sprites/btn3.png");
         btnImageUrl[3] = getClass().getResource("/sprites/btn4.png");
         btnImageUrl[4] = getClass().getResource("/sprites/btn5.png");
-
 
         //로그인 회원가입
         btnImageUrl[5] = getClass().getResource("/sprites/btn6.png");
@@ -130,17 +149,49 @@ public class Framework extends JPanel implements ActionListener {
             btn[i].addActionListener(this);
         }
 
+
+        //테마 설정 이미지
+        themeChoiceImage = new ImageIcon[9];
+        URL []themeChoiceUrl = new URL[9];
+        themeLabel = new JLabel[9];
+
+
+        themeChoiceUrl[0] = getClass().getResource("/icon/themeIcon1.png");
+        themeChoiceUrl[1] = getClass().getResource("/icon/themeIcon2.png");
+        themeChoiceUrl[2] = getClass().getResource("/icon/themeIcon3.png");
+        themeChoiceUrl[3] = getClass().getResource("/icon/themeIcon4.png");
+        themeChoiceUrl[4] = getClass().getResource("/icon/themeIcon5.png");
+        themeChoiceUrl[5] = getClass().getResource("/icon/themeIcon6.png");
+        themeChoiceUrl[6] = getClass().getResource("/icon/themeIcon7.png");
+        themeChoiceUrl[7] = getClass().getResource("/icon/themeIcon8.png");
+        themeChoiceUrl[8] = getClass().getResource("/icon/themeIcon9.png");
+
+        for (int i=0; i<9; i++) {
+            themeChoiceImage[i] = new ImageIcon(themeChoiceUrl[i]);
+            themeLabel[i] = new JLabel(themeChoiceImage[i]);
+            if (i<5) themeLabel[i].setBounds(130 + 110*i, 200, 100, 100);
+            else themeLabel[i].setBounds(170 + 110*(i-5), 320, 100, 100);
+            themeLabel[i].addMouseListener(this);
+        }
+
+
+
+
+        //메인화면 버튼 생성
         for(int i=0; i<5; i++) {
             btn[i].setBounds(110 + 120 * i, 450, 100, 40);
             this.add(btn[i]);
             btn[i].setVisible(true);
         }
 
+
         for(int i=5; i<7; i++) {
             btn[i].setBounds(230 + (i-5)*190, 350, 150, 80);
             this.add(btn[i]);
             btn[i].setVisible(true);
         }
+
+
 
 
     }
@@ -153,6 +204,7 @@ public class Framework extends JPanel implements ActionListener {
             btn[7].setVisible(false);
             btn[8].setVisible(false);
             btn[9].setVisible(false);
+            for (int i=0; i<9; i++) themeLabel[i].setVisible(false);
             setLayout(null);
             for (int i=0; i<5; i++) {
                 btn[i].setBounds(110 + 120 * i, 450, 100, 40);
@@ -182,6 +234,10 @@ public class Framework extends JPanel implements ActionListener {
                 btn[8].setBounds(350, 450, 100, 40);
                 add(btn[8]);
                 btn[8].setVisible(true);
+
+                //테마 선택 행성 아이콘
+                for (int i=0; i<9; i++) add(themeLabel[i]);
+
             }
             else if (gameState == GameState.CHARACTER) {
                 btn[8].setBounds(350, 450, 100, 40);
@@ -247,25 +303,25 @@ public class Framework extends JPanel implements ActionListener {
                 break;
 
             case MAIN_MENU:
-                g2d.drawImage(backgroundImage[0], 0, 0, 800, 600, null);
+                g2d.drawImage(backgroundImage[theme][0], 0, 0, 800, 600, null);
                 break;
 
             case DESCRIPTION:
-                g2d.drawImage(backgroundImage[1], 0, 0, 800, 600, null);
+                g2d.drawImage(backgroundImage[theme][1], 0, 0, 800, 600, null);
 
                 break;
 
             case THEME:
-                g2d.drawImage(backgroundImage[2], 0, 0, 800, 600, null);
+                g2d.drawImage(backgroundImage[theme][2], 0, 0, 800, 600, null);
                 break;
 
             case CHARACTER:
-                g2d.drawImage(backgroundImage[3], 0, 0, 800, 600, null);
+                g2d.drawImage(backgroundImage[theme][3], 0, 0, 800, 600, null);
 
                 break;
 
             case RANKING:
-                g2d.drawImage(backgroundImage[4], 0, 0, 800, 600, null);
+                g2d.drawImage(backgroundImage[theme][4], 0, 0, 800, 600, null);
                 break;
 
             case STARTING:
@@ -326,6 +382,7 @@ public class Framework extends JPanel implements ActionListener {
         }
         //테마 선택
         else if (e.getSource() == btn[8]) {
+            theme = themeChoice;
             gameState = GameState.MAIN_MENU;
             btnManager();
         }
@@ -335,6 +392,60 @@ public class Framework extends JPanel implements ActionListener {
             btnManager();
         }
 
+
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+        if (e.getSource() == themeLabel[0]) {
+            themeChoice = 0;
+        }
+        else if (e.getSource() == themeLabel[1]) {
+            themeChoice = 1;
+        }
+        else if (e.getSource() == themeLabel[2]) {
+            themeChoice = 2;
+        }
+        else if (e.getSource() == themeLabel[3]) {
+            themeChoice = 3;
+        }
+        else if (e.getSource() == themeLabel[4]) {
+            themeChoice = 4;
+        }
+        else if (e.getSource() == themeLabel[5]) {
+            themeChoice = 5;
+        }
+        else if (e.getSource() == themeLabel[6]) {
+            themeChoice = 6;
+        }
+        else if (e.getSource() == themeLabel[7]) {
+            themeChoice = 7;
+        }
+        else if (e.getSource() == themeLabel[8]) {
+            themeChoice = 8;
+        }
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
 
     }
 

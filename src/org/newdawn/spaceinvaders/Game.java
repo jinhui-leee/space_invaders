@@ -91,7 +91,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	/**스테이지 레벨*/
 	private int stageLevel = 0;
 
-	private int bossStageLevel = 5;
+	private int bossStageLevel = 1;
 
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
@@ -126,7 +126,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		// Music 객체 받아오고 재생
 		music = new Music();
 		music.playMusic();
-		System.out.print(music.isPlaying());
 
 		// 음악 재생 및 정지
 		// 이미지 로드
@@ -194,10 +193,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
 				music.stopMusic();
 				System.out.print(music.isPlaying());
 				audioBtn.setIcon(this.changeIconAudioOn);
+				audioBtn.setFocusable(false);
 			} else {
 				music.playMusic();
 				System.out.print(music.isPlaying());
 				audioBtn.setIcon(this.changeIconAudioOff);
+				audioBtn.setFocusable(false);
+
 			}
 		}
 	}
@@ -518,7 +520,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 			if (firePressed) {
 				tryToFire();
 
-				if (stageLevel >= bossStageLevel) {
+				if (stageLevel >= bossStageLevel && !waitingForKeyPress) {
 					shotShip();
 				}
 
