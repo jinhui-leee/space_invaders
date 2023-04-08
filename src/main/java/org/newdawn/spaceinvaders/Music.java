@@ -13,7 +13,7 @@ public class Music {
 
     public void playMusic() {
         try {
-            File musicFile = new File("src/main/resources/audio/Game.wav");
+            File musicFile = new File("src/audio/Game.wav");
             AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicFile);
             clip = AudioSystem.getClip();
             clip.open(audioInput);
@@ -40,7 +40,7 @@ public class Music {
     }
     public static void shotAudio () {
         try {
-            File file = new File("src/main/resources/audio  /Shot.wav");
+            File file = new File("src/audio/Shot.wav");
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(file));
             clip.start();

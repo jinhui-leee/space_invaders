@@ -37,7 +37,7 @@ public class Window extends JPanel implements ActionListener {
         setLayout(new BorderLayout());
 
         // 이미지를 배경으로 설정
-        URL backgroundUrl = getClass().getResource("/images/background1.png");
+        URL backgroundUrl = getClass().getResource("src/main/java/sprites/background1.png");
         ImageIcon image = new ImageIcon(backgroundUrl);
         label = new JLabel(image);
         add(label);
@@ -45,13 +45,13 @@ public class Window extends JPanel implements ActionListener {
         btnImage = new ImageIcon[7];
 
         URL btnImageUrl[] = new URL[7];
-        btnImageUrl[0] = getClass().getResource("/images/btn1.png");
-        btnImageUrl[1] = getClass().getResource("/images/btn2.png");
-        btnImageUrl[2] = getClass().getResource("/images/btn3.png");
-        btnImageUrl[3] = getClass().getResource("/images/btn4.png");
-        btnImageUrl[4] = getClass().getResource("/images/btn5.png");
-        btnImageUrl[5] = getClass().getResource("/images/btn6.png");
-        btnImageUrl[6] = getClass().getResource("/images/btn7.png");
+        btnImageUrl[0] = getClass().getResource("/sprites/btn1.png");
+        btnImageUrl[1] = getClass().getResource("/sprites/btn2.png");
+        btnImageUrl[2] = getClass().getResource("/sprites/btn3.png");
+        btnImageUrl[3] = getClass().getResource("/sprites/btn4.png");
+        btnImageUrl[4] = getClass().getResource("/sprites/btn5.png");
+        btnImageUrl[5] = getClass().getResource("/sprites/btn6.png");
+        btnImageUrl[6] = getClass().getResource("/sprites/btn7.png");
 
         btn = new JButton[7];
 
@@ -99,8 +99,7 @@ public class Window extends JPanel implements ActionListener {
         }
         // 회원가입 버튼 클릭 시 회원가입 화면 뜸
         else if(e.getSource() == btn[6]){
-            Register register = new Register();
-            register.register();
+            Register.register();
         }
     }
 }
