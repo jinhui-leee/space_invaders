@@ -12,8 +12,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <firebase.version>8.0.0</firebase.version>
+        <firebase.version>9.1.1</firebase.version>
     </properties>
+    <!--    <repositories>-->
+    <!--        <repository>-->
+    <!--            <id>firebase</id>-->
+    <!--            <name>Firebase Repository</name>-->
+    <!--            <url>https://firebase.google.com/download/center</url>-->
+    <!--        </repository>-->
+    <!--    </repositories>-->
 
     <dependencies>
         <dependency>
@@ -21,10 +28,25 @@
             <artifactId>firebase-admin</artifactId>
             <version>${firebase.version}</version>
         </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.google.firebase</groupId>-->
+        <!--            <artifactId>firebase-database</artifactId>-->
+        <!--            <version>${firebase.version}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
             <version>0.26.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
         </dependency>
     </dependencies>
 
