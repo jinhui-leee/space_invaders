@@ -103,6 +103,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	private ImageIcon changeIconAudioOff;
 	private ImageIcon changeIconAudioOn;
 
+	long startTime;
+
+	long timeRecord;
+
 
 	/**
 	 * Construct our game and set it running.
@@ -324,7 +328,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 * Notification that the player has died.
 	 */
 	public void notifyDeath() {
-		message = "Oh no! They got you, try again?";
+		timeRecord = SystemTimer.getTime();
+		timeRecord = (timeRecord - startTime)/1000;
+		message = "Oh no! They got you, try again?" + " stage level : " + stageLevel + " time record : " + timeRecord + " s";
 		stageLevel = 0;
 		waitingForKeyPress = true;
 	}
@@ -334,7 +340,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 * are dead.
 	 */
 	public void notifyWin() {
-		message = "Well done! You Win!";
+		message = "Well done! You Win!\n" + "stage level : " + stageLevel + "time record : " ;
 		waitingForKeyPress = true;
 		stageLevel++;
 	}
@@ -404,7 +410,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 */
 	public void gameLoop() {
 
-
+		startTime = SystemTimer.getTime();
 		long lastLoopTime = SystemTimer.getTime();
 
 		// keep looping round til the game ends

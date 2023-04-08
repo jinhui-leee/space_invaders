@@ -92,19 +92,43 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         backgroundUrl[7] = this.getClass().getResource("/sprites/background8.png");
         backgroundUrl[8] = this.getClass().getResource("/sprites/background9.png");
 
+        //설명화면 생성
+        URL []descriptionUrl = new URL[9];
+
+        descriptionUrl[0] = this.getClass().getResource("/sprites/description.png");
+        descriptionUrl[1] = this.getClass().getResource("/sprites/description2.png");
+        descriptionUrl[2] = this.getClass().getResource("/sprites/description3.png");
+        descriptionUrl[3] = this.getClass().getResource("/sprites/description4.png");
+        descriptionUrl[4] = this.getClass().getResource("/sprites/description5.png");
+        descriptionUrl[5] = this.getClass().getResource("/sprites/description6.png");
+        descriptionUrl[6] = this.getClass().getResource("/sprites/description7.png");
+        descriptionUrl[7] = this.getClass().getResource("/sprites/description8.png");
+        descriptionUrl[8] = this.getClass().getResource("/sprites/description9.png");
+
+        URL []themeUrl = new URL[9];
+
+        themeUrl[0] = this.getClass().getResource("/sprites/background_d.png");
+        themeUrl[1] = this.getClass().getResource("/sprites/background_d2.png");
+        themeUrl[2] = this.getClass().getResource("/sprites/background_d3.png");
+        themeUrl[3] = this.getClass().getResource("/sprites/background_d4.png");
+        themeUrl[4] = this.getClass().getResource("/sprites/background_d5.png");
+        themeUrl[5] = this.getClass().getResource("/sprites/background_d6.png");
+        themeUrl[6] = this.getClass().getResource("/sprites/background_d7.png");
+        themeUrl[7] = this.getClass().getResource("/sprites/background_d8.png");
+        themeUrl[8] = this.getClass().getResource("/sprites/background_d9.png");
+
+
+
 
 
         try {
-
+            //메인화면 배경
             for (int i=0; i<9; i++) backgroundImage[i][0] = ImageIO.read(backgroundUrl[i]);
-
             //게임설명 배경
-            URL descriptionUrl = this.getClass().getResource("/sprites/description.png");
-            backgroundImage[0][1] = ImageIO.read(descriptionUrl);
-
+            for (int i=0; i<9; i++) backgroundImage[i][1] = ImageIO.read(descriptionUrl[i]);
             //테마설정 배경
-            URL themeUrl = this.getClass().getResource("/sprites/background_d.png");
-            backgroundImage[0][2] = ImageIO.read(themeUrl);
+            for (int i=0; i<9; i++) backgroundImage[i][2] = ImageIO.read(themeUrl[i]);
+
 
             //캐릭터설정 배경
             URL characterUrl = this.getClass().getResource("/sprites/background_d.png");
@@ -236,7 +260,10 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
                 btn[8].setVisible(true);
 
                 //테마 선택 행성 아이콘
-                for (int i=0; i<9; i++) add(themeLabel[i]);
+                for (int i=0; i<9; i++) {
+                    add(themeLabel[i]);
+                    themeLabel[i].setVisible(true);
+                }
 
             }
             else if (gameState == GameState.CHARACTER) {
