@@ -32,12 +32,12 @@ public class BossAlienEntity extends Entity{
      * @param y    The intial y location of this alient
      */
     public BossAlienEntity(Game game, int x, int y) {
-        super("images/ufo_boss_alien.png", x, y);
+        super("sprites/ufo_boss_alien.png", x, y);
 
         frames[0] = sprite;
-        frames[1] = SpriteStore.get().getSprite("images/ufo_boss_alien2.png");
+        frames[1] = SpriteStore.get().getSprite("sprites/ufo_boss_alien2.png");
         frames[2] = sprite;
-        frames[3] = SpriteStore.get().getSprite("images/ufo_boss_alien3.png");
+        frames[3] = SpriteStore.get().getSprite("sprites/ufo_boss_alien3.png");
 
         this.game = game;
         dx = -moveSpeed;
@@ -101,7 +101,7 @@ public class BossAlienEntity extends Entity{
         if (other instanceof ShotEntity) {
 
             life--;
-            sprite = SpriteStore.get().getSprite("src/main/sprites/ufo_boss_alien4.png");
+            sprite = SpriteStore.get().getSprite("sprites/ufo_boss_alien4.png");
 
             if (life < 0) {
                 game.removeEntity(this);

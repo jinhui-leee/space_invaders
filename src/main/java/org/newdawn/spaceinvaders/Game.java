@@ -6,8 +6,9 @@ import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import javax.swing.*;
 
-import com.sun.java.accessibility.util.AWTEventMonitor;
 import org.newdawn.spaceinvaders.entity.*;
+
+import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
 
 /**
  * The main hook of our game. This class with both act as a manager
@@ -129,8 +130,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 		// 음악 재생 및 정지
 		// 이미지 로드
-		ImageIcon audioOn = new ImageIcon("src/main/resources/images/audioOn.png");
-		ImageIcon audioOff = new ImageIcon("src/main/resources/images/audioOff.png");
+		ImageIcon audioOn = new ImageIcon("src/sprites/audioOn.png");
+		ImageIcon audioOff = new ImageIcon("src/sprites/audioOff.png");
 		Image imgAudioOff = audioOff.getImage();
 		Image imgAudioOn = audioOn.getImage();
 
@@ -151,7 +152,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		panel.add(audioBtn);
 
 		// 윈도우 리스너 이벤트 add
-		AWTEventMonitor.addWindowListener(this);
+		addWindowListener(this);
 
 
 
@@ -191,9 +192,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		if (e.getSource() == audioBtn) {
 			if (music.isPlaying()) {
 				music.stopMusic();
+				System.out.print(music.isPlaying());
 				audioBtn.setIcon(this.changeIconAudioOn);
 			} else {
 				music.playMusic();
+				System.out.print(music.isPlaying());
 				audioBtn.setIcon(this.changeIconAudioOff);
 			}
 		}
@@ -210,7 +213,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 //		if (music != null) {
 		if (music.isPlaying()) {
 			music.stopMusic();
-			audioBtn.setIcon(this.changeIconAudioOn);
+//			audioBtn.setIcon(this.changeIconAudioOn);
 		}
 //			music.stopMusic();
 //		}
@@ -270,7 +273,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 */
 	private void initEntities() {
 		// create the player ship and place it roughly in the center of the screen
-		ship = new ShipEntity(this, "images/ship.gif",370,550);
+		ship = new ShipEntity(this,"sprites/ship.gif",370,550);
 		entities.add(ship);
 
 		// create a block of aliens (5 rows, by 12 aliens, spaced evenly)
@@ -370,7 +373,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 		// if we waited long enough, create the shot entity, and record the time.
 		lastFire = System.currentTimeMillis();
-		ShotEntity shot = new ShotEntity(this, "images/shot.gif",ship.getX()+10,ship.getY()-30);
+		ShotEntity shot = new ShotEntity(this,"sprites/shot.gif",ship.getX()+10,ship.getY()-30);
 		entities.add(shot);
 		// 총알 발사 시 효과음 재생
 		Music.shotAudio();
@@ -379,7 +382,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	public void shotShip() {
 
 		for (int i=0; i<3; i++) {
-			BossShotEntity shot = new BossShotEntity(this, "images/stone_boss_shot.png",ship.getX()+(i*30-30),100);
+			BossShotEntity shot = new BossShotEntity(this,"sprites/stone_boss_shot.png",ship.getX()+(i*30-30),100);
 			entities.add(shot);
 		}
 
