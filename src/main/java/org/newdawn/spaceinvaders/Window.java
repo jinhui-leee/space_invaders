@@ -23,6 +23,8 @@ public class Window extends JPanel implements ActionListener {
 
 
     public Window() {
+        // 파이어베이스 애플리케이션 초기화
+        Firebase.initialize();
         JFrame jFrame = new JFrame("Space Invaders Main Menu");
         JPanel panel = (JPanel) jFrame.getContentPane();
 
@@ -95,7 +97,8 @@ public class Window extends JPanel implements ActionListener {
         }
         // 로그인 버튼 클릭 시 로그인 화면 뜸
         else if(e.getSource() == btn[5]){
-            Login.login();
+            Login login = new Login();
+            login.login();
         }
         // 회원가입 버튼 클릭 시 회원가입 화면 뜸
         else if(e.getSource() == btn[6]){
