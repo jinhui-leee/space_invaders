@@ -86,7 +86,12 @@
     <orderEntry type="library" name="Maven: io.netty:netty-resolver:4.1.84.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-transport-native-unix-common:4.1.84.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-transport:4.1.84.Final" level="project" />
-    <orderEntry type="library" name="Maven: com.google.firebase:firebase-database:9.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.google.firebase:firebase-database:19.7.0" level="project" />
+    <orderEntry type="library" name="Maven: androidx.annotation:annotation:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: androidx.collection:collection:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: androidx.lifecycle:lifecycle-common:2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: androidx.arch.core:core-common:2.0.0" level="project" />
+    <orderEntry type="library" name="Maven: com.google.firebase:firebase-annotations:16.0.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.auth:google-auth-library-oauth2-http:0.26.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.auto.value:auto-value-annotations:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:3.0.2" level="project" />
