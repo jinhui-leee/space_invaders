@@ -153,9 +153,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		// 윈도우 리스너 이벤트 add
 		AWTEventMonitor.addWindowListener(this);
 
-
-
-
 		panel.add(this);
 
 

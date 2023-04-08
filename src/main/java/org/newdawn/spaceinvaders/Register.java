@@ -1,22 +1,16 @@
 package org.newdawn.spaceinvaders;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.HashMap;
@@ -28,8 +22,10 @@ public class Register extends JPanel implements ActionListener {
     JFrame register;
 
     JButton registerbtn;
+
     JTextField inputID;
     JTextField inputPWD;
+    JTextField inputName;
 
     Font font_basic = new Font("맑은 고딕", Font.PLAIN, 12);
     Font font_basic_bold = new Font("맑은 고딕", Font.BOLD, 12);
@@ -39,18 +35,6 @@ public class Register extends JPanel implements ActionListener {
     Dimension screenSize = toolkit.getScreenSize();
 
     public void register() {
-        // Firebase 애플리케이션 초기화
-        try {
-            FileInputStream serviceAccount = new FileInputStream("src/main/resources/key.json");
-
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://source-code-analysis-default-rtdb.firebaseio.com")
-                    .build();
-            FirebaseApp.initializeApp(options);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         register = new JFrame("회원가입");
 
@@ -88,6 +72,17 @@ public class Register extends JPanel implements ActionListener {
         inputPWD.setFont(font_basic);
         registerPanel.add(inputPWD);
 
+        JLabel NameLabel = new JLabel("닉네임");
+        NameLabel.setHorizontalAlignment(JLabel.CENTER);
+        NameLabel.setBounds(100, 100, 60, 20);
+        NameLabel.setFont(font_basic_bold_size_14);
+        registerPanel.add(NameLabel);
+
+        inputName = new JTextField();
+        inputName.setBounds(170, 100, 150, 20);
+        inputName.setFont(font_basic);
+        registerPanel.add(inputName);
+
         registerbtn = new JButton("회원가입");
         registerbtn.setBounds(125, 230, 150, 40);
         registerbtn.setFont(font_basic_bold);
@@ -114,9 +109,11 @@ public class Register extends JPanel implements ActionListener {
         if (e.getSource() == registerbtn) {
             String id = inputID.getText();
             String pwd = inputPWD.getText();
+            String name = inputName.getText();
+            String encodedEmail = Base64.getEncoder().encodeToString(id.getBytes());
 
             // 빈칸으로 제출 시
-            if (id.isEmpty() || pwd.isEmpty()) {
+            if (id.isEmpty() || pwd.isEmpty() || name.isEmpty()) {
                 JOptionPane.showMessageDialog(register, "내용을 입력하세요.", "경고", JOptionPane.WARNING_MESSAGE);
             }
 
@@ -129,17 +126,18 @@ public class Register extends JPanel implements ActionListener {
                 try {
                     // Authentication에 저장
                     UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                            .setEmail(inputID.getText())
-                            .setPassword(inputPWD.getText());
+                            .setEmail(id)
+                            .setPassword(pwd)
+                            .setDisplayName(name);
                     UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 
                     // Realtime Database에 저장
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference ref = database.getReference();
-                    DatabaseReference usersRef = ref.child("users");
+                    DatabaseReference usersRef = ref.child(encodedEmail);
 
                     Map<String, User> users = new HashMap<>();
-                    users.put(userRecord.getUid(), new User(id, pwd));
+                    users.put(encodedEmail, new User(id, pwd, name));
 
                     usersRef.setValueAsync(users);
 
