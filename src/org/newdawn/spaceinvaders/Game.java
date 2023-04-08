@@ -108,6 +108,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	long timeRecord;
 
 
+
+
 	/**
 	 * Construct our game and set it running.
 	 */
@@ -279,7 +281,31 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 */
 	private void initEntities() {
 		// create the player ship and place it roughly in the center of the screen
-		ship = new ShipEntity(this,"sprites/ship.gif",370,550);
+		if (Framework.character == 0)
+		{
+			ship = new ShipEntity(this,"sprites/ship.gif",370,550);
+
+		}
+		else if (Framework.character == 1)
+		{
+			ship = new ShipEntity(this,"sprites/ship2.png",370,550);
+
+		}
+		else if (Framework.character == 2)
+		{
+			ship = new ShipEntity(this,"sprites/ship3.png",370,550);
+
+		}
+		else if (Framework.character == 3)
+		{
+			ship = new ShipEntity(this,"sprites/ship4.png",370,550);
+
+		}
+		else if (Framework.character == 4)
+		{
+			ship = new ShipEntity(this,"sprites/ship5.png",370,550);
+
+		}
 		entities.add(ship);
 
 		// create a block of aliens (5 rows, by 12 aliens, spaced evenly)

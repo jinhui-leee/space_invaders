@@ -21,15 +21,8 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
     JButton[] btn;
 
-    JButton[] themeBtn;
-
-    JButton[] characterBtn;
-
     ImageIcon[] btnImage;
 
-    ImageIcon[] themeBtnImage;
-
-    ImageIcon[] characterBtnImage;
 
     BufferedImage[][] backgroundImage;
 
@@ -41,6 +34,13 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
     JLabel []themeLabel;
 
+    ImageIcon[] characterImage;
+
+    int characterChoice = 0;
+
+    static int character = 0;
+
+    JLabel []characterLabel;
 
 
 
@@ -105,6 +105,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         descriptionUrl[7] = this.getClass().getResource("/sprites/description8.png");
         descriptionUrl[8] = this.getClass().getResource("/sprites/description9.png");
 
+        //테마화면 생성
         URL []themeUrl = new URL[9];
 
         themeUrl[0] = this.getClass().getResource("/sprites/background_d.png");
@@ -128,11 +129,10 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             for (int i=0; i<9; i++) backgroundImage[i][1] = ImageIO.read(descriptionUrl[i]);
             //테마설정 배경
             for (int i=0; i<9; i++) backgroundImage[i][2] = ImageIO.read(themeUrl[i]);
+            //캐릭터 설정 배경
+            for (int i=0; i<9; i++) backgroundImage[i][3] = ImageIO.read(themeUrl[i]);
 
 
-            //캐릭터설정 배경
-            URL characterUrl = this.getClass().getResource("/sprites/background_d.png");
-            backgroundImage[0][3] = ImageIO.read(characterUrl);
 
             //랭킹보기 배경
             URL rankingUrl = this.getClass().getResource("/sprites/background_d.png");
@@ -162,7 +162,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         //뒤로가기
         btnImageUrl[7] = getClass().getResource("/sprites/btn8.png");
 
-        //선택하기
+        //선택하기 테마, 캐릭터
         btnImageUrl[8] = getClass().getResource("/sprites/btn9.png");
         btnImageUrl[9] = getClass().getResource("/sprites/btn9.png");
 
@@ -174,7 +174,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         }
 
 
-        //테마 설정 이미지
+        //테마 설정 아이콘
         themeChoiceImage = new ImageIcon[9];
         URL []themeChoiceUrl = new URL[9];
         themeLabel = new JLabel[9];
@@ -191,6 +191,11 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         themeChoiceUrl[8] = getClass().getResource("/icon/themeIcon9.png");
 
         for (int i=0; i<9; i++) {
+            if (themeChoiceUrl[i] == null) {
+                // URL 객체가 null인 경우
+                System.out.println("Error: Could not find image file for themeChoice : " + i);
+                continue;
+            }
             themeChoiceImage[i] = new ImageIcon(themeChoiceUrl[i]);
             themeLabel[i] = new JLabel(themeChoiceImage[i]);
             if (i<5) themeLabel[i].setBounds(130 + 110*i, 200, 100, 100);
@@ -198,7 +203,28 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             themeLabel[i].addMouseListener(this);
         }
 
+        //캐릭터 선택 아이콘
+        characterImage = new ImageIcon[5];
+        URL []characterChoiceUrl = new URL[5];
+        characterLabel = new JLabel[5];
 
+        characterChoiceUrl[0] = getClass().getResource("/sprites/ship.gif");
+        characterChoiceUrl[1] = getClass().getResource("/sprites/ship2.png");
+        characterChoiceUrl[2] = getClass().getResource("/sprites/ship3.png");
+        characterChoiceUrl[3] = getClass().getResource("/sprites/ship4.png");
+        characterChoiceUrl[4] = getClass().getResource("/sprites/ship5.png");
+
+        for (int i=0; i<5; i++) {
+            if (characterChoiceUrl[i] == null) {
+                // URL 객체가 null인 경우
+                System.out.println("Error: Could not find image file for ship" + (i+1) + ".png");
+                continue;
+            }
+            characterImage[i] = new ImageIcon(characterChoiceUrl[i]);
+            characterLabel[i] = new JLabel(characterImage[i]);
+            characterLabel[i].setBounds(137 + 123*i, 200, 33, 23);
+            characterLabel[i].addMouseListener(this);
+        }
 
 
         //메인화면 버튼 생성
@@ -229,6 +255,9 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             btn[8].setVisible(false);
             btn[9].setVisible(false);
             for (int i=0; i<9; i++) themeLabel[i].setVisible(false);
+
+            for (int i=0; i<5; i++) characterLabel[i].setVisible(false);
+
             setLayout(null);
             for (int i=0; i<5; i++) {
                 btn[i].setBounds(110 + 120 * i, 450, 100, 40);
@@ -267,9 +296,14 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
             }
             else if (gameState == GameState.CHARACTER) {
-                btn[8].setBounds(350, 450, 100, 40);
-                add(btn[8]);
-                btn[8].setVisible(true);
+                btn[9].setBounds(350, 450, 100, 40);
+                add(btn[9]);
+                btn[9].setVisible(true);
+
+                for (int i=0; i<5; i++) {
+                    add(characterLabel[i]);
+                    characterLabel[i].setVisible(true);
+                }
             }
         }
     }
@@ -415,6 +449,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         }
         //캐릭터선택
         else if (e.getSource() == btn[9]) {
+            character = characterChoice;
             gameState = GameState.MAIN_MENU;
             btnManager();
         }
@@ -453,6 +488,22 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         else if (e.getSource() == themeLabel[8]) {
             themeChoice = 8;
         }
+        else if (e.getSource() == characterLabel[0]) {
+            characterChoice = 0;
+        }
+        else if (e.getSource() == characterLabel[1]) {
+            characterChoice = 1;
+        }
+        else if (e.getSource() == characterLabel[2]) {
+            characterChoice = 2;
+        }
+        else if (e.getSource() == characterLabel[3]) {
+            characterChoice = 3;
+        }
+        else if (e.getSource() == characterLabel[4]) {
+            characterChoice = 4;
+        }
+
 
     }
 
