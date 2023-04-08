@@ -20,6 +20,8 @@ public class Music {
             if (stopTime > 0) {
                 clip.setMicrosecondPosition(stopTime);
             }
+            // 노래 무한으로 재생
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
             clip.start();
             isPlaying = true;
         } catch (Exception e) {

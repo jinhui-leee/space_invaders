@@ -25,6 +25,7 @@ public class Window extends JPanel implements ActionListener {
     public Window() {
         // 파이어베이스 애플리케이션 초기화
         Firebase.initialize();
+
         JFrame jFrame = new JFrame("Space Invaders Main Menu");
         JPanel panel = (JPanel) jFrame.getContentPane();
 
