@@ -8,8 +8,8 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
-import com.google.firebase.remoteconfig.User;
+
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,6 +45,7 @@ public class Register extends JPanel implements ActionListener {
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setDatabaseUrl("https://source-code-analysis-default-rtdb.firebaseio.com")
                     .build();
             FirebaseApp.initializeApp(options);
         } catch (IOException e) {
@@ -123,25 +124,24 @@ public class Register extends JPanel implements ActionListener {
             else if (!Register.isValid(id)) {
                 JOptionPane.showMessageDialog(register, "이메일 형식이 올바르지 않습니다.", "경고", JOptionPane.WARNING_MESSAGE);
             }
+
             else{
                 try {
+                    // Authentication에 저장
                     UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                             .setEmail(inputID.getText())
                             .setPassword(inputPWD.getText());
                     UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 
-                    HashMap<String, Object> userData = new HashMap<>();
-                    String email = inputID.getText();
-                    String password = inputPWD.getText();
-//                    User user = new User(email, password);
-//                    userData.put("email", email);
-//                    userData.put("password", password);
+                    // Realtime Database에 저장
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference ref = database.getReference();
+                    DatabaseReference usersRef = ref.child("users");
 
-//                    UserData = String.valueOf(userData);
+                    Map<String, User> users = new HashMap<>();
+                    users.put(userRecord.getUid(), new User(id, pwd));
 
-                    // Realtime Database에 데이터 저장
-//                    FirebaseDatabase.getInstance().getReference("users").child(userRecord.getUid()).setValue(user);
-
+                    usersRef.setValueAsync(users);
 
 
                     JOptionPane.showMessageDialog(register, "가입이 완료되었습니다.", "알림", JOptionPane.INFORMATION_MESSAGE);

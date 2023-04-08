@@ -14,8 +14,9 @@ public class Firebase {
             FileInputStream serviceAccount = new FileInputStream("src/main/resources/key.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://source-code-analysis.firebaseio.com/")
+//                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+//                    .setDatabaseUrl("https://source-code-analysis.firebaseio.com/")
+                    .setDatabaseUrl("https://source-code-analysis-default-rtdb.firebaseio.com")
                     .build();
 
             FirebaseApp.initializeApp(options);
