@@ -3,6 +3,12 @@ package org.newdawn.spaceinvaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.UserRecord;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.*;
 import java.awt.*;
@@ -137,5 +143,4 @@ public class Login {
             }
         });
     }
-
 }
