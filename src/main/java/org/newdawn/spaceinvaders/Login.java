@@ -1,6 +1,9 @@
 package org.newdawn.spaceinvaders;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
+//import com.google.firebase.auth.F
+//import com.google.firebase.auth.UserRecord;
 
 import javax.swing.*;
 import java.awt.*;
@@ -111,21 +114,23 @@ public class Login extends JPanel implements ActionListener {
                             }
                             if (pw.equals(storedPassword)) {
                                 // 비밀번호가 일치하는 경우, 로그인 성공 처리를 합니다.
-                                JOptionPane.showMessageDialog(null, "로그인 성공 !", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
+                                JOptionPane.showMessageDialog(null, "로그인 성공 !", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
+                                FirebaseAuth auth = FirebaseAuth.getInstance();
+//                                FirebaseUser user;
+
                             } else {
                                 // 비밀번호가 일치하지 않는 경우, 로그인 실패 처리를 합니다.
-                                JOptionPane.showMessageDialog(null, "비밀번호가 일치하지 않습니다.", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
+                                JOptionPane.showMessageDialog(null, "비밀번호가 일치하지 않습니다.", "비밀번호 불일치", JOptionPane.DEFAULT_OPTION);
                             }
                         } else {
                             // 입력된 이메일을 키로 하는 데이터가 존재하지 않는 경우, 로그인 실패 처리를 합니다.
-                            JOptionPane.showMessageDialog(null, "등록되지 않은 이메일입니다.", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
+                            JOptionPane.showMessageDialog(null, "등록되지 않은 이메일입니다.", "이메일 불일치", JOptionPane.DEFAULT_OPTION);
                         }
                     }
-//
 //                    @Override
                     public void onCancelled(DatabaseError databaseError) {
                         // 데이터 가져오기를 실패한 경우, 로그인 실패 처리를 합니다.
-                        JOptionPane.showMessageDialog(null, "로그인에 실패했습니다.", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
+                        JOptionPane.showMessageDialog(null, "로그인에 실패했습니다.", "로그인 실패", JOptionPane.DEFAULT_OPTION);
                     }
                 });
             }

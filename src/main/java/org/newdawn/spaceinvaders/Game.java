@@ -92,6 +92,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 	private int bossStageLevel = 5;
 
+	private int  gold = 0;
+
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
 
@@ -107,6 +109,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 * Construct our game and set it running.
 	 */
 	public Game() {
+		// 파이어베이스 애플리케이션 초기화
+//		Firebase.initialize();
+
 		// create a frame to contain our game
 		container = new JFrame("Space Invaders 102");
 
@@ -125,7 +130,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		// Music 객체 받아오고 재생
 		music = new Music();
 		music.playMusic();
-		System.out.print(music.isPlaying());
 
 		// 음악 재생 및 정지
 		// 이미지 로드
@@ -149,6 +153,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		audioBtn.setBounds(753,20,30,30);
 		audioBtn.addActionListener(this);
 		panel.add(audioBtn);
+
+		// 획득 골드 표시
+
 
 		// 윈도우 리스너 이벤트 add
 		AWTEventMonitor.addWindowListener(this);
