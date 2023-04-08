@@ -6,10 +6,6 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
-import com.google.firebase.remoteconfig.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,8 +15,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class Register extends JPanel implements ActionListener {
@@ -94,6 +88,8 @@ public class Register extends JPanel implements ActionListener {
 
         registerbtn.addActionListener(this);
 
+
+
         register.pack();
         register.setResizable(false);
         register.setVisible(true);
@@ -120,7 +116,7 @@ public class Register extends JPanel implements ActionListener {
             }
 
             // 이메일 형식이 아닌 경우
-            if (!Register.isValid(id)) {
+            else if (!Register.isValid(id)) {
                 JOptionPane.showMessageDialog(register, "이메일 형식이 올바르지 않습니다.", "경고", JOptionPane.WARNING_MESSAGE);
             }
             else{
