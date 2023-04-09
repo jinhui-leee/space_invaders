@@ -260,14 +260,13 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             }
             characterImage[i] = new ImageIcon(characterChoiceUrl[i]);
             characterLabel[i] = new JLabel(characterImage[i]);
-            characterLabel[i].setBounds(137 + 123*i, 200, 33, 23);
+            characterLabel[i].setBounds(137 + 123*i, 270, 33, 23);
             characterLabel[i].addMouseListener(this);
         }
 
 
         //메인화면 버튼 생성
         for(int i=0; i<7; i++) {
-
             this.add(btn[i]);
             btn[i].setVisible(true);
         }
