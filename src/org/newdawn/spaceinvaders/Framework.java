@@ -194,14 +194,21 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             if (i == 7) {
                 btnImage[i] = new ImageIcon(btnImageUrl[i]);
                 btn[i] = new JButton(btnImage[i]);
+                btn[7].setBounds(20, 15, 60, 60);
+
             }
             else {
                 btn[i] = new JButton(btnStr[i]);
                 btn[i].setForeground(Color.WHITE);
                 btn[i].setBackground(Color.decode(btnColor[0]));
+                if (i < 5) btn[i].setBounds(110 + 120 * i, 450, 100, 40);
+                else if (i < 7) btn[i].setBounds(230 + (i-5)*190, 380, 150, 50);
+                else btn[i].setBounds(350, 450, 100, 40);
+
             }
 
             btn[i].addActionListener(this);
+
         }
 
 
@@ -260,8 +267,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
         //메인화면 버튼 생성
         for(int i=0; i<7; i++) {
-            if (i < 5) btn[i].setBounds(110 + 120 * i, 450, 100, 40);
-            else btn[i].setBounds(230 + (i-5)*190, 380, 150, 50);
+
             this.add(btn[i]);
             btn[i].setVisible(true);
         }
@@ -287,10 +293,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
             setLayout(null);
             for (int i=0; i<7; i++) {
-                if (i < 5) btn[i].setBounds(110 + 120 * i, 450, 100, 40);
-                else btn[i].setBounds(230 + (i-5)*190, 380, 150, 50);
                 btn[i].setBackground(Color.decode(btnColor[theme]));
-                this.add(btn[i]);
                 btn[i].setVisible(true);
             }
 
@@ -300,14 +303,13 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             //메인화면 버튼 없애기 + 뒤로가기 버튼 만들기
             for (int i=0; i<7; i++) btn[i].setVisible(false);
             setLayout(null);
-            btn[7].setBounds(20, 15, 60, 60);
             add(btn[7]);
             btn[7].setVisible(true);
             btn[7].setContentAreaFilled(false);
             btn[7].setBorderPainted(false);
 
             if (gameState == GameState.THEME) {
-                btn[8].setBounds(350, 450, 100, 40);
+                //btn[8].setBounds(350, 450, 100, 40);
                 btn[8].setBackground(Color.decode(btnColor[theme]));
                 add(btn[8]);
                 btn[8].setVisible(true);
@@ -320,7 +322,6 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
             }
             else if (gameState == GameState.CHARACTER) {
-                btn[9].setBounds(350, 450, 100, 40);
                 btn[9].setBackground(Color.decode(btnColor[theme]));
                 add(btn[9]);
                 btn[9].setVisible(true);
@@ -411,6 +412,10 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
                 break;
 
             case STARTING:
+                g2d.setColor(Color.black);
+                g2d.fillRect(0,0,800,600);
+                g2d.setColor(Color.white);
+                g2d.drawString("Loading game....", (800-g2d.getFontMetrics().stringWidth("Loading game...."))/2,280);
                 break;
         }
 
