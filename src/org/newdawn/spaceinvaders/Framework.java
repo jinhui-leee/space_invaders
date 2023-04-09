@@ -42,6 +42,8 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
     JLabel []characterLabel;
 
+    String []btnColor;
+
 
 
     public Framework() {
@@ -131,12 +133,8 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             for (int i=0; i<9; i++) backgroundImage[i][2] = ImageIO.read(themeUrl[i]);
             //캐릭터 설정 배경
             for (int i=0; i<9; i++) backgroundImage[i][3] = ImageIO.read(themeUrl[i]);
-
-
-
             //랭킹보기 배경
-            URL rankingUrl = this.getClass().getResource("/sprites/background_d.png");
-            backgroundImage[0][4] = ImageIO.read(rankingUrl);
+            for (int i=0; i<9; i++) backgroundImage[i][4] = ImageIO.read(themeUrl[i]);
         }
         catch (IOException e) {
             Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, e);
@@ -166,10 +164,43 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         btnImageUrl[8] = getClass().getResource("/sprites/btn9.png");
         btnImageUrl[9] = getClass().getResource("/sprites/btn9.png");
 
+        String []btnStr = new String[10];
+        btnStr[0] = "게임시작";
+        btnStr[1] = "게임설명";
+        btnStr[2] = "테마설정";
+        btnStr[3] = "캐릭터설정";
+        btnStr[4] = "랭킹보기";
+        btnStr[5] = "로그인";
+        btnStr[6] = "회원가입";
+        btnStr[7] = "";
+        btnStr[8] = "선택하기";
+        btnStr[9] = "선택하기";
+
+        btnColor = new String[9];
+        btnColor[0] = "#451d52";
+        btnColor[1] = "#4175dc";
+        btnColor[2] = "#113c49";
+        btnColor[3] = "#dd6d3e";
+        btnColor[4] = "#303030";
+        btnColor[5] = "#6c493d";
+        btnColor[6] = "#f7b006";
+        btnColor[7] = "#7d7353";
+        btnColor[8] = "#ea3600";
+
 
         for (int i = 0; i < btn.length; i++) {
-            btnImage[i] = new ImageIcon(btnImageUrl[i]);
-            btn[i] = new JButton(btnImage[i]);
+            //btnImage[i] = new ImageIcon(btnImageUrl[i]);
+            //btn[i] = new JButton(btnImage[i]);
+            if (i == 7) {
+                btnImage[i] = new ImageIcon(btnImageUrl[i]);
+                btn[i] = new JButton(btnImage[i]);
+            }
+            else {
+                btn[i] = new JButton(btnStr[i]);
+                btn[i].setForeground(Color.WHITE);
+                btn[i].setBackground(Color.decode(btnColor[0]));
+            }
+
             btn[i].addActionListener(this);
         }
 
@@ -228,18 +259,14 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
 
         //메인화면 버튼 생성
-        for(int i=0; i<5; i++) {
-            btn[i].setBounds(110 + 120 * i, 450, 100, 40);
+        for(int i=0; i<7; i++) {
+            if (i < 5) btn[i].setBounds(110 + 120 * i, 450, 100, 40);
+            else btn[i].setBounds(230 + (i-5)*190, 380, 150, 50);
             this.add(btn[i]);
             btn[i].setVisible(true);
         }
 
 
-        for(int i=5; i<7; i++) {
-            btn[i].setBounds(230 + (i-5)*190, 350, 150, 80);
-            this.add(btn[i]);
-            btn[i].setVisible(true);
-        }
 
 
 
@@ -259,18 +286,14 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             for (int i=0; i<5; i++) characterLabel[i].setVisible(false);
 
             setLayout(null);
-            for (int i=0; i<5; i++) {
-                btn[i].setBounds(110 + 120 * i, 450, 100, 40);
-            }
-
-            for(int i=5; i<7; i++) {
-                btn[i].setBounds(230 + (i-5)*190, 350, 150, 80);
-            }
-
             for (int i=0; i<7; i++) {
+                if (i < 5) btn[i].setBounds(110 + 120 * i, 450, 100, 40);
+                else btn[i].setBounds(230 + (i-5)*190, 380, 150, 50);
+                btn[i].setBackground(Color.decode(btnColor[theme]));
                 this.add(btn[i]);
                 btn[i].setVisible(true);
             }
+
         }
         else
         {
@@ -285,6 +308,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
             if (gameState == GameState.THEME) {
                 btn[8].setBounds(350, 450, 100, 40);
+                btn[8].setBackground(Color.decode(btnColor[theme]));
                 add(btn[8]);
                 btn[8].setVisible(true);
 
@@ -297,6 +321,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             }
             else if (gameState == GameState.CHARACTER) {
                 btn[9].setBounds(350, 450, 100, 40);
+                btn[9].setBackground(Color.decode(btnColor[theme]));
                 add(btn[9]);
                 btn[9].setVisible(true);
 
