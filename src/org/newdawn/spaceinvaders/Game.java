@@ -197,7 +197,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		if (e.getSource() == audioBtn) {
 			if (music.isPlaying()) {
 				music.stopMusic();
-				System.out.print(music.isPlaying());
 				audioBtn.setIcon(this.changeIconAudioOn);
 				audioBtn.setFocusable(false);
 			} else {
