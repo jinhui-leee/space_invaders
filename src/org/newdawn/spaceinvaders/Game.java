@@ -91,7 +91,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	/**스테이지 레벨*/
 	private int stageLevel = 0;
 
-	private int bossStageLevel = 1;
+	private int bossStageLevel = 5;
 
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
