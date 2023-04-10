@@ -110,6 +110,7 @@ public class Register extends JPanel implements ActionListener {
             String id = inputID.getText();
             String pwd = inputPWD.getText();
             String name = inputName.getText();
+            Integer gold = 0;
             String encodedEmail = Base64.getEncoder().encodeToString(id.getBytes());
 
             // 빈칸으로 제출 시
@@ -128,7 +129,8 @@ public class Register extends JPanel implements ActionListener {
                     UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                             .setEmail(id)
                             .setPassword(pwd)
-                            .setDisplayName(name);
+                            .setDisplayName(name)
+                            .setDisplayName(gold.toString());
                     UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 
                     // Realtime Database에 저장
@@ -137,12 +139,12 @@ public class Register extends JPanel implements ActionListener {
                     DatabaseReference usersRef = ref.child(encodedEmail);
 
                     Map<String, User> users = new HashMap<>();
-                    users.put(encodedEmail, new User(id, pwd, name));
+                    users.put(encodedEmail, new User(id, pwd, name, gold));
 
                     usersRef.setValueAsync(users);
 
-
                     JOptionPane.showMessageDialog(register, "가입이 완료되었습니다.", "알림", JOptionPane.INFORMATION_MESSAGE);
+                    register.dispose();
                 } catch (FirebaseAuthException ex) {
                     JOptionPane.showMessageDialog(register, "가입 중 오류가 발생하였습니다.", "오류", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();

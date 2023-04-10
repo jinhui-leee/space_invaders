@@ -4,9 +4,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
+import java.util.Base64;
 import javax.swing.*;
 
+import com.google.firebase.database.*;
 import com.sun.java.accessibility.util.AWTEventMonitor;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.newdawn.spaceinvaders.entity.*;
 
 /**
@@ -95,9 +98,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	private int stageLevel = 0;
 	private int bossStageLevel = 5;
 
-	/** 획득 골드 */
-	public int  gold = 0;
-
 	public JButton audioBtn;
 
 	public Music music;
@@ -108,6 +108,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	public ImageIcon changeIconGetGold;
 
 	private static User user;
+
 
 	/**
 	 * Construct our game and set it running.
@@ -167,7 +168,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		panel.add(imageGetGoldLabel);
 
 		// 획득 골드 숫자 표시
-		JLabel getGoldLabel = new JLabel("1,000");
+//		TODO 획득한 골드 띄워야 함
+		int getGoldCnt = 0;
+		JLabel getGoldLabel = new JLabel();
+		getGoldLabel.setText(Integer.toString(getGoldCnt));
 		Color goldBGC = new Color(210, 216, 217);
 		getGoldLabel.setBackground(goldBGC);
 		getGoldLabel.setBounds(680,25,50,20);
@@ -250,30 +254,52 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		audioBtn.addActionListener(this);
 		panel.add(audioBtn);
 
+		// 로그인한 사용자 표시 (로그인 시 사용한 ID를 통해 파이어베이스에서 사용자 정보 가져옴)
+		String encodedEmail = Base64.getEncoder().encodeToString(user.name.getBytes());
+		JLabel getUserNameLabel = new JLabel(user.name);
+		getUserNameLabel.setBounds(550,25,50,20);
+		panel.add(getUserNameLabel);
+
+		FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
+		DatabaseReference ref = userdatabase.getReference();
+		DatabaseReference usersRef = ref.child(encodedEmail);
+
+		usersRef.child(encodedEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(DataSnapshot dataSnapshot) {
+				// 입력된 이메일을 키로 하는 데이터를 가져옵니다.
+				if (dataSnapshot.exists()) {
+					String storedPassword;
+					for(DataSnapshot postSnapshot : dataSnapshot.getChildren()){
+						storedPassword = postSnapshot.getValue(String.class);
+						System.out.println(storedPassword);
+						// 획득 골드 숫자 표시
+						JLabel getGoldLabel = new JLabel();
+						getGoldLabel.setText(storedPassword);
+						Color goldBGC = new Color(210, 216, 217);
+						getGoldLabel.setBackground(goldBGC);
+						getGoldLabel.setBounds(680,25,50,20);
+						panel.add(getGoldLabel);
+					}
+				}
+			}
+			//                    @Override
+			public void onCancelled(DatabaseError databaseError) {
+			}
+		});
+
 		// 획득 골드 아이콘 표시
 		ImageIcon getGold = new ImageIcon("src/main/resources/images/gold.png");
 		Image imgGetGold = getGold.getImage();
 
 		Image changeImgGetGold = imgGetGold.getScaledInstance(20,20, Image.SCALE_SMOOTH);
 		ImageIcon changeIconGetGold = new ImageIcon(changeImgGetGold);
-
 		this.changeIconGetGold = changeIconGetGold;
 
 		JLabel imageGetGoldLabel = new JLabel(changeIconGetGold);
 		imageGetGoldLabel.setBounds(650,25,20,20);
 		panel.add(imageGetGoldLabel);
 
-		// 로그인한 사용자 표시
-		JLabel getUserNameLabel = new JLabel(user.name);
-		getUserNameLabel.setBounds(550,25,50,20);
-		panel.add(getUserNameLabel);
-
-		// 획득 골드 숫자 표시
-		JLabel getGoldLabel = new JLabel("1,000");
-		Color goldBGC = new Color(210, 216, 217);
-		getGoldLabel.setBackground(goldBGC);
-		getGoldLabel.setBounds(680,25,50,20);
-		panel.add(getGoldLabel);
 
 
 		// 윈도우 리스너 이벤트 add
