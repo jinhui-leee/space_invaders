@@ -28,6 +28,8 @@ public class Login extends JPanel implements ActionListener {
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
     static Dimension screenSize = toolkit.getScreenSize();
 
+    public boolean loginState = false;
+
     public void login() {
 
         login = new JFrame("로그인");
@@ -80,6 +82,8 @@ public class Login extends JPanel implements ActionListener {
         login.pack();
         login.setResizable(false);
         login.setVisible(true);
+
+        login.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
 
@@ -93,7 +97,7 @@ public class Login extends JPanel implements ActionListener {
 
             // 빈칸으로 제출 시
             if (id.isEmpty() || pw.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "아이디 또는 비밀번호를 입력하셔야 됩니다.", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(login, "아이디 또는 비밀번호를 입력하셔야 됩니다.", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
             }
 
             else {
@@ -114,23 +118,31 @@ public class Login extends JPanel implements ActionListener {
                             }
                             if (pw.equals(storedPassword)) {
                                 // 비밀번호가 일치하는 경우, 로그인 성공 처리를 합니다.
-                                JOptionPane.showMessageDialog(null, "로그인 성공 !", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
-                                FirebaseAuth auth = FirebaseAuth.getInstance();
-//                                FirebaseUser user;
+                                User user = dataSnapshot.getValue(User.class);
+                                JOptionPane.showMessageDialog(login, "로그인 성공 ! "+user.name+"님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
+                                login.dispose();
+                                Window userWindow = new Window(user);
+                                userWindow.setVisible(true);
+//                                Window userWindow = new Window(user);
+
+                                // 사용자 정보 가져옴
+//                                User user = dataSnapshot.getValue(User.class);
+
+//                                Game game = new Game(user);
 
                             } else {
                                 // 비밀번호가 일치하지 않는 경우, 로그인 실패 처리를 합니다.
-                                JOptionPane.showMessageDialog(null, "비밀번호가 일치하지 않습니다.", "비밀번호 불일치", JOptionPane.DEFAULT_OPTION);
+                                JOptionPane.showMessageDialog(login, "비밀번호가 일치하지 않습니다.", "비밀번호 불일치", JOptionPane.DEFAULT_OPTION);
                             }
                         } else {
                             // 입력된 이메일을 키로 하는 데이터가 존재하지 않는 경우, 로그인 실패 처리를 합니다.
-                            JOptionPane.showMessageDialog(null, "등록되지 않은 이메일입니다.", "이메일 불일치", JOptionPane.DEFAULT_OPTION);
+                            JOptionPane.showMessageDialog(login, "등록되지 않은 이메일입니다.", "이메일 불일치", JOptionPane.DEFAULT_OPTION);
                         }
                     }
 //                    @Override
                     public void onCancelled(DatabaseError databaseError) {
                         // 데이터 가져오기를 실패한 경우, 로그인 실패 처리를 합니다.
-                        JOptionPane.showMessageDialog(null, "로그인에 실패했습니다.", "로그인 실패", JOptionPane.DEFAULT_OPTION);
+                        JOptionPane.showMessageDialog(login, "로그인에 실패했습니다.", "로그인 실패", JOptionPane.DEFAULT_OPTION);
                     }
                 });
             }

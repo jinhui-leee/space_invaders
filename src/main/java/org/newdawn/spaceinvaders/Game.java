@@ -87,45 +87,45 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	/** The game window that we'll update with the frame count */
 	private JFrame container;
 
-	/**스테이지 레벨*/
-	private int stageLevel = 0;
-
-	private int bossStageLevel = 5;
-
-	private int  gold = 0;
-
+	/** 화면 크기 */
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
 
-	private JButton audioBtn;
+	/** 스테이지 레벨 */
+	private int stageLevel = 0;
+	private int bossStageLevel = 5;
 
-	private Music music;
+	/** 획득 골드 */
+	public int  gold = 0;
 
-	private ImageIcon changeIconAudioOff;
-	private ImageIcon changeIconAudioOn;
+	public JButton audioBtn;
 
+	public Music music;
+
+	public ImageIcon changeIconAudioOff;
+	public ImageIcon changeIconAudioOn;
+
+	public ImageIcon changeIconGetGold;
+
+	public User user;
 
 	/**
 	 * Construct our game and set it running.
 	 */
+	// 게스트 모드로 게임 실행
 	public Game() {
-		// 파이어베이스 애플리케이션 초기화
-//		Firebase.initialize();
-
 		// create a frame to contain our game
 		container = new JFrame("Space Invaders 102");
 
 		// get hold the content of the frame and set up the resolution of the game
-		//JPanel
 		JPanel panel = (JPanel) container.getContentPane();
 
-		//panel = new JPanel();
 		panel.setLayout(null);
-		panel.setPreferredSize(new Dimension(800,600));
+		panel.setPreferredSize(new Dimension(800, 600));
 
 		// setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
-		setBounds(0,0,800,600);
-		container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
+		setBounds(0, 0, 800, 600);
+		container.setLocation(screenSize.width / 2 - 400, screenSize.height / 2 - 300);
 
 		// Music 객체 받아오고 재생
 		music = new Music();
@@ -141,9 +141,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		// 이미지 크기 변경
 		Image changeImgAudioOff = imgAudioOff.getScaledInstance(30,30, Image.SCALE_SMOOTH);
 		ImageIcon changeIconAudioOff = new ImageIcon(changeImgAudioOff);
-
-		Image changeAudioOn = imgAudioOn.getScaledInstance(30,30, Image.SCALE_SMOOTH);
-		ImageIcon changeIconAudioOn = new ImageIcon(changeAudioOn);
+		Image changeImgAudioOn = imgAudioOn.getScaledInstance(30,30, Image.SCALE_SMOOTH);
+		ImageIcon changeIconAudioOn = new ImageIcon(changeImgAudioOn);
 
 		this.changeIconAudioOff = changeIconAudioOff;
 		this.changeIconAudioOn = changeIconAudioOn;
@@ -154,7 +153,127 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		audioBtn.addActionListener(this);
 		panel.add(audioBtn);
 
-		// 획득 골드 표시
+		// 획득 골드 아이콘 표시
+		ImageIcon getGold = new ImageIcon("src/main/resources/images/gold.png");
+		Image imgGetGold = getGold.getImage();
+
+		Image changeImgGetGold = imgGetGold.getScaledInstance(20,20, Image.SCALE_SMOOTH);
+		ImageIcon changeIconGetGold = new ImageIcon(changeImgGetGold);
+
+		this.changeIconGetGold = changeIconGetGold;
+
+		JLabel imageGetGoldLabel = new JLabel(changeIconGetGold);
+		imageGetGoldLabel.setBounds(650,25,20,20);
+		panel.add(imageGetGoldLabel);
+
+		// 획득 골드 숫자 표시
+		JLabel getGoldLabel = new JLabel("1,000");
+		Color goldBGC = new Color(210, 216, 217);
+		getGoldLabel.setBackground(goldBGC);
+		getGoldLabel.setBounds(680,25,50,20);
+		panel.add(getGoldLabel);
+
+		// 윈도우 리스너 이벤트 add
+		AWTEventMonitor.addWindowListener(this);
+
+		panel.add(this);
+
+
+		// Tell AWT not to bother repainting our canvas since we're
+		// going to do that our self in accelerated mode
+		//setIgnoreRepaint(true);
+		container.pack();
+		container.setResizable(false);
+		container.setVisible(true);
+
+		// add a listener to respond to the user closing the window. If they
+		// do we'd like to exit the game
+		container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+		// add a key input system (defined below) to our canvas
+		// so we can respond to key pressed
+		addKeyListener(new KeyInputHandler());
+
+		// request the focus so key events come to us
+		requestFocus();
+
+		// create the buffering strategy which will allow AWT
+		// to manage our accelerated graphics
+		createBufferStrategy(2);
+		strategy = getBufferStrategy();
+
+		initEntities();
+	}
+
+	// 사용자 모드로 게임 실행
+	public Game(User user){
+
+		// 사용자 정보 받아오기
+		this.user = user;
+
+		// create a frame to contain our game
+		container = new JFrame("Space Invaders 102");
+
+		// get hold the content of the frame and set up the resolution of the game
+		JPanel panel = (JPanel) container.getContentPane();
+
+		panel.setLayout(null);
+		panel.setPreferredSize(new Dimension(800, 600));
+
+		// setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
+		setBounds(0, 0, 800, 600);
+		container.setLocation(screenSize.width / 2 - 400, screenSize.height / 2 - 300);
+
+		// Music 객체 받아오고 재생
+		music = new Music();
+		music.playMusic();
+
+		// 음악 재생 및 정지
+		// 이미지 로드
+		ImageIcon audioOn = new ImageIcon("src/main/resources/images/audioOn.png");
+		ImageIcon audioOff = new ImageIcon("src/main/resources/images/audioOff.png");
+		Image imgAudioOff = audioOff.getImage();
+		Image imgAudioOn = audioOn.getImage();
+
+		// 이미지 크기 변경
+		Image changeImgAudioOff = imgAudioOff.getScaledInstance(30,30, Image.SCALE_SMOOTH);
+		ImageIcon changeIconAudioOff = new ImageIcon(changeImgAudioOff);
+		Image changeImgAudioOn = imgAudioOn.getScaledInstance(30,30, Image.SCALE_SMOOTH);
+		ImageIcon changeIconAudioOn = new ImageIcon(changeImgAudioOn);
+
+		this.changeIconAudioOff = changeIconAudioOff;
+		this.changeIconAudioOn = changeIconAudioOn;
+
+		// 음악 재생 버튼 생성
+		audioBtn = new JButton(changeIconAudioOff);
+		audioBtn.setBounds(753,20,30,30);
+		audioBtn.addActionListener(this);
+		panel.add(audioBtn);
+
+		// 획득 골드 아이콘 표시
+		ImageIcon getGold = new ImageIcon("src/main/resources/images/gold.png");
+		Image imgGetGold = getGold.getImage();
+
+		Image changeImgGetGold = imgGetGold.getScaledInstance(20,20, Image.SCALE_SMOOTH);
+		ImageIcon changeIconGetGold = new ImageIcon(changeImgGetGold);
+
+		this.changeIconGetGold = changeIconGetGold;
+
+		JLabel imageGetGoldLabel = new JLabel(changeIconGetGold);
+		imageGetGoldLabel.setBounds(650,25,20,20);
+		panel.add(imageGetGoldLabel);
+
+		// 로그인한 사용자 표시
+		JLabel getUserNameLabel = new JLabel(user.name);
+		getUserNameLabel.setBounds(550,25,50,20);
+		panel.add(getUserNameLabel);
+
+		// 획득 골드 숫자 표시
+		JLabel getGoldLabel = new JLabel("1,000");
+		Color goldBGC = new Color(210, 216, 217);
+		getGoldLabel.setBackground(goldBGC);
+		getGoldLabel.setBounds(680,25,50,20);
+		panel.add(getGoldLabel);
 
 
 		// 윈도우 리스너 이벤트 add
@@ -205,19 +324,15 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	@Override
 	public void windowOpened(WindowEvent e) {
 		// 윈도우 창이 열릴 때 처리할 내용
-//		music.playMusic();
 	}
 
 	@Override
 	public void windowClosing(WindowEvent e) {
 		// 윈도우 창이 닫힐 때 처리할 내용
-//		if (music != null) {
 		if (music.isPlaying()) {
 			music.stopMusic();
 			audioBtn.setIcon(this.changeIconAudioOn);
 		}
-//			music.stopMusic();
-//		}
 	}
 
 	@Override
@@ -532,13 +647,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 			// us our final value to wait for
 			SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
 		}
-
-
-
-
-
-
-
 	}
 
 	/**
@@ -570,7 +678,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 			if (waitingForKeyPress) {
 				return;
 			}
-
 
 			if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 				leftPressed = true;
