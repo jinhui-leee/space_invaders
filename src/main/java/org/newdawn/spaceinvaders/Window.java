@@ -20,15 +20,13 @@ public class Window extends JLabel implements ActionListener {
     Toolkit toolkit = Toolkit.getDefaultToolkit();
     Dimension screenSize = toolkit.getScreenSize();
 
-    private User user;
+    private static User user;
 
     // 게스트 모드
     public Window() {
 
         // 파이어베이스 애플리케이션 초기화
         Firebase.initialize();
-
-        System.out.print("게스트 모드");
 
         window = new JFrame("Space Invaders Main Menu");
         JPanel panel = (JPanel) window.getContentPane();
@@ -91,14 +89,13 @@ public class Window extends JLabel implements ActionListener {
 
     // 사용자 모드
     public Window(User user) {
-
+        // 필수......
         this.user = user;
+
+//        JOptionPane.showMessageDialog(window, user.name+"님으로 게임을 진행합니다..", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
+
         // 파이어베이스 애플리케이션 초기화
         Firebase.initialize();
-        System.out.print(user+"로 들어왔습니다.");
-//        System.out.print("이름이 뭐에요?");
-
-        System.out.println(user.name);
 
         JFrame jFrame = new JFrame("Space Invaders Main Menu");
         JPanel panel = (JPanel) jFrame.getContentPane();
@@ -165,40 +162,18 @@ public class Window extends JLabel implements ActionListener {
         // 게임 시작 버튼 클릭 시 게임 화면 뜸
         if (e.getSource() == btn[0]) {
             // 사용자로 게임 실행
-//            if(user!=null){
-//                System.out.print("사용자 모드로 게임 실행");
-//                Game game = new Game(user);
-//                game.setVisible(true);
-//                game.requestFocus();
-//                Thread gameThread = new Thread(() -> game.gameLoop());
-//                gameThread.start();
-//            }
-//            // 게스트로 게임 실행
-//            else{
-//                System.out.print("게스트 모드로 게임 실행");
-//                Game game = new Game();
-//                game.setVisible(true);
-//                game.requestFocus();
-//                Thread gameThread = new Thread(() -> game.gameLoop());
-//                gameThread.start();
-//            }
-            // 사용자로 게임 실행
-            if (user != null) {
-                System.out.print("사용자 모드로 게임 실행");
+            if(user!=null){
                 Game game = new Game(user);
                 game.setVisible(true);
                 game.requestFocus();
-//                Window window = new Window(user);
                 Thread gameThread = new Thread(() -> game.gameLoop());
                 gameThread.start();
             }
             // 게스트로 게임 실행
-            else {
-                System.out.print("게스트 모드로 게임 실행");
+            else{
                 Game game = new Game();
                 game.setVisible(true);
                 game.requestFocus();
-//                Window window = new Window(null);
                 Thread gameThread = new Thread(() -> game.gameLoop());
                 gameThread.start();
             }

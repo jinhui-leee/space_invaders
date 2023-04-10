@@ -1,9 +1,6 @@
 package org.newdawn.spaceinvaders;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
-//import com.google.firebase.auth.F
-//import com.google.firebase.auth.UserRecord;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +25,11 @@ public class Login extends JPanel implements ActionListener {
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
     static Dimension screenSize = toolkit.getScreenSize();
 
-    public boolean loginState = false;
+    private User user;
+
+    String userID;
+    String userPW;
+    String userName;
 
     public void login() {
 
@@ -86,10 +87,10 @@ public class Login extends JPanel implements ActionListener {
         login.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-
-        public void actionPerformed(ActionEvent e) {
-            // 로그인 버튼이 클릭된 경우
-            if (e.getSource() == loginbtn) {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // 로그인 버튼이 클릭된 경우
+        if (e.getSource() == loginbtn) {
 
             String id = inputID.getText();
             String pw = inputPWD.getText();
@@ -101,7 +102,6 @@ public class Login extends JPanel implements ActionListener {
             }
 
             else {
-
                 FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
                 DatabaseReference ref = userdatabase.getReference();
                 DatabaseReference usersRef = ref.child(encodedEmail);
@@ -119,16 +119,14 @@ public class Login extends JPanel implements ActionListener {
                             if (pw.equals(storedPassword)) {
                                 // 비밀번호가 일치하는 경우, 로그인 성공 처리를 합니다.
                                 User user = dataSnapshot.getValue(User.class);
-                                JOptionPane.showMessageDialog(login, "로그인 성공 ! "+user.name+"님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
+    //                                System.out.println(user); // org.newdawn.spaceinvaders.User@773ed1e2
+                                userID = user.email;
+                                userPW = user.password;
+                                userName = user.name;
+                                JOptionPane.showMessageDialog(login, "로그인 성공 ! " + userName + "님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
                                 login.dispose();
-                                Window userWindow = new Window(user);
-                                userWindow.setVisible(true);
-//                                Window userWindow = new Window(user);
-
-                                // 사용자 정보 가져옴
-//                                User user = dataSnapshot.getValue(User.class);
-
-//                                Game game = new Game(user);
+                                // Window로 user 정보 전달
+                                Window window = new Window(user);
 
                             } else {
                                 // 비밀번호가 일치하지 않는 경우, 로그인 실패 처리를 합니다.
@@ -139,7 +137,7 @@ public class Login extends JPanel implements ActionListener {
                             JOptionPane.showMessageDialog(login, "등록되지 않은 이메일입니다.", "이메일 불일치", JOptionPane.DEFAULT_OPTION);
                         }
                     }
-//                    @Override
+    //                    @Override
                     public void onCancelled(DatabaseError databaseError) {
                         // 데이터 가져오기를 실패한 경우, 로그인 실패 처리를 합니다.
                         JOptionPane.showMessageDialog(login, "로그인에 실패했습니다.", "로그인 실패", JOptionPane.DEFAULT_OPTION);

@@ -107,7 +107,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 	public ImageIcon changeIconGetGold;
 
-	public User user;
+	private static User user;
 
 	/**
 	 * Construct our game and set it running.
@@ -774,7 +774,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
 //		// using the actual main thread to run the game.
 //
 ////		g.gameLoop();
-		Window w = new Window();
+		if(user!=null) {
+			Window w = new Window(user);
+		}
+		else{
+			Window w = new Window();
+		}
 //	}
 	}
 }
