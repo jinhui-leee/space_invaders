@@ -5,13 +5,16 @@ import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.*;
-
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.*;
 import com.sun.java.accessibility.util.AWTEventMonitor;
-import com.sun.xml.internal.bind.v2.TODO;
-import com.sun.xml.internal.fastinfoset.stax.factory.StAXOutputFactory;
 import org.newdawn.spaceinvaders.entity.*;
+
+import static org.newdawn.spaceinvaders.Login.encodedEmail;
 
 /**
  * The main hook of our game. This class with both act as a manager
@@ -120,10 +123,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 */
 	// 게스트 모드로 게임 실행
 	public Game() {
+
 		// create a frame to contain our game
 		container = new JFrame("Space Invaders 102");
-
-		System.out.println("게스트 모드입니다.");
 
 		// get hold the content of the frame and set up the resolution of the game
 		JPanel panel = (JPanel) container.getContentPane();
@@ -175,7 +177,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		panel.add(imageGetGoldLabel);
 
 		// 획득 골드 숫자 표시
-//		TODO 획득한 골드 띄워야 함
 		int getGoldCnt = 0;
 		getGoldLabel = new JLabel();
 		getGoldLabel.setText(Integer.toString(getGoldCnt));
@@ -262,7 +263,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		panel.add(audioBtn);
 
 		// 로그인한 사용자 표시 (로그인 시 사용한 ID를 통해 파이어베이스에서 사용자 정보 가져옴)
-//		String encodedEmail = Base64.getEncoder().encodeToString(user.name.getBytes());
 		JLabel getUserNameLabel = new JLabel(user.name);
 		getUserNameLabel.setBounds(550,25,50,20);
 		panel.add(getUserNameLabel);
@@ -340,6 +340,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	@Override
 	public void windowClosing(WindowEvent e) {
 		// 윈도우 창이 닫힐 때 처리할 내용
+		// TODO 배경 음악 종료되어야 함
 		if (music.isPlaying()) {
 			music.stopMusic();
 			audioBtn.setIcon(this.changeIconAudioOn);
@@ -392,6 +393,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		upPressed = false;
 		downPressed = false;
 		firePressed = false;
+
 	}
 
 	/**
@@ -464,27 +466,32 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		stageLevel++;
 	}
 
-	public void paintComponent(Graphics g){
-		super.paint(g);
-		g.drawString("Gold : "+user.gold, 10, 20);
-	}
-
 	/**
 	 * Notification that an alien has been killed
 	 */
 	public void notifyAlienKilled() {
-		// reduce the alient count, if there are none left, the player has won!
+		// reduce the alien count, if there are none left, the player has won!
 		alienCount--;
 		if (user != null) {
-//			this.user = user;
-			String encodedEmail = Base64.getEncoder().encodeToString(user.name.getBytes());
+			String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
 
-			// TODO user.gold 값을 올리고 리얼 DB에 바로 저장
-			// update user's gold value
 			user.gold++;
-			DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(encodedEmail);
-//			userRef.child("gold").setValue(user.gold.toString());
+			FirebaseDatabase database = FirebaseDatabase.getInstance();
+			DatabaseReference ref = database.getReference();
+			DatabaseReference userRef = ref.child(encodedEmail);
 
+			Map<String, Object> updates = new HashMap<>();
+			updates.put("/" + encodedEmail + "/gold", user.gold);
+			userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
+				@Override
+				public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+					if (databaseError != null) {
+//						Log.d(TAG, "Data could not be saved: " + databaseError.getMessage());
+					} else {
+//						Log.d(TAG, "Data saved successfully.");
+					}
+				}
+			});
 			// update the UI with the new gold value
 			SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
 		}
@@ -492,7 +499,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 			getGoldCnt++;
 			SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
 		}
-
 		if (alienCount <= 0) {
 			notifyWin();
 		}
@@ -553,6 +559,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 		long lastLoopTime = SystemTimer.getTime();
+
+		System.out.println(lastLoopTime);
 
 		// keep looping round til the game ends
 

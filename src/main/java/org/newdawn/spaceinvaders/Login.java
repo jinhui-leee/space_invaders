@@ -25,10 +25,7 @@ public class Login extends JPanel implements ActionListener {
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
     static Dimension screenSize = toolkit.getScreenSize();
 
-//    String userID;
-//    String userPW;
-//    String userName;
-//    Integer userGold;
+    static String encodedEmail;
 
     public void login() {
 
