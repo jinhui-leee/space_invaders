@@ -25,10 +25,10 @@ public class Login extends JPanel implements ActionListener {
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
     static Dimension screenSize = toolkit.getScreenSize();
 
-    String userID;
-    String userPW;
-    String userName;
-    Integer userGold;
+//    String userID;
+//    String userPW;
+//    String userName;
+//    Integer userGold;
 
     public void login() {
 
@@ -100,6 +100,7 @@ public class Login extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(login, "아이디 또는 비밀번호를 입력하셔야 됩니다.", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
             }
             else {
+                // 사용자 정보 받아오기
                 FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
                 DatabaseReference ref = userdatabase.getReference();
                 DatabaseReference usersRef = ref.child(encodedEmail);
@@ -109,22 +110,14 @@ public class Login extends JPanel implements ActionListener {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // 입력된 이메일을 키로 하는 데이터를 가져옵니다.
                         if (dataSnapshot.exists()) {
+                            User user = null;
                             // 데이터가 존재하는 경우, 비밀번호를 가져옵니다.
-                            String storedPassword = null;
                             for(DataSnapshot postSnapshot : dataSnapshot.getChildren()){
-                                // TODO 여기서 무한루프 돌고 있음 수정 필요
-                                System.out.println("데이터 있는 거 확인함");
-                                storedPassword = postSnapshot.getValue(String.class);
+                                user = dataSnapshot.getValue(User.class);
                             }
-                            if (pw.equals(storedPassword)) {
+                            if (pw.equals(user.password)) {
                                 // 비밀번호가 일치하는 경우, 로그인 성공 처리를 합니다.
-                                User user = dataSnapshot.getValue(User.class);
-                                userID = user.email;
-                                userPW = user.password;
-                                userName = user.name;
-                                System.out.println(userGold);
-                                userGold = user.gold;
-                                JOptionPane.showMessageDialog(login, "로그인 성공 ! " + userName + "님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
+                                JOptionPane.showMessageDialog(login, "로그인 성공 ! " + user.name + "님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
                                 login.dispose();
                                 // Window로 user 정보 전달
                                 Window window = new Window(user);

@@ -10,6 +10,7 @@ import javax.swing.*;
 import com.google.firebase.database.*;
 import com.sun.java.accessibility.util.AWTEventMonitor;
 import com.sun.xml.internal.bind.v2.TODO;
+import com.sun.xml.internal.fastinfoset.stax.factory.StAXOutputFactory;
 import org.newdawn.spaceinvaders.entity.*;
 
 /**
@@ -109,6 +110,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 	private static User user;
 
+	/** 골드 초기값 = 0; */
+	private int getGoldCnt = 0;
+
+	private JLabel getGoldLabel;
 
 	/**
 	 * Construct our game and set it running.
@@ -117,6 +122,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	public Game() {
 		// create a frame to contain our game
 		container = new JFrame("Space Invaders 102");
+
+		System.out.println("게스트 모드입니다.");
 
 		// get hold the content of the frame and set up the resolution of the game
 		JPanel panel = (JPanel) container.getContentPane();
@@ -170,7 +177,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		// 획득 골드 숫자 표시
 //		TODO 획득한 골드 띄워야 함
 		int getGoldCnt = 0;
-		JLabel getGoldLabel = new JLabel();
+		getGoldLabel = new JLabel();
 		getGoldLabel.setText(Integer.toString(getGoldCnt));
 		Color goldBGC = new Color(210, 216, 217);
 		getGoldLabel.setBackground(goldBGC);
@@ -255,38 +262,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		panel.add(audioBtn);
 
 		// 로그인한 사용자 표시 (로그인 시 사용한 ID를 통해 파이어베이스에서 사용자 정보 가져옴)
-		String encodedEmail = Base64.getEncoder().encodeToString(user.name.getBytes());
+//		String encodedEmail = Base64.getEncoder().encodeToString(user.name.getBytes());
 		JLabel getUserNameLabel = new JLabel(user.name);
 		getUserNameLabel.setBounds(550,25,50,20);
 		panel.add(getUserNameLabel);
-
-		FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
-		DatabaseReference ref = userdatabase.getReference();
-		DatabaseReference usersRef = ref.child(encodedEmail);
-
-		usersRef.child(encodedEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-			@Override
-			public void onDataChange(DataSnapshot dataSnapshot) {
-				// 입력된 이메일을 키로 하는 데이터를 가져옵니다.
-				if (dataSnapshot.exists()) {
-					String storedPassword;
-					for(DataSnapshot postSnapshot : dataSnapshot.getChildren()){
-						storedPassword = postSnapshot.getValue(String.class);
-						System.out.println(storedPassword);
-						// 획득 골드 숫자 표시
-						JLabel getGoldLabel = new JLabel();
-						getGoldLabel.setText(storedPassword);
-						Color goldBGC = new Color(210, 216, 217);
-						getGoldLabel.setBackground(goldBGC);
-						getGoldLabel.setBounds(680,25,50,20);
-						panel.add(getGoldLabel);
-					}
-				}
-			}
-			//                    @Override
-			public void onCancelled(DatabaseError databaseError) {
-			}
-		});
 
 		// 획득 골드 아이콘 표시
 		ImageIcon getGold = new ImageIcon("src/main/resources/images/gold.png");
@@ -300,13 +279,19 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		imageGetGoldLabel.setBounds(650,25,20,20);
 		panel.add(imageGetGoldLabel);
 
+		// 획득 골드 숫자 표시
+		getGoldLabel = new JLabel();
+		getGoldLabel.setText(user.gold.toString());
+		Color goldBGC = new Color(210, 216, 217);
+		getGoldLabel.setBackground(goldBGC);
+		getGoldLabel.setBounds(680,25,50,20);
+		panel.add(getGoldLabel);
 
 
 		// 윈도우 리스너 이벤트 add
 		AWTEventMonitor.addWindowListener(this);
 
 		panel.add(this);
-
 
 		// Tell AWT not to bother repainting our canvas since we're
 		// going to do that our self in accelerated mode
@@ -479,12 +464,34 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		stageLevel++;
 	}
 
+	public void paintComponent(Graphics g){
+		super.paint(g);
+		g.drawString("Gold : "+user.gold, 10, 20);
+	}
+
 	/**
 	 * Notification that an alien has been killed
 	 */
 	public void notifyAlienKilled() {
 		// reduce the alient count, if there are none left, the player has won!
 		alienCount--;
+		if (user != null) {
+//			this.user = user;
+			String encodedEmail = Base64.getEncoder().encodeToString(user.name.getBytes());
+
+			// TODO user.gold 값을 올리고 리얼 DB에 바로 저장
+			// update user's gold value
+			user.gold++;
+			DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(encodedEmail);
+//			userRef.child("gold").setValue(user.gold.toString());
+
+			// update the UI with the new gold value
+			SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
+		}
+		else{
+			getGoldCnt++;
+			SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
+		}
 
 		if (alienCount <= 0) {
 			notifyWin();
