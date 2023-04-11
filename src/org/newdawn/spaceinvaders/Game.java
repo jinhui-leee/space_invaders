@@ -3,7 +3,13 @@ package org.newdawn.spaceinvaders;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import org.newdawn.spaceinvaders.entity.*;
@@ -91,7 +97,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	/**스테이지 레벨*/
 	private int stageLevel = 0;
 
-	private int bossStageLevel = 5;
+	private final int bossStageLevel = 5;
 
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
@@ -107,13 +113,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 	long timeRecord;
 
+	int gameDifficulty;
+
+
 
 
 
 	/**
 	 * Construct our game and set it running.
 	 */
-	public Game() {
+	public Game(int gameDifficulty) {
 		// create a frame to contain our game
 		container = new JFrame("Space Invaders 102");
 
@@ -187,6 +196,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		// to manage our accelerated graphics
 		createBufferStrategy(2);
 		strategy = getBufferStrategy();
+
+		this.gameDifficulty = gameDifficulty;
 
 		initEntities();
 	}
@@ -311,8 +322,23 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		if (stageLevel < bossStageLevel) {
 			alienCount = 0;
 			//적(외계인) 생성 : 12x5 크기
-			for (int row = 0; row < 3+stageLevel; row++) {
-				for (int x = 0; x < 5+stageLevel; x++) {
+			int alienRow, alienX;
+			if (gameDifficulty == 0) {
+				alienRow = 5;
+				alienX = 7;
+			}
+			else if (gameDifficulty == 1) {
+				alienRow = 7;
+				alienX =12;
+			}
+			else {
+				alienRow = 9;
+				alienX = 15;
+			}
+
+
+			for (int row = 0; row < alienRow+stageLevel; row++) {
+				for (int x = 0; x < alienX+stageLevel; x++) {
 					Entity alien = new AlienEntity(this,100+(x*50),(50)+row*30);
 					entities.add(alien);
 					alienCount++;
@@ -353,8 +379,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 * Notification that the player has died.
 	 */
 	public void notifyDeath() {
-		timeRecord = SystemTimer.getTime();
-		timeRecord = (timeRecord - startTime)/1000;
 		message = "Oh no! They got you, try again?" + " stage level : " + stageLevel + " time record : " + timeRecord + " s";
 		stageLevel = 0;
 		waitingForKeyPress = true;
@@ -368,6 +392,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		message = "Well done! You Win!\n" + "stage level : " + stageLevel + "time record : " ;
 		waitingForKeyPress = true;
 		stageLevel++;
+		//gameRunning = false;
 	}
 
 	/**
@@ -435,142 +460,169 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 */
 	public void gameLoop() {
 
-		startTime = SystemTimer.getTime();
 		long lastLoopTime = SystemTimer.getTime();
 
 		// keep looping round til the game ends
 
-		while (gameRunning) {
-			// work out how long its been since the last update, this
-			// will be used to calculate how far the entities should
-			// move this loop
-			long delta = SystemTimer.getTime() - lastLoopTime;
-			lastLoopTime = SystemTimer.getTime();
+		while (true) {
+			if (gameRunning) {
+				// 게임 실행 중인 코드
+				while (gameRunning) {
+					// work out how long its been since the last update, this
+					// will be used to calculate how far the entities should
+					// move this loop
+					long delta = SystemTimer.getTime() - lastLoopTime;
+					lastLoopTime = SystemTimer.getTime();
 
-			// update the frame counter
-			lastFpsTime += delta;
-			fps++;
+					// update the frame counter
+					lastFpsTime += delta;
+					fps++;
 
-			// update our FPS counter if a second has passed since
-			// we last recorded
-			if (lastFpsTime >= 1000) {
-				container.setTitle(windowTitle+" (FPS: "+fps+")");
-				lastFpsTime = 0;
-				fps = 0;
-			}
-
-			// Get hold of a graphics context for the accelerated
-			// surface and blank it out
-			//배경색
-			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-			g.setColor(Color.black);
-			g.fillRect(0,0,800,600);
-
-			// cycle round asking each entity to move itself
-			//, 적 무리 만들고 움직이게 하기
-			if (!waitingForKeyPress) {
-				for (int i=0; i<entities.size(); i++) {
-					//i번째 entities 가져온다
-					Entity entity = (Entity) entities.get(i);
-					entity.move(delta);
-				}
-			}
-
-			// cycle round drawing all the entities we have in the game
-			for (int i=0;i<entities.size();i++) {
-				Entity entity = (Entity) entities.get(i);
-
-				entity.draw(g);
-			}
-
-			// brute force collisions, compare every entity against
-			// every other entity. If any of them collide notify
-			// both entities that the collision has occured
-			for (int p=0; p<entities.size(); p++) {
-				for (int s=p+1; s<entities.size(); s++) {
-					Entity me = (Entity) entities.get(p);
-					Entity him = (Entity) entities.get(s);
-
-					if (me.collidesWith(him)) {
-						me.collidedWith(him);
-						him.collidedWith(me);
+					// update our FPS counter if a second has passed since
+					// we last recorded
+					if (lastFpsTime >= 1000) {
+						container.setTitle(windowTitle+" (FPS: "+fps+")");
+						lastFpsTime = 0;
+						fps = 0;
 					}
+
+					// Get hold of a graphics context for the accelerated
+					// surface and blank it out
+					//배경색
+					Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+					g.setColor(Color.black);
+					g.fillRect(0,0,800,600);
+
+					// cycle round asking each entity to move itself
+					//, 적 무리 만들고 움직이게 하기
+					if (!waitingForKeyPress) {
+						for (int i=0; i<entities.size(); i++) {
+							//i번째 entities 가져온다
+							Entity entity = (Entity) entities.get(i);
+							entity.move(delta);
+						}
+					}
+
+					// cycle round drawing all the entities we have in the game
+					for (int i=0;i<entities.size();i++) {
+						Entity entity = (Entity) entities.get(i);
+
+						entity.draw(g);
+					}
+
+					// brute force collisions, compare every entity against
+					// every other entity. If any of them collide notify
+					// both entities that the collision has occured
+					for (int p=0; p<entities.size(); p++) {
+						for (int s=p+1; s<entities.size(); s++) {
+							Entity me = (Entity) entities.get(p);
+							Entity him = (Entity) entities.get(s);
+
+							if (me.collidesWith(him)) {
+								me.collidedWith(him);
+								him.collidedWith(me);
+							}
+						}
+					}
+
+					// remove any entity that has been marked for clear up
+					entities.removeAll(removeList);
+					removeList.clear();
+
+					// if a game event has indicated that game logic should
+					// be resolved, cycle round every entity requesting that
+					// their personal logic should be considered.
+					if (logicRequiredThisLoop) {
+						for (int i=0;i<entities.size();i++) {
+							Entity entity = (Entity) entities.get(i);
+							entity.doLogic();
+						}
+
+						logicRequiredThisLoop = false;
+					}
+
+					// if we're waiting for an "any key" press then draw the
+					// current message
+					//아무키 누르는 거 대기 중(게임 시작 전, 게임 끝난 후)
+					if (waitingForKeyPress) {
+						g.setColor(Color.white);
+						g.drawString(message,(800-g.getFontMetrics().stringWidth(message))/2,250);
+						g.drawString("Press any key",(800-g.getFontMetrics().stringWidth("Press any key"))/2,300);
+					}
+
+					// finally, we've completed drawing so clear up the graphics
+					// and flip the buffer over
+					g.dispose();
+					strategy.show();
+
+					// resolve the movement of the ship. First assume the ship
+					// isn't moving. If either cursor key is pressed then
+					// update the movement appropraitely
+					ship.setHorizontalMovement(0);
+					ship.setVerticalMovement(0);
+
+					if ((leftPressed) && (!rightPressed)) {
+						ship.setHorizontalMovement(-moveSpeed);
+					} else if ((rightPressed) && (!leftPressed)) {
+						ship.setHorizontalMovement(moveSpeed);
+					}
+
+					if ((upPressed)&&(!downPressed)) {
+						ship.setVerticalMovement(-moveSpeed);
+					}
+					else if ((downPressed)&&(!upPressed)) {
+						ship.setVerticalMovement(moveSpeed);
+					}
+
+					// if we're pressing fire, attempt to fire
+					if (firePressed) {
+						tryToFire();
+
+						if (stageLevel >= bossStageLevel && !waitingForKeyPress) {
+							shotShip();
+						}
+
+					}
+
+
+					// we want each frame to take 10 milliseconds, to do this
+					// we've recorded when we started the frame. We add 10 milliseconds
+					// to this and then factor in the current time to give
+					// us our final value to wait for
+					SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
 				}
+			} else {
+				// 새로운 화면 그리기
+				//drawStoreMenu();
 			}
-
-			// remove any entity that has been marked for clear up
-			entities.removeAll(removeList);
-			removeList.clear();
-
-			// if a game event has indicated that game logic should
-			// be resolved, cycle round every entity requesting that
-			// their personal logic should be considered.
-			if (logicRequiredThisLoop) {
-				for (int i=0;i<entities.size();i++) {
-					Entity entity = (Entity) entities.get(i);
-					entity.doLogic();
-				}
-
-				logicRequiredThisLoop = false;
-			}
-
-			// if we're waiting for an "any key" press then draw the
-			// current message
-			//아무키 누르는 거 대기 중(게임 시작 전, 게임 끝난 후)
-			if (waitingForKeyPress) {
-				g.setColor(Color.white);
-				g.drawString(message,(800-g.getFontMetrics().stringWidth(message))/2,250);
-				g.drawString("Press any key",(800-g.getFontMetrics().stringWidth("Press any key"))/2,300);
-			}
-
-			// finally, we've completed drawing so clear up the graphics
-			// and flip the buffer over
-			g.dispose();
-			strategy.show();
-
-			// resolve the movement of the ship. First assume the ship
-			// isn't moving. If either cursor key is pressed then
-			// update the movement appropraitely
-			ship.setHorizontalMovement(0);
-			ship.setVerticalMovement(0);
-
-			if ((leftPressed) && (!rightPressed)) {
-				ship.setHorizontalMovement(-moveSpeed);
-			} else if ((rightPressed) && (!leftPressed)) {
-				ship.setHorizontalMovement(moveSpeed);
-			}
-
-			if ((upPressed)&&(!downPressed)) {
-				ship.setVerticalMovement(-moveSpeed);
-			}
-			else if ((downPressed)&&(!upPressed)) {
-				ship.setVerticalMovement(moveSpeed);
-			}
-
-			// if we're pressing fire, attempt to fire
-			if (firePressed) {
-				tryToFire();
-
-				if (stageLevel >= bossStageLevel && !waitingForKeyPress) {
-					shotShip();
-				}
-
-			}
-
-
-			// we want each frame to take 10 milliseconds, to do this
-			// we've recorded when we started the frame. We add 10 milliseconds
-			// to this and then factor in the current time to give
-			// us our final value to wait for
-			SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
 		}
 
 
+	}
+
+	public void drawStoreMenu() {
+		// 이미지1을 배경으로 하는 화면 그리기
+		Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+
+		g.setColor(Color.decode("#5abcd8"));
+		g.fillRect(0,0,800,600);
+
+		// 버튼 그리기
+		JButton []itemBtn = new JButton[3];
+		for (int i=0; i<3; i++) {
+			itemBtn[i] = new JButton("구매");
+			//itemBtn[i].setBounds();
+		}
 
 
+		g.setColor(Color.white);
+		g.setFont(new Font("Arial", Font.BOLD, 24));
+		g.drawString("Start Game", 300, 200);
+		g.drawString("Options", 300, 250);
+		g.drawString("Exit", 300, 300);
 
-
-
+		g.dispose();
+		strategy.show();
 	}
 
 	/**

@@ -15,7 +15,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
 
 
-    enum GameState {STARTING, PLAYING, MAIN_MENU, DESCRIPTION, THEME, CHARACTER, RANKING}
+    enum GameState {STARTING, PLAYING, MAIN_MENU, OPTIONS, DESCRIPTION, THEME, CHARACTER, RANKING}
     GameState gameState;
 
 
@@ -43,6 +43,8 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
     JLabel []characterLabel;
 
     String []btnColor;
+
+    static int gameLevel[];
 
 
 
@@ -143,7 +145,9 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
         //버튼 생성
         btnImage = new ImageIcon[10];
-        btn = new JButton[10];
+
+
+        btn = new JButton[13];
 
         URL[] btnImageUrl = new URL[10];
         //메인화면
@@ -164,7 +168,10 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         btnImageUrl[8] = getClass().getResource("/sprites/btn9.png");
         btnImageUrl[9] = getClass().getResource("/sprites/btn9.png");
 
-        String []btnStr = new String[10];
+
+
+
+        String []btnStr = new String[13];
         btnStr[0] = "게임시작";
         btnStr[1] = "게임설명";
         btnStr[2] = "테마설정";
@@ -173,8 +180,12 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
         btnStr[5] = "로그인";
         btnStr[6] = "회원가입";
         btnStr[7] = "";
-        btnStr[8] = "선택하기";
-        btnStr[9] = "선택하기";
+        btnStr[8] = "선택하기"; //테마
+        btnStr[9] = "선택하기"; //캐릭터
+        btnStr[10] = "쉬움";
+        btnStr[11] = "보통";
+        btnStr[12] = "어려움";
+
 
         btnColor = new String[9];
         btnColor[0] = "#451d52";
@@ -194,7 +205,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             if (i == 7) {
                 btnImage[i] = new ImageIcon(btnImageUrl[i]);
                 btn[i] = new JButton(btnImage[i]);
-                btn[7].setBounds(20, 15, 60, 60);
+                btn[i].setBounds(20, 15, 60, 60);
 
             }
             else {
@@ -203,7 +214,8 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
                 btn[i].setBackground(Color.decode(btnColor[0]));
                 if (i < 5) btn[i].setBounds(110 + 120 * i, 450, 100, 40);
                 else if (i < 7) btn[i].setBounds(230 + (i-5)*190, 380, 150, 50);
-                else btn[i].setBounds(350, 450, 100, 40);
+                else if (i < 10) btn[i].setBounds(350, 450, 100, 40);
+                else  btn[i].setBounds(220 + 120*(i-10), 420, 100, 50);
 
             }
 
@@ -283,9 +295,8 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
     public void btnManager() {
         //다른 곳의 버튼 없애기 + 메인화면에서 버튼 만들기
         if (gameState == GameState.MAIN_MENU) {
-            btn[7].setVisible(false);
-            btn[8].setVisible(false);
-            btn[9].setVisible(false);
+            for (int i=0; i<13; i++) btn[i].setVisible(false);
+
             for (int i=0; i<9; i++) themeLabel[i].setVisible(false);
 
             for (int i=0; i<5; i++) characterLabel[i].setVisible(false);
@@ -307,7 +318,14 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             btn[7].setContentAreaFilled(false);
             btn[7].setBorderPainted(false);
 
-            if (gameState == GameState.THEME) {
+            if (gameState == GameState.OPTIONS) {
+                for (int i=10; i<13; i++) {
+                    btn[i].setBackground(Color.decode(btnColor[theme]));
+                    add(btn[i]);
+                    btn[i].setVisible(true);
+                }
+            }
+            else if (gameState == GameState.THEME) {
                 //btn[8].setBounds(350, 450, 100, 40);
                 btn[8].setBackground(Color.decode(btnColor[theme]));
                 add(btn[8]);
@@ -330,6 +348,7 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
                     characterLabel[i].setVisible(true);
                 }
             }
+
         }
     }
 
@@ -389,12 +408,13 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
                 break;
 
             case MAIN_MENU:
+
+            case OPTIONS:
                 g2d.drawImage(backgroundImage[theme][0], 0, 0, 800, 600, null);
                 break;
 
             case DESCRIPTION:
                 g2d.drawImage(backgroundImage[theme][1], 0, 0, 800, 600, null);
-
                 break;
 
             case THEME:
@@ -403,7 +423,6 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
             case CHARACTER:
                 g2d.drawImage(backgroundImage[theme][3], 0, 0, 800, 600, null);
-
                 break;
 
             case RANKING:
@@ -429,11 +448,9 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
 
         //게임시작
         if (e.getSource() == btn[0]) {
+           gameState = GameState.OPTIONS;
+           btnManager();
 
-            Game game = new Game();
-            game.requestFocus();
-            Thread gameThread = new Thread(game::gameLoop);
-            gameThread.start();
         }
         //게임설명
         else if (e.getSource() == btn[1]) {
@@ -482,6 +499,25 @@ public class Framework extends JPanel implements ActionListener, MouseListener{
             gameState = GameState.MAIN_MENU;
             btnManager();
         }
+        else if (e.getSource() == btn[10]) {
+            Game game = new Game(0);
+            game.requestFocus();
+            Thread gameThread = new Thread(game::gameLoop);
+            gameThread.start();
+        }
+        else if (e.getSource() == btn[11]) {
+            Game game = new Game(1);
+            game.requestFocus();
+            Thread gameThread = new Thread(game::gameLoop);
+            gameThread.start();
+        }
+        else if (e.getSource() == btn[12]) {
+            Game game = new Game(2);
+            game.requestFocus();
+            Thread gameThread = new Thread(game::gameLoop);
+            gameThread.start();
+        }
+
 
 
 
