@@ -166,4 +166,11 @@ public abstract class Entity {
 		this.x=x;
 		this.y=y;
 	}
+
+	public void moveleft() {
+		x-=10;
+	}
+	public void moveright(){
+		x+=10;
+	}
 }

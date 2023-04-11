@@ -3,12 +3,8 @@ package org.newdawn.spaceinvaders;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import org.newdawn.spaceinvaders.entity.*;
@@ -43,8 +39,12 @@ public class Game extends Canvas
 	private ArrayList removeList = new ArrayList();
 
 	/** The entity representing the player */
+
+	private int cnt;
 	private Entity ship;
 	private Entity item;
+
+	private Entity obstacle;
 
 	private int itemnum=0;
 
@@ -109,6 +109,7 @@ public class Game extends Canvas
 	public Game() {
 		// create a frame to contain our game
 		container = new JFrame("Space Invaders 102");
+		System.out.println(lastFpsTime);
 		
 		// get hold the content of the frame and set up the resolution of the game
 		//JPanel
@@ -209,8 +210,9 @@ public class Game extends Canvas
 			alienCount = 0;
 
 			Entity bossAlien = new BossAlienEntity(this, 100, 50);
+			ObstacleEntity obstacle = new ObstacleEntity(this, "sprites/Obstacle.png", (int) (Math.random() * 750), 10);
 			entities.add(bossAlien);
-
+			;
 			alienCount++;
 		}
 
@@ -220,6 +222,14 @@ public class Game extends Canvas
 		entities.add(item);
 
 	}
+
+	private void CreateObstacle(){
+
+		obstacle=new ObstacleEntity(this,"sprites/Obstacle.png",(int)(Math.random()*750),10);
+		entities.add(obstacle);
+	}
+
+
 	
 	/**
 	 * Notification from a game entity that the logic of the game
