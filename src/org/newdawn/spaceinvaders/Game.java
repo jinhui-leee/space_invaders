@@ -46,6 +46,10 @@ public class Game extends Canvas
 	private Entity ship;
 	private Entity item;
 
+	private int itemnum=0;
+
+	private boolean itemact=false;
+
 	/** The speed at which the player's ship should move (pixels/sec) */
 	private double moveSpeed = 300;
 
@@ -125,9 +129,9 @@ public class Game extends Canvas
 		container.pack();
 		container.setResizable(false);
 		container.setVisible(true);
-		
 
-		
+
+
 		// add a listener to respond to the user closing the window. If they
 		// do we'd like to exit the game
 		container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -169,6 +173,7 @@ public class Game extends Canvas
 		entities.clear();
 		initEntities();
 		CreateitemEntities();
+		resetItem();
 		
 		// blank out any keyboard settings we might currently have
 		leftPressed = false;
@@ -289,9 +294,34 @@ public class Game extends Canvas
 		}
 		
 		// if we waited long enough, create the shot entity, and record the time.
-		lastFire = System.currentTimeMillis();
+	lastFire = System.currentTimeMillis();
 		ShotEntity shot = new ShotEntity(this,"sprites/shot.gif",ship.getX()+10,ship.getY()-30);
 		entities.add(shot);
+
+
+
+
+
+	}
+	public void itemFire() {
+		// check that we have waiting long enough to fire
+		if (System.currentTimeMillis() - lastFire < firingInterval) {
+			return;
+		}
+
+		// if we waited long enough, create the shot entity, and record the time.
+		lastFire = System.currentTimeMillis();
+
+
+			for ( int i=0; i<5;i++){
+				ShotEntity shot_item = new ShotEntity(this,"sprites/shot.gif",ship.getX()+(i*30)-60,ship.getY()-30);
+				entities.add(shot_item);
+
+
+		}
+
+
+
 	}
 
 	public void shotShip() {
@@ -301,8 +331,29 @@ public class Game extends Canvas
 			entities.add(shot);
 		}
 
+
 	}
 
+	public void useItem(){
+
+
+
+		int itemrandomnum=(int)(Math.random()*2)+1;
+
+		if(itemrandomnum==1){
+			firingInterval=250;
+		}
+		else if (itemrandomnum==2){
+			itemact=true;
+		}
+
+
+	}
+
+	public void resetItem(){
+		firingInterval=500;
+		itemact=false;
+	}
 	
 	/**
 	 * The main game loop. This loop is running during all game
@@ -431,8 +482,13 @@ public class Game extends Canvas
 
 			// if we're pressing fire, attempt to fire
 			if (firePressed) {
-				tryToFire();
 
+				if(itemact){
+					itemFire();
+				}
+				else {
+					tryToFire();
+				}
 				if (stageLevel >= bossStageLevel) {
 					shotShip();
 				}

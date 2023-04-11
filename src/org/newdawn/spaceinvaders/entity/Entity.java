@@ -3,6 +3,7 @@ package org.newdawn.spaceinvaders.entity;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 
+import org.newdawn.spaceinvaders.Game;
 import org.newdawn.spaceinvaders.Sprite;
 import org.newdawn.spaceinvaders.SpriteStore;
 
@@ -55,7 +56,10 @@ public abstract class Entity {
 		this.x = x;
 		this.y = y;
 	}
-	
+
+	public Entity(Game game, String sprite, double x, double y) {
+	}
+
 	/**
 	 * Request that this entity move itself based on a certain ammount
 	 * of time passing.

@@ -17,7 +17,7 @@ public class ItemEntity extends Entity{
         this.game=game;
 
         int x = (int)(Math.random() * (game.getWidth() - sprite.getWidth()));
-        int y = (int)(Math.random() * (game.getHeight() - sprite.getHeight())+150);
+        int y = (int)(Math.random() * (game.getHeight()- sprite.getHeight()));
         super.setLocation(x, y);
 
 
@@ -27,5 +27,11 @@ public class ItemEntity extends Entity{
     @Override
     public void collidedWith(Entity other) {
         ItemActivity=true;
+
+        if(other instanceof ShipEntity){
+            game.removeEntity(this);
+            game.useItem();
+
+        }
     }
 }
