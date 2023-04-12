@@ -30,6 +30,12 @@ import org.newdawn.spaceinvaders.entity.*;
  */
 public class Game extends Canvas
 {
+	int timer;
+	int timecheck;
+	int min=0;
+	int second=0;
+
+
 	/** The stragey that allows us to use accelerate page flipping */
 	private BufferStrategy strategy;
 
@@ -57,7 +63,7 @@ public class Game extends Canvas
 	private long lastFire = 0;
 
 	/** The interval between our players shot (ms) */
-	private long firingInterval = 500;
+	private long firingInterval = 400;
 
 	/** The number of aliens left on the screen */
 	private int alienCount;
@@ -334,6 +340,8 @@ public class Game extends Canvas
 
 	}
 
+
+
 	public void useItem(){
 
 
@@ -354,7 +362,11 @@ public class Game extends Canvas
 		firingInterval=500;
 		itemact=false;
 	}
-	
+	public void AddObstacle(){
+		ObstacleEntity obstacle = new ObstacleEntity(this, "sprites/Obstacle.png", 10, (int) (Math.random() * 450));
+		entities.add(obstacle);
+
+	}
 	/**
 	 * The main game loop. This loop is running during all game
 	 * play as is responsible for the following activities:
@@ -383,6 +395,10 @@ public class Game extends Canvas
 			// update the frame counter
 			lastFpsTime += delta;
 			fps++;
+			timer++;
+			if(timer>1000){
+				timer=1;
+			}
 
 			// update our FPS counter if a second has passed since
 			// we last recorded
@@ -493,6 +509,10 @@ public class Game extends Canvas
 					shotShip();
 				}
 
+			}
+			if(timer%200==0)
+			{
+				AddObstacle();
 			}
 
 
