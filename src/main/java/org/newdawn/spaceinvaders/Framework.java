@@ -2,6 +2,7 @@ package org.newdawn.spaceinvaders;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,6 +36,10 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
     JLabel []themeLabel;
 
+    JLabel rankingLabel;
+
+    JScrollPane rankingScrollPane;
+
     ImageIcon[] characterImage;
 
     int characterChoice = 0;
@@ -51,6 +56,9 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
     Dimension screenSize = toolkit.getScreenSize();
 
     private static User user;
+
+    /** 폰트 스타일 */
+    Font font_basic_bold = new Font("맑은 고딕",Font.BOLD,12);
 
     // 사용자 모드
     public Framework() {
@@ -200,8 +208,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         btnImageUrl[9] = getClass().getResource("/images/btn9.png");
 
 
-
-
         String []btnStr = new String[13];
         btnStr[0] = "게임시작";
         btnStr[1] = "게임설명";
@@ -328,12 +334,14 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
             for (int i=0; i<5; i++) characterLabel[i].setVisible(false);
 
+            rankingLabel.setVisible(false);
+            rankingScrollPane.setVisible(false);
+
             setLayout(null);
             for (int i=0; i<7; i++) {
                 btn[i].setBackground(Color.decode(btnColor[theme]));
                 btn[i].setVisible(true);
             }
-
         }
         else
         {
@@ -363,7 +371,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     add(themeLabel[i]);
                     themeLabel[i].setVisible(true);
                 }
-
             }
             else if (gameState == GameState.CHARACTER) {
                 btn[9].setBackground(Color.decode(btnColor[theme]));
@@ -375,7 +382,45 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     characterLabel[i].setVisible(true);
                 }
             }
+            /** ranking 화면 구현 */
+            else if (gameState == GameState.RANKING) {
+                // '사용자 랭킹' 텍스트 띄우기
+                ImageIcon rankingIcon = new ImageIcon("src/main/resources/images/rankingtitle.png");
+                Image imgRankingTitle = rankingIcon.getImage();
 
+                Image changeImgRankingTitle = imgRankingTitle.getScaledInstance(300, 100, Image.SCALE_SMOOTH);
+                ImageIcon changeIconRankingTitle = new ImageIcon(changeImgRankingTitle);
+
+                rankingLabel = new JLabel(changeIconRankingTitle);
+                add(rankingLabel);
+                rankingLabel.setBounds(250, 120, 300, 100);
+                rankingLabel.setVisible(true);
+
+                // TODO 표 형태로 사용자 랭킹 띄우기(게임 클리어 시간 짧은 순으로 띄우기)
+                Object[][] data = {
+                        {"00:30", "1등"},
+                        {"00:31", "2등"},
+                        {"00:32", "3등"},
+                        {"00:33", "4등"},
+                        {"00:34", "5등"},
+                };
+
+                //컬럼 이름
+                String[] columnNames = {"클리어 시간", "순위"};
+
+                // TableModel 생성
+                DefaultTableModel rankModel = new DefaultTableModel(data, columnNames);
+
+                // JTable 생성
+                JTable rankTable = new JTable(rankModel);
+
+                // JScrollPane에 JTable 추가
+                rankingScrollPane = new JScrollPane(rankTable);
+
+                add(rankingScrollPane);
+                rankingScrollPane.setBounds(150, 220, 500, 250);
+                rankingScrollPane.setVisible(true);
+            }
         }
     }
 
@@ -465,144 +510,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         }
 
     }
-
-    // 게스트 모드
-//    public Window() {
-//
-//        // 파이어베이스 애플리케이션 초기화
-//        Firebase.initialize();
-//
-//        window = new JFrame("Space Invaders Main Menu");
-//        JPanel panel = (JPanel) window.getContentPane();
-//
-//        panel.setLayout(null);
-//        panel.setPreferredSize(new Dimension(800,600));
-//        window.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
-//
-//        // setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
-//        setBounds(0,0,800,600);
-//        panel.add(this);
-//        setLayout(new BorderLayout());
-//
-//        // 이미지를 배경으로 설정
-//        URL backgroundUrl = getClass().getResource("/images/background1.png");
-//        ImageIcon image = new ImageIcon(backgroundUrl);
-//        label = new JLabel(image);
-//        add(label);
-//
-//        btnImage = new ImageIcon[7];
-//
-//        URL btnImageUrl[] = new URL[7];
-//        btnImageUrl[0] = getClass().getResource("/images/btn1.png");
-//        btnImageUrl[1] = getClass().getResource("/images/btn2.png");
-//        btnImageUrl[2] = getClass().getResource("/images/btn3.png");
-//        btnImageUrl[3] = getClass().getResource("/images/btn4.png");
-//        btnImageUrl[4] = getClass().getResource("/images/btn5.png");
-//        btnImageUrl[5] = getClass().getResource("/images/btn6.png");
-//        btnImageUrl[6] = getClass().getResource("/images/btn7.png");
-//
-//        btn = new JButton[7];
-//
-//        for (int i = 0; i < 7; i++) {
-//            btnImage[i] = new ImageIcon(btnImageUrl[i]);
-//            btn[i] = new JButton(btnImage[i]);
-//            if(i<=4) {
-//                btn[i].setBounds(110 + 120 * i, 450, 100, 40);
-//            }
-//            if(i==5){
-//                btn[5].setBounds(250,520,100,40);
-//            }
-//            if(i==6){
-//                btn[6].setBounds(450,520,100,40);
-//            }
-//            btn[i].addActionListener(this);
-//            label.add(btn[i]);
-//            btn[i].setVisible(true);
-//        }
-//
-//        window.addWindowListener(new WindowAdapter() {
-//            public void windowClosing(WindowEvent e) {
-//                System.exit(0); //윈도우 닫히면 종료
-//            }
-//        });
-//
-//        window.pack();
-//        window.setResizable(false);
-//        window.setVisible(true);
-//    }
-//
-//    // 사용자 모드
-//    public Window(User user) {
-//        // 필수......
-//        this.user = user;
-//
-////        JOptionPane.showMessageDialog(window, user.name+"님으로 게임을 진행합니다..", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
-//
-//        // 파이어베이스 애플리케이션 초기화
-//        Firebase.initialize();
-//
-//        JFrame jFrame = new JFrame("Space Invaders Main Menu");
-//        JPanel panel = (JPanel) jFrame.getContentPane();
-//
-//        //panel = new JPanel();
-//        panel.setLayout(null);
-//        panel.setPreferredSize(new Dimension(800,600));
-//        jFrame.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
-//
-//        // setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
-//        setBounds(0,0,800,600);
-//        panel.add(this);
-//        setLayout(new BorderLayout());
-//
-//        // 이미지를 배경으로 설정
-//        URL backgroundUrl = getClass().getResource("/images/background1.png");
-//        ImageIcon image = new ImageIcon(backgroundUrl);
-//        label = new JLabel(image);
-//        add(label);
-//
-//        btnImage = new ImageIcon[7];
-//
-//        URL btnImageUrl[] = new URL[7];
-//        btnImageUrl[0] = getClass().getResource("/images/btn1.png");
-//        btnImageUrl[1] = getClass().getResource("/images/btn2.png");
-//        btnImageUrl[2] = getClass().getResource("/images/btn3.png");
-//        btnImageUrl[3] = getClass().getResource("/images/btn4.png");
-//        btnImageUrl[4] = getClass().getResource("/images/btn5.png");
-//        btnImageUrl[5] = getClass().getResource("/images/btn6.png");
-//        btnImageUrl[6] = getClass().getResource("/images/btn7.png");
-//
-//        btn = new JButton[7];
-//
-//        for (int i = 0; i < 7; i++) {
-//            btnImage[i] = new ImageIcon(btnImageUrl[i]);
-//            btn[i] = new JButton(btnImage[i]);
-//            if(i<=4) {
-//                btn[i].setBounds(110 + 120 * i, 450, 100, 40);
-//            }
-//            if(i==5){
-//                btn[5].setBounds(250,520,100,40);
-//            }
-//            if(i==6){
-//                btn[6].setBounds(450,520,100,40);
-//            }
-//            btn[i].addActionListener(this);
-//            label.add(btn[i]);
-//            btn[i].setVisible(true);
-//        }
-//
-//        jFrame.addWindowListener(new WindowAdapter() {
-//            public void windowClosing(WindowEvent e) {
-//                System.exit(0); //윈도우 닫히면 종료
-//            }
-//        });
-//
-//        jFrame.pack();
-//        jFrame.setResizable(false);
-//        jFrame.setVisible(true);
-//    }
-
-
-
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -610,7 +517,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         if (e.getSource() == btn[0]) {
             gameState = GameState.OPTIONS;
             btnManager();
-
         }
         //게임설명
         else if (e.getSource() == btn[1]) {
@@ -621,7 +527,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         else if (e.getSource() == btn[2]) {
             gameState = GameState.THEME;
             btnManager();
-
         }
         //캐릭터설정
         else if (e.getSource() == btn[3]) {
@@ -643,7 +548,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             Register register = new Register();
             register.register();
         }
-
         //뒤로가기
         else if (e.getSource() == btn[7]) {
             gameState = GameState.MAIN_MENU;

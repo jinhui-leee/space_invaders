@@ -111,6 +111,7 @@ public class Register extends JPanel implements ActionListener {
             String pwd = inputPWD.getText();
             String name = inputName.getText();
             Integer gold = 0;
+            Integer score = 0;
             String encodedEmail = Base64.getEncoder().encodeToString(id.getBytes());
 
             // 빈칸으로 제출 시
@@ -130,7 +131,8 @@ public class Register extends JPanel implements ActionListener {
                             .setEmail(id)
                             .setPassword(pwd)
                             .setDisplayName(name)
-                            .setDisplayName(gold.toString());
+                            .setDisplayName(gold.toString())
+                            .setDisplayName(score.toString());
                     UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 
                     // Realtime Database에 저장
@@ -139,7 +141,7 @@ public class Register extends JPanel implements ActionListener {
                     DatabaseReference usersRef = ref.child(encodedEmail);
 
                     Map<String, User> users = new HashMap<>();
-                    users.put(encodedEmail, new User(id, pwd, name, gold));
+                    users.put(encodedEmail, new User(id, pwd, name, gold, score));
 
                     usersRef.setValueAsync(users);
 

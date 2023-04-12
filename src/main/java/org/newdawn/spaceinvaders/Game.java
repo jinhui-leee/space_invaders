@@ -205,7 +205,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
             // 로그인한 사용자 표시 (로그인 시 사용한 ID를 통해 파이어베이스에서 사용자 정보 가져옴)
             JLabel getUserNameLabel = new JLabel(user.name);
-            getUserNameLabel.setBounds(550,25,50,20);
+            getUserNameLabel.setBounds(550,25,70,20);
             panel.add(getUserNameLabel);
 
             // 획득 골드 숫자 표시
@@ -479,12 +479,17 @@ public class Game extends Canvas implements ActionListener, WindowListener
             String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
 
             user.gold++;
+            user.score++;
+
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference ref = database.getReference();
             DatabaseReference userRef = ref.child(encodedEmail);
 
             Map<String, Object> updates = new HashMap<>();
             updates.put("/" + encodedEmail + "/gold", user.gold);
+            // TODO 타이머 구현되면 시간 저장하고 비교, 랭킹 출력
+//            updates.put("/" + encodedEmail + "/score", user.score);
+
             userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
