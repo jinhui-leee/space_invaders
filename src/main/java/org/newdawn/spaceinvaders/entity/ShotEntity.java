@@ -24,7 +24,7 @@ public class ShotEntity extends Entity {
 	 * @param x The initial x location of the shot
 	 * @param y The initial y location of the shot
 	 */
-	public ShotEntity(Game game,String sprite,int x,int y) {
+	public ShotEntity(Game game, String sprite, int x, int y) {
 		super(sprite,x,y);
 		
 		this.game = game;

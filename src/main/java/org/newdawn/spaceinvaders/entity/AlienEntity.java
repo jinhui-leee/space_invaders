@@ -30,7 +30,7 @@ public class AlienEntity extends Entity {
 	 * @param x The intial x location of this alien
 	 * @param y The intial y location of this alient
 	 */
-	public AlienEntity(Game game,int x,int y) {
+	public AlienEntity(Game game, int x, int y) {
 		super("images/alien.gif",x,y);
 		
 		// setup the animatin frames

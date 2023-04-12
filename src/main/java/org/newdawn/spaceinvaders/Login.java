@@ -117,7 +117,7 @@ public class Login extends JPanel implements ActionListener {
                                 JOptionPane.showMessageDialog(login, "로그인 성공 ! " + user.name + "님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
                                 login.dispose();
                                 // Window로 user 정보 전달
-                                Window window = new Window(user);
+                                Framework framework = new Framework(user);
 
                             } else {
                                 // 비밀번호가 일치하지 않는 경우, 로그인 실패 처리를 합니다.

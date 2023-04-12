@@ -14,15 +14,15 @@ public class BossShotEntity extends Entity{
     /**
      * Create a new shot from the player
      *
-     * @param game The game in which the shot has been created
+     * @param gameOld The game in which the shot has been created
      * @param sprite The sprite representing this shot
      * @param x The initial x location of the shot
      * @param y The initial y location of the shot
      */
-    public BossShotEntity(Game game,String sprite,int x,int y) {
+    public BossShotEntity(Game gameOld, String sprite, int x, int y) {
         super(sprite,x,y);
 
-        this.game = game;
+        this.game = gameOld;
 
         dy = moveSpeed;
     }

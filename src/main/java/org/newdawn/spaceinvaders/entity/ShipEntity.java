@@ -19,7 +19,7 @@ public class ShipEntity extends Entity {
 	 * @param x The initial x location of the player's ship
 	 * @param y The initial y location of the player's ship
 	 */
-	public ShipEntity(Game game,String ref,int x,int y) {
+	public ShipEntity(Game game, String ref, int x, int y) {
 		super(ref,x,y);
 		
 		this.game = game;
