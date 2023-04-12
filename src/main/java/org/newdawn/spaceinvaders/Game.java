@@ -98,6 +98,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	Toolkit toolkit = Toolkit.getDefaultToolkit();
 	Dimension screenSize = toolkit.getScreenSize();
 
+	/** 글자 크기 */
+	static Font font_basic = new Font("맑은 고딕",Font.PLAIN,12);
+	static Font font_basic_bold = new Font("맑은 고딕",Font.BOLD,12);
+	static Font font_basic_bold_size_14 = new Font("맑은 고딕",Font.BOLD,14);
+	static Font font_basic_bold_size_16 = new Font("맑은 고딕",Font.BOLD,16);
+
 	/** 스테이지 레벨 */
 	private int stageLevel = 0;
 	private int bossStageLevel = 5;
@@ -113,10 +119,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 	private static User user;
 
-	/** 골드 초기값 = 0; */
+	/** 골드 초기값 = 0 */
 	private int getGoldCnt = 0;
-
 	private JLabel getGoldLabel;
+
+	/** 경과 시간 초기값 = 0 */
+	private int time = 0;
+	private JLabel timeLabel;
 
 	/**
 	 * Construct our game and set it running.
@@ -184,6 +193,18 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		getGoldLabel.setBackground(goldBGC);
 		getGoldLabel.setBounds(680,25,50,20);
 		panel.add(getGoldLabel);
+
+		// 경과 시간 표시
+		// TODO 시간 가운데 정렬 바로 반영
+		timeLabel = new JLabel();
+		timeLabel.setFont(font_basic_bold);
+		timeLabel.setText("00:00:00");
+//		timeLabel.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+		timeLabel.setForeground(Color.WHITE);
+		timeLabel.setBackground(Color.BLUE);
+		timeLabel.setOpaque(true); // 배경색이 보이도록 Opaque 속성을 true로 설정
+		timeLabel.setBounds(20, 20, 60, 25);
+		panel.add(timeLabel);
 
 		// 윈도우 리스너 이벤트 add
 		AWTEventMonitor.addWindowListener(this);
@@ -286,6 +307,15 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		getGoldLabel.setBackground(goldBGC);
 		getGoldLabel.setBounds(680,25,50,20);
 		panel.add(getGoldLabel);
+
+		// 경과 시간 표시
+		timeLabel = new JLabel();
+		timeLabel.setFont(font_basic_bold);
+		timeLabel.setText(Integer.toString(time));
+		timeLabel.setForeground(Color.white);
+		timeLabel.setBackground(Color.BLUE);
+		timeLabel.setBounds(20,20,80,25);
+		panel.add(timeLabel);
 
 
 		// 윈도우 리스너 이벤트 add
@@ -393,6 +423,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 		upPressed = false;
 		downPressed = false;
 		firePressed = false;
+
+
 
 	}
 
@@ -555,12 +587,21 @@ public class Game extends Canvas implements ActionListener, WindowListener
 	 * - Checking Input
 	 * <p>
 	 */
+	public static String formatTime(long delta) {
+		long millis = delta % 1000;
+		delta /= 1000;
+		long seconds = delta % 60;
+		delta /= 60;
+		long minutes = delta % 60;
+		String time = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
+		return time;
+	}
+
 	public void gameLoop() {
 
 
 		long lastLoopTime = SystemTimer.getTime();
-
-		System.out.println(lastLoopTime);
+		long startTime = lastLoopTime;
 
 		// keep looping round til the game ends
 
@@ -569,6 +610,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
 			// will be used to calculate how far the entities should
 			// move this loop
 			long delta = SystemTimer.getTime() - lastLoopTime;
+			String formattedTime = formatTime(SystemTimer.getTime() - startTime);
+//			System.out.println("경과 시간 : " + formattedTime);
+
 			lastLoopTime = SystemTimer.getTime();
 
 			// update the frame counter
