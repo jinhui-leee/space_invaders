@@ -3,12 +3,8 @@ package org.newdawn.spaceinvaders;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import org.newdawn.spaceinvaders.entity.*;
@@ -49,8 +45,12 @@ public class Game extends Canvas
 	private ArrayList removeList = new ArrayList();
 
 	/** The entity representing the player */
+
+	private int cnt;
 	private Entity ship;
 	private Entity item;
+
+	private Entity obstacle;
 
 	private int itemnum=0;
 
@@ -115,6 +115,7 @@ public class Game extends Canvas
 	public Game() {
 		// create a frame to contain our game
 		container = new JFrame("Space Invaders 102");
+		System.out.println(lastFpsTime);
 		
 		// get hold the content of the frame and set up the resolution of the game
 		//JPanel
@@ -215,6 +216,7 @@ public class Game extends Canvas
 			alienCount = 0;
 
 			Entity bossAlien = new BossAlienEntity(this, 100, 50);
+			ObstacleEntity obstacle = new ObstacleEntity(this, "sprites/Obstacle.png", (int) (Math.random() * 750), 10);
 			entities.add(bossAlien);
 
 			alienCount++;
@@ -226,6 +228,14 @@ public class Game extends Canvas
 		entities.add(item);
 
 	}
+
+	private void CreateObstacle(){
+
+		obstacle=new ObstacleEntity(this,"sprites/Obstacle.png",(int)(Math.random()*750),10);
+		entities.add(obstacle);
+	}
+
+
 	
 	/**
 	 * Notification from a game entity that the logic of the game
@@ -320,7 +330,7 @@ public class Game extends Canvas
 
 
 			for ( int i=0; i<5;i++){
-				ShotEntity shot_item = new ShotEntity(this,"sprites/shot.gif",ship.getX()+(i*30)-60,ship.getY()-30);
+				ShotEntity shot_item = new ShotEntity(this,"sprites/shot.gif",ship.getX()+(i*60)-60,ship.getY()-30);
 				entities.add(shot_item);
 
 
@@ -396,7 +406,7 @@ public class Game extends Canvas
 			lastFpsTime += delta;
 			fps++;
 			timer++;
-			if(timer>1000){
+			if(timer>10000){
 				timer=1;
 			}
 
@@ -414,7 +424,10 @@ public class Game extends Canvas
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			g.setColor(Color.black);
 			g.fillRect(0,0,800,600);
-
+			g.setColor(Color.white);
+			g.drawString("타이머 "+String.valueOf(timer),720,30);
+			g.setColor(Color.white);
+			g.drawString("남은 적 수 "+String.valueOf(alienCount),10,30);
 			// cycle round asking each entity to move itself
 			//, 적 무리 만들고 움직이게 하기
 			if (!waitingForKeyPress) {
@@ -577,7 +590,7 @@ public class Game extends Canvas
 			if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 				downPressed = true;
 			}
-		} 
+		}
 		
 		/**
 		 * Notification from AWT that a key has been released.
