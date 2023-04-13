@@ -3,11 +3,18 @@ package org.newdawn.spaceinvaders;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -34,19 +41,21 @@ import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
 public class Game extends Canvas implements ActionListener, WindowListener
 {
     /** The stragey that allows us to use accelerate page flipping */
-    private BufferStrategy strategy;
+    private final BufferStrategy strategy;
+
+    private final JLabel[] lifeLabel;
 
     /** True if the game is currently "running", i.e. the game loop is looping */
     private boolean gameRunning = true;
 
     /** The list of all the entities that exist in our game */
-    private ArrayList entities = new ArrayList();
+    private final ArrayList entities = new ArrayList();
 
     /** The list of entities that need to be removed from the game this loop */
-    private ArrayList removeList = new ArrayList();
+    private final ArrayList removeList = new ArrayList();
 
     /** The entity representing the player */
-    private Entity ship;
+    private ShipEntity ship;
 
     /** The speed at which the player's ship should move (pixels/sec) */
     private double moveSpeed = 300;
@@ -89,10 +98,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private int fps;
 
     /** The normal title of the game window */
-    private String windowTitle = "Space Invaders 102";
+    private final String windowTitle = "Space Invaders 102";
 
     /** The game window that we'll update with the frame count */
-    private JFrame container;
+    private final JFrame container;
 
     /**스테이지 레벨*/
     private int stageLevel = 0;
@@ -109,12 +118,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
     static Font font_basic_bold_size_16 = new Font("맑은 고딕",Font.BOLD,16);
 
 
-    private JButton audioBtn;
+    private final JButton audioBtn;
 
-    private Music music;
+    private final Music music;
 
-    private ImageIcon changeIconAudioOff;
-    private ImageIcon changeIconAudioOn;
+    private final ImageIcon changeIconAudioOff;
+    private final ImageIcon changeIconAudioOn;
 
     public ImageIcon changeIconGetGold;
 
@@ -122,40 +131,56 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     /** 골드 초기값 = 0 */
     private int getGoldCnt = 0;
-    private JLabel getGoldLabel;
+    private final JLabel getGoldLabel;
 
     /** 경과 시간 초기값 = 0 */
-    private int time = 0;
-    private JLabel timeLabel;
+    private final int time = 0;
+    private final JLabel timeLabel;
 
     long startTime;
 
-    long timeRecord;
+    private long timeRecord;
 
-    int gameDifficulty;
+    private final int gameDifficulty;
 
+    private final BufferedImage storeBackgroundImage;
 
+    private final String btnColor;
 
+    private JButton []itemPurchaseBtn;
+
+    private JPanel panel;
+
+    private int shotSpeed = -330;
+
+    //총알 발사 간격 아이템 사용 이후, 원래 총알 간격으로 돌아가기 위한 총알 간격
+    private long defaultFiringInterval = 500;
+    private JLabel[] itemStoreLabel;
+    private int shipLife;
 
 
     /**
      * Construct our game and set it running.
      */
-    public Game(int gameDifficulty, User user) {
+    public Game(int gameDifficulty, User user, String themeColor, BufferedImage image) {
         // create a frame to contain our game
         container = new JFrame("Space Invaders 102");
 
         // get hold the content of the frame and set up the resolution of the game
         //JPanel
-        JPanel panel = (JPanel) container.getContentPane();
+        panel = (JPanel) container.getContentPane();
 
         //panel = new JPanel();
         panel.setLayout(null);
         panel.setPreferredSize(new Dimension(800,600));
 
+
         // setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
         setBounds(0,0,800,600);
         container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
+
+        this.btnColor = themeColor;
+        this.storeBackgroundImage = image;
 
         // Music 객체 받아오고 재생
         music = new Music();
@@ -197,11 +222,65 @@ public class Game extends Canvas implements ActionListener, WindowListener
         imageGetGoldLabel.setBounds(650,25,20,20);
         panel.add(imageGetGoldLabel);
 
+        //생명 표시 (최대 5개)
+        URL shipLifeUrl = getClass().getResource("/icon/itemIcon4.png");
+        ImageIcon shipLifeImageIcon = new ImageIcon(shipLifeUrl);
+        Image shipLifeImage = shipLifeImageIcon.getImage();
+
+        shipLifeImage = shipLifeImage.getScaledInstance(20,20, Image.SCALE_SMOOTH);
+        shipLifeImageIcon = new ImageIcon(shipLifeImage);
+
+        lifeLabel = new JLabel[5];
+
+        for (int i=0; i<5; i++) {
+            lifeLabel[i] = new JLabel(shipLifeImageIcon);
+            lifeLabel[i].setBounds(525 + i*25,25,20,20);
+            panel.add(lifeLabel[i]);
+            lifeLabel[i].setVisible(false);
+        }
+        lifeLabel[4].setVisible(true);
+
+
+
+        //아이템 구입 버튼
+        itemPurchaseBtn = new JButton[5];
+        for (int i=0; i<5; i++) {
+            itemPurchaseBtn[i] = new JButton("구매하기");
+            itemPurchaseBtn[i].setBounds(170 + i*120, 430,100,40);
+        }
+        itemPurchaseBtn[4] = new JButton("NEXT");
+        itemPurchaseBtn[4].setBounds(350 , 530,100,40);
+        for (int i=0; i<itemPurchaseBtn.length; i++) {
+            itemPurchaseBtn[i].setForeground(Color.WHITE);
+            itemPurchaseBtn[i].setBackground(Color.decode(getBtnColor()));
+            itemPurchaseBtn[i].addActionListener(this);
+            panel.add(itemPurchaseBtn[i]);
+            itemPurchaseBtn[i].setVisible(false);
+        }
+
+        //아이템 상점 이미지
+        URL []itemStoreUrl = new URL[4];
+        ImageIcon[] itemStoreImage = new ImageIcon[4];
+        itemStoreLabel = new JLabel[4];
+
+        itemStoreUrl[0] = getClass().getResource("/icon/itemIcon1.png");
+        itemStoreUrl[1] = getClass().getResource("/icon/itemIcon2.png");
+        itemStoreUrl[2] = getClass().getResource("/icon/itemIcon3.png");
+        itemStoreUrl[3] = getClass().getResource("/icon/itemIcon4.png");
+
+        for (int i=0; i<itemStoreUrl.length; i++) {
+            itemStoreImage[i] = new ImageIcon(itemStoreUrl[i]);
+            itemStoreLabel[i] = new JLabel(itemStoreImage[i]);
+            itemStoreLabel[i].setBounds(itemPurchaseBtn[i].getX() + itemPurchaseBtn[0].getWidth() / 2 - itemStoreImage[i].getIconWidth()/2, 230, 98, 98);
+            panel.add(itemStoreLabel[i]);
+            itemStoreLabel[i].setVisible(false);
+        }
+
 
         // 사용자 모드
         if (user!=null){
             // 사용자 정보 받아오기
-            this.user = user;
+            Game.user = user;
 
             // 로그인한 사용자 표시 (로그인 시 사용한 ID를 통해 파이어베이스에서 사용자 정보 가져옴)
             JLabel getUserNameLabel = new JLabel(user.name);
@@ -292,6 +371,127 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
             }
         }
+        //아이템 구매 : ship +20 속도 증가, 20원
+        else if (e.getSource() == itemPurchaseBtn[0]) {
+
+            if (user != null) {
+                if (user.gold >= 20) {
+                    user.gold -= 20;
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
+                    moveSpeed += 20;
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+            }
+            else {
+                if (getGoldCnt >= 20) {
+                    getGoldCnt -= 20;
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
+                    moveSpeed += 20;
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+            }
+
+
+        }
+        //아이템 구매 : 총알 속도 -5 증가, 20원
+        else if (e.getSource() == itemPurchaseBtn[1]) {
+            if (user != null) {
+                if (user.gold >= 20) {
+                    user.gold -= 20;
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
+                    shotSpeed -= 5;
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+            }
+            else {
+                if (getGoldCnt >= 20) {
+                    getGoldCnt -= 20;
+                    shotSpeed -= 5;
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+            }
+        }
+        //아이템 구매 : 총알 발사 간격 -10, 50원
+        else if (e.getSource() == itemPurchaseBtn[2]) {
+            if (user != null) {
+                if (user.gold >= 50) {
+                    user.gold -= 50;
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
+                    firingInterval-=10;
+                    defaultFiringInterval = firingInterval;
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+            }
+            else {
+                if (getGoldCnt >= 50) {
+                    getGoldCnt -= 50;
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
+                    firingInterval-=10;
+                    defaultFiringInterval = firingInterval;
+
+
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+            }
+        }
+        //아이템 구매 : 생명 +1 200원
+        else if (e.getSource() == itemPurchaseBtn[3]) {
+            if (ship.getLife() >= 5) {
+                JOptionPane.showMessageDialog(null, "생명은 최대 5개입니다.");
+            }
+            else if (user != null) {
+                if (user.gold >= 200) {
+                    user.gold -= 200;
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
+                    shipLife = ship.getLife()+1;
+                    ship.setLife(shipLife);
+                    lifeLabel[5-ship.getLife()].setVisible(true);
+
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+            }
+            else {
+                if (getGoldCnt >= 200) {
+                    getGoldCnt -= 200;
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
+                    shipLife = ship.getLife()+1;
+                    ship.setLife(shipLife);
+                    lifeLabel[5-ship.getLife()].setVisible(true);
+
+
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+            }
+
+        }
+        //다음 스테이지 넘어가기
+        else if (e.getSource() == itemPurchaseBtn[4]) {
+            gameRunning = true;
+            btnManager();
+            startGame();
+
+        }
+    }
+
+    public void btnManager() {
+        if (gameRunning) {
+            for (int i=0; i<itemPurchaseBtn.length; i++) {
+                itemPurchaseBtn[i].setVisible(false);
+            }
+            for (int i=0; i<itemPurchaseBtn.length-1; i++) {
+                itemStoreLabel[i].setVisible(false);
+            }
+        }
+        else {
+            for (int i=0; i<itemPurchaseBtn.length; i++) {
+                itemPurchaseBtn[i].setVisible(true);
+            }
+            for (int i=0; i<itemPurchaseBtn.length-1; i++) {
+                itemStoreLabel[i].setVisible(true);
+            }
+
+        }
     }
     @Override
     public void windowOpened(WindowEvent e) {
@@ -351,6 +551,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
         entities.clear();
         initEntities();
 
+        if (stageLevel == 0) {
+            for (int i=0; i<4; i++) lifeLabel[i].setVisible(false);
+            lifeLabel[4].setVisible(true);
+            shipLife = 1;
+        }
+
+        ship.setLife(shipLife);
         // blank out any keyboard settings we might currently have
         leftPressed = false;
         rightPressed = false;
@@ -390,6 +597,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
             ship = new ShipEntity(this,"images/ship5.png",370,550);
 
         }
+        ship.setLife(shipLife);
         entities.add(ship);
 
         // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
@@ -453,7 +661,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * Notification that the player has died.
      */
     public void notifyDeath() {
-        message = "Oh no! They got you, try again?" + " stage level : " + stageLevel + " time record : " + timeRecord + " s";
+        message = "Oh no! They got you, try again?" + "  stage level : " + stageLevel;
         stageLevel = 0;
         waitingForKeyPress = true;
     }
@@ -463,7 +671,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * are dead.
      */
     public void notifyWin() {
-        message = "Well done! You Win!\n" + "stage level : " + stageLevel + "time record : " ;
+        message = "Well done! You Win!" + "  stage level : " + stageLevel ;
         waitingForKeyPress = true;
         stageLevel++;
         //gameRunning = false;
@@ -532,6 +740,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         // if we waited long enough, create the shot entity, and record the time.
         lastFire = System.currentTimeMillis();
         ShotEntity shot = new ShotEntity(this,"images/shot.gif",ship.getX()+10,ship.getY()-30);
+        shot.setMoveSpeed(shotSpeed);
         entities.add(shot);
         // 총알 발사 시 효과음 재생
         Music.shotAudio();
@@ -633,8 +842,17 @@ public class Game extends Canvas implements ActionListener, WindowListener
                             Entity him = (Entity) entities.get(s);
 
                             if (me.collidesWith(him)) {
+
                                 me.collidedWith(him);
                                 him.collidedWith(me);
+
+                                if ((me instanceof ShipEntity  || him instanceof ShipEntity) &&
+                                        (me instanceof AlienEntity || him instanceof AlienEntity
+                                                || me instanceof BossAlienEntity || him instanceof BossAlienEntity
+                                                || me instanceof BossShotEntity || him instanceof BossShotEntity)) {
+                                    lifeLabel[4-ship.getLife()].setVisible(false);
+                                }
+
                             }
                         }
                     }
@@ -706,8 +924,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
                 }
             } else {
-                // 새로운 화면 그리기
-                //drawStoreMenu();
+                // 스테이지 종료 후, 아이템 상점
+                drawStoreMenu();
             }
         }
 
@@ -717,26 +935,58 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void drawStoreMenu() {
         // 이미지1을 배경으로 하는 화면 그리기
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+        g.setColor(Color.white);
 
-        g.setColor(Color.decode("#5abcd8"));
-        g.fillRect(0,0,800,600);
+        g.drawImage(getStoreBackgroundImage(),0,0,800,600,null);
+        g.drawString("ship 속도", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("ship 속도")/2, 360);
+        g.drawString("+20", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("+20")/2, 380);
+        g.drawString("20코인", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("20코인")/2, 400);
+
+        g.drawString("총알 속도", itemPurchaseBtn[1].getX() + itemPurchaseBtn[1].getWidth() / 2 - g.getFontMetrics().stringWidth("총알 속도")/2, 360);
+        g.drawString("+5", itemPurchaseBtn[1].getX() + itemPurchaseBtn[1].getWidth() / 2 - g.getFontMetrics().stringWidth("+5")/2, 380);
+        g.drawString("20코인", itemPurchaseBtn[1].getX() + itemPurchaseBtn[1].getWidth() / 2 - g.getFontMetrics().stringWidth("20코인")/2, 400);
+
+        g.drawString("총알 발사 간격", itemPurchaseBtn[2].getX() + itemPurchaseBtn[2].getWidth() / 2 - g.getFontMetrics().stringWidth("총알 발사 간격")/2, 360);
+        g.drawString("+10", itemPurchaseBtn[2].getX() + itemPurchaseBtn[2].getWidth() / 2 - g.getFontMetrics().stringWidth("+10")/2, 380);
+        g.drawString("50코인",itemPurchaseBtn[2].getX() + itemPurchaseBtn[2].getWidth() / 2 - g.getFontMetrics().stringWidth("50코인")/2 , 400) ;
+
+        g.drawString("ship 생명", itemPurchaseBtn[3].getX() + itemPurchaseBtn[3].getWidth() / 2 - g.getFontMetrics().stringWidth("ship 생명")/2, 360);
+        g.drawString("+1", itemPurchaseBtn[3].getX() + itemPurchaseBtn[3].getWidth() / 2 - g.getFontMetrics().stringWidth("+1")/2, 380);
+        g.drawString("200코인", itemPurchaseBtn[3].getX() + itemPurchaseBtn[3].getWidth() / 2 - g.getFontMetrics().stringWidth("200코인")/2, 400);
+
+        g.drawString("스테이지 " + stageLevel + "클리어! 코인으로 아이템을 구매하세요!",(800-g.getFontMetrics().stringWidth("스테이지 " + stageLevel + "클리어! 코인으로 아이템을 구매하세요!"))/2,200);
+
+
+        URL fontUrl = getClass().getResource("/font/Cafe24Danjunghae.ttf");
+
+        Font font = null;
+        try {
+            assert fontUrl != null;
+            font = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 40);
+        } catch (FontFormatException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        g.setFont(font);
+        g.drawString("아이템 상점",(800-g.getFontMetrics().stringWidth("아이템 상점"))/2,150);
+
+
+
+
 
         // 버튼 그리기
-        JButton []itemBtn = new JButton[3];
-        for (int i=0; i<3; i++) {
-            itemBtn[i] = new JButton("구매");
-            //itemBtn[i].setBounds();
-        }
-
-
-        g.setColor(Color.white);
-        g.setFont(new Font("Arial", Font.BOLD, 24));
-        g.drawString("Start Game", 300, 200);
-        g.drawString("Options", 300, 250);
-        g.drawString("Exit", 300, 300);
+        btnManager();
 
         g.dispose();
         strategy.show();
+    }
+
+    public BufferedImage getStoreBackgroundImage() {
+        return storeBackgroundImage;
+    }
+
+
+    public String getBtnColor() {
+        return btnColor;
     }
 
     /**
@@ -834,7 +1084,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // event we can mark it as such and start
                     // our new game
                     waitingForKeyPress = false;
-                    startGame();
+                    if (stageLevel == 0) {
+                        startGame();
+
+                    }
+                    else {
+                        gameRunning = false;
+                    }
                     pressCount = 0;
                 } else {
                     pressCount++;
@@ -850,6 +1106,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 
+
+
     /**
      * The entry point into the game. We'll simply create an
      * instance of class which will start the display and game
@@ -857,7 +1115,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
      *
      * @param argv The arguments that are passed into our game
      */
-    public static void main(String argv[]) {
+    public static void main(String[] argv) {
 //		Game g = new Game();
 
         // Start the main game loop, note: this method will not
