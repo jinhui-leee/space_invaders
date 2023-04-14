@@ -136,7 +136,7 @@ public class Register extends JPanel implements ActionListener {
                     // Realtime Database에 저장
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference ref = database.getReference();
-                    DatabaseReference usersRef = ref.child(encodedEmail);
+                    DatabaseReference usersRef = ref.child("Users").child(encodedEmail);
 
                     Map<String, User> users = new HashMap<>();
                     users.put(encodedEmail, new User(id, pwd, name, gold));

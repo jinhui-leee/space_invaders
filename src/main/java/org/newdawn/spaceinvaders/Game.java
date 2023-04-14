@@ -479,8 +479,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
             else {
-                if (getGoldCnt >= 2) {
-                    getGoldCnt -= 2;
+                if (getGoldCnt >= 200) {
+                    getGoldCnt -= 200;
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
                     shipLife = ship.getLife()+1;
                     ship.setLife(shipLife);
@@ -637,16 +637,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
             //적(외계인) 생성 : 12x5 크기
             int alienRow, alienX;
             if (gameDifficulty == 0) {
+                alienRow = 4;
+                alienX = 6;
+            }
+            else if (gameDifficulty == 1) {
                 alienRow = 5;
                 alienX = 7;
             }
-            else if (gameDifficulty == 1) {
-                alienRow = 7;
-                alienX =12;
-            }
             else {
-                alienRow = 9;
-                alienX = 15;
+                alienRow = 6;
+                alienX = 8;
             }
 
 
@@ -979,8 +979,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 }
             }
         }
-
-
     }
 
     public void drawGameClear() {
@@ -1206,9 +1204,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
         }
     }
 
-
-
-
+    public int getGameDifficulty() {
+        return gameDifficulty;
+    }
 
     /**
      * The entry point into the game. We'll simply create an

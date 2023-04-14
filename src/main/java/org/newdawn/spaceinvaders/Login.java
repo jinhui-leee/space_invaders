@@ -100,7 +100,7 @@ public class Login extends JPanel implements ActionListener {
                 // 사용자 정보 받아오기
                 FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
                 DatabaseReference ref = userdatabase.getReference();
-                DatabaseReference usersRef = ref.child(encodedEmail);
+                DatabaseReference usersRef = ref.child("Users").child(encodedEmail);
 
                 usersRef.child(encodedEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
