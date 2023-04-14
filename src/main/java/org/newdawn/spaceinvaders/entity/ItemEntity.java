@@ -17,7 +17,7 @@ public class ItemEntity extends Entity{
         this.game=game;
 
         int x = (int)(Math.random() * (game.getWidth() - sprite.getWidth()));
-        int y = (int)(Math.random() * (game.getHeight()- sprite.getHeight()));
+        int y = (int)(Math.random() * 200)+200;
         super.setLocation(x, y);
 
 

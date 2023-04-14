@@ -90,6 +90,17 @@ public class ShipEntity extends Entity {
 					}
 				}, 1000); //1초간 무적
 			}
+			if(game.itemact3){
+				used = true;
+				System.out.println("life = " + life);
+				Timer timer = new Timer();
+				timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						used = false;
+					}
+				}, 5000); //1초간 무적
+			}
 			else {
 				game.notifyDeath();
 			}

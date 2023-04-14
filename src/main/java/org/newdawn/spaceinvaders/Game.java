@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.Timer;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -39,7 +40,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 {
     /** The stragey that allows us to use accelerate page flipping */
     private final BufferStrategy strategy;
-    int timer;
+    int timer2;
     int timecheck;
     int min=0;
     int second=0;
@@ -62,6 +63,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private int itemnum=0;
 
     private boolean itemact=false;
+    private boolean itemact2=false;
+    public boolean itemact3=false;
 
     /** The speed at which the player's ship should move (pixels/sec) */
     private double moveSpeed = 300;
@@ -158,6 +161,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private JPanel panel;
 
     private int shotSpeed = -330;
+    private int itemshot2speed=-1000;
 
     //총알 발사 간격 아이템 사용 이후, 원래 총알 간격으로 돌아가기 위한 총알 간격
     private long defaultFiringInterval = 500;
@@ -815,6 +819,21 @@ public class Game extends Canvas implements ActionListener, WindowListener
         // 총알 발사 시 효과음 재생
         Music.shotAudio();
     }
+    public void item2Fire() {
+        // check that we have waiting long enough to fire
+        if (System.currentTimeMillis() - lastFire < firingInterval) {
+            return;
+        }
+
+        // if we waited long enough, create the shot entity, and record the time.
+        lastFire = System.currentTimeMillis();
+        ShotEntity shot = new ShotEntity(this,"images/shot2.png",ship.getX()+10,ship.getY()-30);
+
+        shot.setMoveSpeed(itemshot2speed);
+        entities.add(shot);
+        // 총알 발사 시 효과음 재생
+        Music.shotAudio();
+    }
     public void itemFire() {
         // check that we have waiting long enough to fire
         if (System.currentTimeMillis() - lastFire < firingInterval) {
@@ -828,6 +847,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         for ( int i=0; i<5;i++){
             ShotEntity shot_item = new ShotEntity(this,"images/shot.gif",ship.getX()+(i*60)-60,ship.getY()-30);
             entities.add(shot_item);
+            Music.shotAudio();
 
 
         }
@@ -849,21 +869,33 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 
-        int itemrandomnum=(int)(Math.random()*2)+1;
-
-        if(itemrandomnum==1){
-            firingInterval=250;
-        }
-        else if (itemrandomnum==2){
+        int itemrandomnum=3;//(int)(Math.random()*3)+1;
+        if (itemrandomnum==1){
             itemact=true;
         }
+        else if(itemrandomnum==2){
+            firingInterval-=250;
+            itemact2=true;
+        }
+        else if(itemrandomnum==3){
+            itemact3 = true;
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {itemact3 = false;}
+            }, 3000); //3초간 무적
+            }
+        }
 
 
-    }
+
 
     public void resetItem(){
         firingInterval=500;
         itemact=false;
+        itemact2=false;
+        itemact3=false;
     }
     public void AddObstacle(){
         ObstacleEntity obstacle = new ObstacleEntity(this, "images/obstacle.png", 10, (int) (Math.random() * 450));
@@ -896,6 +928,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         long lastLoopTime = SystemTimer.getTime();
         long startTime = lastLoopTime;
+        long elapsedTime=0;
 
         // keep looping round til the game ends
 
@@ -908,16 +941,17 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // move this loop
                     long delta = SystemTimer.getTime() - lastLoopTime;
                     String formattedTime = formatTime(SystemTimer.getTime() - startTime);
-//                    System.out.println("경과 시간 : " + formattedTime);
-
+//                  System.out.println("경과 시간 : " + formattedTime);
+                    elapsedTime+=delta;
                     lastLoopTime = SystemTimer.getTime();
 
                     // update the frame counter
+                    elapsedTime+=delta;
                     lastFpsTime += delta;
                     fps++;
-                    timer++;
-                    if(timer>10000){
-                        timer=1;
+                    timer2++;
+                    if(timer2>10000){
+                        timer2=1;
                     }
 
                     // update our FPS counter if a second has passed since
@@ -927,7 +961,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         lastFpsTime = 0;
                         fps = 0;
                     }
-
+                    int minutes=(int)(elapsedTime/1000)/60;
+                    int seconds=(int)(elapsedTime/1000)%60;
                     // Get hold of a graphics context for the accelerated
                     // surface and blank it out
                     //배경색
@@ -935,7 +970,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     g.setColor(Color.black);
                     g.fillRect(0,0,800,600);
                     g.setColor(Color.white);
-                    g.drawString("남은 적 수 "+String.valueOf(alienCount),10,30);
+                    g.drawString("남은 적 수 "+String.valueOf(alienCount),20,70);
+                    g.setColor(Color.white);
+                    g.drawString(String.valueOf(minutes)+"분" +String.valueOf(seconds),700,80);
+                    if(itemact3)
+                    {
+                        g.setColor(Color.blue);
+                        Font font = new Font("Arial", Font.BOLD, 70);
+                        g.setFont(font);
+                        g.drawString("GOD MODE",(800-g.getFontMetrics().stringWidth("GOD MODE"))/2,300);                    }
+
 
                     // cycle round asking each entity to move itself
                     //, 적 무리 만들고 움직이게 하기
@@ -1031,8 +1075,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     if (firePressed) {
                         if(itemact){
                             itemFire();
-                        }
-                        else {
+                        } else if (itemact2) {
+                            item2Fire();
+
+                        } else {
                             tryToFire();
                         }
                         if (stageLevel >= bossStageLevel) {
@@ -1040,7 +1086,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         }
 
                     }
-                    if(timer%200==0)
+                    if(timer2%200==0)
                     {
                         AddObstacle();
                     }
@@ -1073,10 +1119,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         Font font1 = null;
         Font font2 = null;
+        Font font3 = null;
         try {
             assert fontUrl != null;
             font1 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 40);
             font2 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 20);
+            font3 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 70);
+
 
         } catch (FontFormatException | IOException e) {
             throw new RuntimeException(e);

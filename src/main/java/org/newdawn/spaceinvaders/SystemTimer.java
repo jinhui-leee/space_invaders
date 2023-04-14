@@ -16,8 +16,10 @@ public class SystemTimer {
 
 	/** The number of "timer ticks" per second */
 	private static final long timerTicksPerSecond;
+
+	private static long elapsedTime=0;
 	
-	/** A little initialisation at startup, we're just going to get the GAGE timer going */
+	/** A little initialisation at staråtup, we're just going to get the GAGE timer going */
 	static {
 		timer.start();
 		timerTicksPerSecond = AdvancedTimer.getTicksPerSecond();
