@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.util.*;
-import java.util.List;
 import java.util.Timer;
 
 import com.google.firebase.database.DatabaseReference;
@@ -41,13 +38,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
     /** The stragey that allows us to use accelerate page flipping */
     private final BufferStrategy strategy;
     int timer2;
-//    String time;
-    int timecheck;
-    int min=0;
-    int second=0;
-//    long delta;
-//    long elapsedTime;
-//    boolean timeStop = true;
 
     private final JLabel[] lifeLabel;
 
@@ -149,10 +139,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private final JLabel getGoldLabel;
 
     /** 경과 시간 초기값 = 0 */
-    private String time = "";
+    private BestTimeUserPair bestTimeUserPair;
     private final JLabel timeLabel;
+    private String time = "";
+    private Integer timeInt = 0;
 
-    private String TotalClearTime;
+    private String bestTime = "";
+    private Integer bestTimeInt = 0;
+
+    private String totalClearTime ="";
+    private Integer totalClearTimeInt = 0;
 
     long startTime;
 
@@ -184,6 +180,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * Construct our game and set it running.
      */
     public Game(int gameDifficulty, User user, String themeColor, BufferedImage image) {
+
         // create a frame to contain our game
         container = new JFrame("Space Invaders 102");
 
@@ -202,31 +199,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
         this.btnColor = themeColor;
         this.storeBackgroundImage = image;
 
+//        bestTimeUserPair = new BestTimeUserPair(bestTime, user.email);
+
         // Music 객체 받아오고 재생
         music = new Music();
         music.playMusic();
-
-
-//        // TODO 테스트입니다아
-//        // 최종 점수
-//        int finalScore = 50;
-//
-//        if(user!=null) {
-//            // 기존 user 점수 저장
-//            final int score = user.score;
-//            JLabel scoreLabel = new JLabel(String.valueOf(score));
-//            scoreLabel.setBounds(250,20,60,25);
-//            panel.add(scoreLabel);
-//            System.out.println("기존 스코어 : " + score);
-//            System.out.println("최종 스코어 : " + finalScore);
-//            if (finalScore > score) {
-//                System.out.println("최고 스코어 갱신 !!");
-//            }
-//        }
-//        else{
-//            System.out.println("최종 스코어 : " + finalScore);
-//        }
-
 
         // 음악 재생 및 정지
         // 이미지 로드
@@ -360,7 +337,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         // 경과 시간 표시
-        // TODO 시간 가운데 정렬 바로 반영
         timeLabel = new JLabel();
         timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         timeLabel.setFont(font_basic_bold_size_14);
@@ -683,22 +659,24 @@ public class Game extends Canvas implements ActionListener, WindowListener
         ship.setLife(shipLife);
         entities.add(ship);
 
-        // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
+
+        //TODO 테스트를 위해서 몬스터 수 조정했음
+        //create a block of aliens (5 rows, by 12 aliens, spaced evenly)
         if (stageLevel < bossStageLevel) {
             alienCount = 0;
             //적(외계인) 생성 : 12x5 크기
             int alienRow, alienX;
             if (gameDifficulty == 0) {
-                alienRow = 4;
-                alienX = 6;
+                alienRow = 1; //4
+                alienX = 1; //6
             }
             else if (gameDifficulty == 1) {
-                alienRow = 5;
-                alienX = 7;
+                alienRow = 1; //5
+                alienX = 1; //7
             }
             else {
-                alienRow = 6;
-                alienX = 8;
+                alienRow = 1; //6
+                alienX = 1; //8
             }
 
 
@@ -761,12 +739,36 @@ public class Game extends Canvas implements ActionListener, WindowListener
 //        gameRunning = false;
     }
 
+    public int parseTime(String timeStr) {
+        String[] tokens = timeStr.split(":");
+        int minutes = Integer.parseInt(tokens[0]);
+        int seconds = Integer.parseInt(tokens[1]);
+        return minutes * 60 + seconds;
+    }
+
     /**
      * Notification that the player has won since all the aliens
      * are dead.
      */
     public void notifyWin() {
         message = "Well done! You Win!" + "  stage level : " + (stageLevel+1)+" clear time : " + time ;
+        // 새로운 기록을 누적값에 추가
+        timeInt = parseTime(time);
+        totalClearTimeInt += timeInt;
+        System.out.println("time : "+time); // 제대로 가져옴
+        System.out.println("timeInt : "+timeInt);
+        System.out.println("totalClearTime : "+totalClearTimeInt);
+
+
+//        if(totalClearTimeInt!=null) {
+//        bestTimeUserPair = new BestTimeUserPair(bestTime, user.email);
+//        timeInt = bestTimeUserPair.parseTime(time);
+//        System.out.println("time : "+time); // 제대로 가져옴
+//        System.out.println("timeInt : "+timeInt);
+//        totalClearTimeInt += timeInt;
+//        // TODO 누적되는지 확인
+//        System.out.println("totalClearTime : "+totalClearTime);
+////        }
         waitingForKeyPress = true;
         stageLevel++;
 
@@ -1195,43 +1197,32 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         g.setFont(font4);
-//        //클리어하는데 걸린 시간
         //TODO 클리어 시간으로 저장 및 받아오기
-        int finalScore = 100;
-        g.drawString("클리어 시간 : " + "01:16:68",
-                (800 - g.getFontMetrics().stringWidth("클리어 시간 : " + "01:16:68")) / 2, 400);
+        g.drawString("최종 클리어 시간 : " + totalClearTime,
+                (800 - g.getFontMetrics().stringWidth("클리어 시간 : " + "00:00:00")) / 2, 400);
 
 
-//        //TODO 현재 랭킹
-//        if(user!=null) {
-//            // 사용자 정보 받아오기
-//            String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
-//            FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
-//            DatabaseReference ref = userdatabase.getReference();
-//            DatabaseReference userRef = ref.child("Users").child(encodedEmail);
-//
-//            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(DataSnapshot dataSnapshot) {
-//                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-//                        String userId = userSnapshot.getKey();
-//                        if (userSnapshot.child(userId).hasChild("score")) {
-//                            Integer score = userSnapshot.child(userId).child("score").getValue(Integer.class);
-//                            if (finalScore > score) {
-//                                g.drawString("최고 스코어 갱신 !!", (800 - g.getFontMetrics().stringWidth("최고 스코어 갱신 !!")) / 2, 400);
-////                                g.drawString("현재 랭킹 : " + "1위", (800 - g.getFontMetrics().stringWidth("현재 랭킹 : " + "1위")) / 2, 460);
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError databaseError) {
-//                    System.out.println("The read failed: " + databaseError.getCode());
-//                }
-//            });
-//        }
+        //TODO 현재 랭킹
+        if(user!=null) {
+            // 기존 user 점수 저장
+            final String bestTime = user.bestTime;
+            JLabel bestTimeLabel = new JLabel(String.valueOf(bestTime));
+            bestTimeLabel.setBounds(250,20,60,25);
+            panel.add(bestTimeLabel);
+            System.out.println("기존 스코어 : " + bestTime);
+            System.out.println("최종 스코어 : " + totalClearTime);
 
+            bestTimeInt = parseTime(bestTime);
+            totalClearTimeInt = parseTime(totalClearTime);
+
+
+            if (totalClearTimeInt > bestTimeInt) {
+                g.drawString("Best Time 갱신 !!", (800 - g.getFontMetrics().stringWidth("Best Time 갱신 !!")) / 2, 400);
+            }
+        }
+        else{
+            g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 440);
+        }
 
         g.dispose();
         strategy.show();

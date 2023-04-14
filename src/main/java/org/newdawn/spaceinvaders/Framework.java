@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -407,13 +405,13 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         int i = 0;
-                        ScoreUserPair[] pairs = new ScoreUserPair[(int)dataSnapshot.getChildrenCount()];
+                        BestTimeUserPair[] pairs = new BestTimeUserPair[(int)dataSnapshot.getChildrenCount()];
                         for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
                             String userId = userSnapshot.getKey();
                             String decodedEmail = new String(Base64.getDecoder().decode(userId));
-                            if (!userSnapshot.child(userId).child("bestTime").getValue().toString().isEmpty() ) {
+                            if (!userSnapshot.child(userId).child("bestTime").getValue().toString().isEmpty()) {
                                 String bestTime = userSnapshot.child(userId).child("bestTime").getValue(String.class);
-                                pairs[i] = new ScoreUserPair(bestTime, decodedEmail);
+                                pairs[i] = new BestTimeUserPair(bestTime, decodedEmail);
                                 i++;
                             }
                         }
