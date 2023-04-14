@@ -8,12 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 
 import com.google.firebase.database.DatabaseReference;
@@ -157,6 +154,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private long defaultFiringInterval = 500;
     private JLabel[] itemStoreLabel;
     private int shipLife;
+
+    private int []itemPurchaseCnt;
 
 
     /**
@@ -316,6 +315,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
         timeLabel.setBounds(20,20,80,25);
         panel.add(timeLabel);
 
+        itemPurchaseCnt = new int[5];
+        Arrays.fill(itemPurchaseCnt, 0);
+
         // 윈도우 리스너 이벤트 add
         addWindowListener(this);
 
@@ -379,6 +381,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     user.gold -= 20;
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
                     moveSpeed += 20;
+                    itemPurchaseCnt[0]++;
+                    itemPurchaseCnt[4]++;
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
@@ -387,6 +391,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     getGoldCnt -= 20;
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
                     moveSpeed += 20;
+                    itemPurchaseCnt[0]++;
+                    itemPurchaseCnt[4]++;
+
+
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
@@ -398,8 +406,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
             if (user != null) {
                 if (user.gold >= 20) {
                     user.gold -= 20;
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
                     shotSpeed -= 5;
+                    itemPurchaseCnt[1]++;
+                    itemPurchaseCnt[4]++;
+
+                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
+
+
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
@@ -407,6 +420,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 if (getGoldCnt >= 20) {
                     getGoldCnt -= 20;
                     shotSpeed -= 5;
+                    itemPurchaseCnt[1]++;
+                    itemPurchaseCnt[4]++;
+
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
@@ -419,6 +435,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     user.gold -= 50;
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
                     firingInterval-=10;
+                    itemPurchaseCnt[2]++;
+                    itemPurchaseCnt[4]++;
+
+
                     defaultFiringInterval = firingInterval;
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
@@ -428,6 +448,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     getGoldCnt -= 50;
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
                     firingInterval-=10;
+                    itemPurchaseCnt[2]++;
+                    itemPurchaseCnt[4]++;
+
+
                     defaultFiringInterval = firingInterval;
 
 
@@ -446,17 +470,23 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
                     shipLife = ship.getLife()+1;
                     ship.setLife(shipLife);
+                    itemPurchaseCnt[3]++;
+                    itemPurchaseCnt[4]++;
+
                     lifeLabel[5-ship.getLife()].setVisible(true);
 
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
             else {
-                if (getGoldCnt >= 200) {
-                    getGoldCnt -= 200;
+                if (getGoldCnt >= 2) {
+                    getGoldCnt -= 2;
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
                     shipLife = ship.getLife()+1;
                     ship.setLife(shipLife);
+                    itemPurchaseCnt[3]++;
+                    itemPurchaseCnt[4]++;
+
                     lifeLabel[5-ship.getLife()].setVisible(true);
 
 
@@ -600,6 +630,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         ship.setLife(shipLife);
         entities.add(ship);
 
+
         // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
         if (stageLevel < bossStageLevel) {
             alienCount = 0;
@@ -635,6 +666,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
             alienCount++;
         }
+
 
     }
 
@@ -674,6 +706,20 @@ public class Game extends Canvas implements ActionListener, WindowListener
         message = "Well done! You Win!" + "  stage level : " + stageLevel ;
         waitingForKeyPress = true;
         stageLevel++;
+        if (stageLevel > bossStageLevel) {
+            //쉬움
+            if (gameDifficulty == 0){
+                JOptionPane.showMessageDialog(null, "쉬움 클리어! ");
+            }
+            //보통
+            else if (gameDifficulty == 1) {
+                JOptionPane.showMessageDialog(null, "보통 클리어!");
+            }
+            //어려움
+            else { //gameDifficulty ==2
+                JOptionPane.showMessageDialog(null, "어려움 클리어!");
+            }
+        }
         //gameRunning = false;
     }
 
@@ -925,10 +971,66 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 }
             } else {
                 // 스테이지 종료 후, 아이템 상점
-                drawStoreMenu();
+                if (stageLevel <= bossStageLevel) {
+                    drawStoreMenu();
+                }
+                else {
+                    drawGameClear();
+                }
             }
         }
 
+
+    }
+
+    public void drawGameClear() {
+        Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+        g.setColor(Color.white);
+
+        URL fontUrl = getClass().getResource("/font/Cafe24Danjunghae.ttf");
+
+        Font font1 = null;
+        Font font2 = null;
+        try {
+            assert fontUrl != null;
+            font1 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 40);
+            font2 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 20);
+
+        } catch (FontFormatException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        g.setFont(font1);
+        g.drawString("게임 결과",(800-g.getFontMetrics().stringWidth("게임 결과"))/2,150);
+
+        g.setFont(font2);
+
+        //클리어한 난이도
+        if (gameDifficulty == 0)
+        {
+            g.drawString("난이도 : 쉬움",800-g.getFontMetrics().stringWidth("난이도 : 쉬움")/2, 200);
+
+        }
+        else if (gameDifficulty == 1) {
+            g.drawString("난이도 : 보통",800-g.getFontMetrics().stringWidth("난이도 : 보통")/2, 200);
+
+        }
+        else {
+            g.drawString("난이도 : 어려움",800-g.getFontMetrics().stringWidth("난이도 : 어려움")/2, 200);
+
+        }
+
+        //클리어하는데 걸린 시간
+
+
+        //아이템 사용 종류와 개수
+        g.drawString("총 구매 아이템 개수 : " + itemPurchaseCnt[4], 800-g.getFontMetrics().stringWidth("총 구매 아이템 개수 : " + itemPurchaseCnt[4])/2, 280);
+        g.drawString("ship 속도 증가 : " + itemPurchaseCnt[0],800-g.getFontMetrics().stringWidth("ship 속도 증가 : " + itemPurchaseCnt[0])/2, 300);
+        g.drawString("총알 속도 증가 : " + itemPurchaseCnt[1],800-g.getFontMetrics().stringWidth("난이도 : 보통")/2, 320);
+        g.drawString("총알 발사 간격 감소 : " + itemPurchaseCnt[2],800-g.getFontMetrics().stringWidth("총알 발사 간격 감소 : " + itemPurchaseCnt[2])/2, 340);
+        g.drawString("생명 추가 : " + itemPurchaseCnt[3],800-g.getFontMetrics().stringWidth("생명 추가 : " + itemPurchaseCnt[3])/2, 360);
+
+
+        //현재 랭킹
 
     }
 
