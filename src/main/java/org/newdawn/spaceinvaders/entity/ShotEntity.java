@@ -28,8 +28,11 @@ public class ShotEntity extends Entity {
 		super(sprite,x,y);
 		
 		this.game = game;
-		
 		dy = moveSpeed;
+	}
+
+	public void setMoveSpeed(int moveSpeed) {
+		this.moveSpeed = moveSpeed;
 	}
 
 	/**
