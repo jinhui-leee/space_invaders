@@ -12,6 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import java.util.*;
 import java.util.List;
+import java.util.Timer;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -39,17 +40,19 @@ public class Game extends Canvas implements ActionListener, WindowListener
 {
     /** The stragey that allows us to use accelerate page flipping */
     private final BufferStrategy strategy;
-    int timer;
+    int timer2;
+//    String time;
     int timecheck;
     int min=0;
     int second=0;
-    long delta;
-    boolean timeStop = true;
+//    long delta;
+//    long elapsedTime;
+//    boolean timeStop = true;
 
     private final JLabel[] lifeLabel;
 
     /** True if the game is currently "running", i.e. the game loop is looping */
-    private boolean gameRunning = false;
+    private boolean gameRunning = true;
 
     /** The list of all the entities that exist in our game */
     private final ArrayList entities = new ArrayList();
@@ -64,6 +67,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private int itemnum=0;
 
     private boolean itemact=false;
+    private boolean itemact2=false;
+    public boolean itemact3=false;
 
     /** The speed at which the player's ship should move (pixels/sec) */
     private double moveSpeed = 300;
@@ -144,8 +149,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private final JLabel getGoldLabel;
 
     /** 경과 시간 초기값 = 0 */
-    private final int time = 0;
+    private String time = "";
     private final JLabel timeLabel;
+
+    private String TotalClearTime;
 
     long startTime;
 
@@ -162,6 +169,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private JPanel panel;
 
     private int shotSpeed = -330;
+    private int itemshot2speed=-1000;
 
     //총알 발사 간격 아이템 사용 이후, 원래 총알 간격으로 돌아가기 위한 총알 간격
     private long defaultFiringInterval = 500;
@@ -758,7 +766,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * are dead.
      */
     public void notifyWin() {
-        message = "Well done! You Win!" + "  stage level : " + (stageLevel+1) ;
+        message = "Well done! You Win!" + "  stage level : " + (stageLevel+1)+" clear time : " + time ;
         waitingForKeyPress = true;
         stageLevel++;
 
@@ -856,6 +864,21 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
     }
+    public void item2Fire() {
+        // check that we have waiting long enough to fire
+        if (System.currentTimeMillis() - lastFire < firingInterval) {
+            return;
+        }
+
+        // if we waited long enough, create the shot entity, and record the time.
+        lastFire = System.currentTimeMillis();
+        ShotEntity shot = new ShotEntity(this,"images/shot2.png",ship.getX()+10,ship.getY()-30);
+
+        shot.setMoveSpeed(itemshot2speed);
+        entities.add(shot);
+        // 총알 발사 시 효과음 재생
+        Music.shotAudio();
+    }
 
     public void shotShip() {
 
@@ -868,21 +891,30 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 
-        int itemrandomnum=(int)(Math.random()*2)+1;
-
-        if(itemrandomnum==1){
-            firingInterval=250;
-        }
-        else if (itemrandomnum==2){
+        int itemrandomnum=3;//(int)(Math.random()*3)+1;
+        if (itemrandomnum==1){
             itemact=true;
         }
+        else if(itemrandomnum==2){
+            firingInterval-=250;
+            itemact2=true;
+        }
+        else if(itemrandomnum==3){
+            itemact3 = true;
 
-
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {itemact3 = false;}
+            }, 3000); //3초간 무적
+        }
     }
 
     public void resetItem(){
         firingInterval=500;
         itemact=false;
+        itemact2=false;
+        itemact3=false;
     }
     public void AddObstacle(){
         ObstacleEntity obstacle = new ObstacleEntity(this, "images/obstacle.png", 10, (int) (Math.random() * 450));
@@ -901,21 +933,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * - Checking Input
      * <p>
      */
-    public static String formatTime(long delta) {
-        long millis = delta % 1000;
-        delta /= 1000;
-        long seconds = delta % 60;
-        delta /= 60;
-        long minutes = delta % 60;
-        String time = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
-        return time;
-    }
 
     public void gameLoop() {
-        gameRunning = true;
-
         long lastLoopTime = SystemTimer.getTime();
         long startTime = lastLoopTime;
+        long elapsedTime=0;
 
         // keep looping round til the game ends
 
@@ -927,18 +949,23 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // will be used to calculate how far the entities should
                     // move this loop
                     long delta = SystemTimer.getTime() - lastLoopTime;
-                    String formattedTime = formatTime(SystemTimer.getTime() - startTime);
-                    SwingUtilities.invokeLater(() -> timeLabel.setText(formattedTime));
-
+                    elapsedTime+=delta;
                     lastLoopTime = SystemTimer.getTime();
 
+                    int minutes=(int)(elapsedTime/1000)/60;
+                    int seconds=(int)(elapsedTime/1000)%60;
+                    int millis = (int)(elapsedTime % 1000);
+
+                    time = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
+
+                    SwingUtilities.invokeLater(() -> timeLabel.setText(time));
 
                     // update the frame counter
                     lastFpsTime += delta;
                     fps++;
-                    timer++;
-                    if (timer > 10000) {
-                        timer = 1;
+                    timer2++;
+                    if(timer2>10000){
+                        timer2=1;
                     }
 
                     // update our FPS counter if a second has passed since
@@ -948,6 +975,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         lastFpsTime = 0;
                         fps = 0;
                     }
+
 
                     // Get hold of a graphics context for the accelerated
                     // surface and blank it out
@@ -959,6 +987,15 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     String messageEnemyCnt = "남은 적 수 " + String.valueOf(alienCount);
                     int stringWidth = g.getFontMetrics().stringWidth(messageEnemyCnt);
                     g.drawString(messageEnemyCnt, (getWidth() - stringWidth) / 2, 30);
+
+//                    g.drawString(String.valueOf(minutes)+"분" +String.valueOf(seconds),700,80);
+
+                    if(itemact3)
+                    {
+                        g.setColor(Color.blue);
+                        Font font = new Font("Arial", Font.BOLD, 70);
+                        g.setFont(font);
+                        g.drawString("GOD MODE",(800-g.getFontMetrics().stringWidth("GOD MODE"))/2,300);                    }
 
 
                     // cycle round asking each entity to move itself
@@ -1022,6 +1059,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // current message
                     //아무키 누르는 거 대기 중(게임 시작 전, 게임 끝난 후)
                     if (waitingForKeyPress) {
+                        elapsedTime=0;
                         g.setColor(Color.white);
                         g.drawString(message,(800-g.getFontMetrics().stringWidth(message))/2,250);
                         g.drawString("Press any key",(800-g.getFontMetrics().stringWidth("Press any key"))/2,300);
@@ -1055,16 +1093,18 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     if (firePressed) {
                         if(itemact){
                             itemFire();
-                        }
-                        else {
+                        } else if (itemact2) {
+                            item2Fire();
+
+                        } else {
                             tryToFire();
                         }
-                        if (stageLevel == bossStageLevel && !waitingForKeyPress) {
+                        if (stageLevel >= bossStageLevel) {
                             shotShip();
                         }
 
                     }
-                    if(timer%200==0)
+                    if(timer2%200==0)
                     {
                         AddObstacle();
                     }
@@ -1079,6 +1119,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 }
             }
             else {
+                elapsedTime=0;
                 // 스테이지 종료 후, 아이템 상점
                 if (stageLevel <= bossStageLevel) {
                     drawStoreMenu();

@@ -411,22 +411,21 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                         for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
                             String userId = userSnapshot.getKey();
                             String decodedEmail = new String(Base64.getDecoder().decode(userId));
-                            if (userSnapshot.child(userId).hasChild("score")) {
-                                Integer score = userSnapshot.child(userId).child("score").getValue(Integer.class);
-                                pairs[i] = new ScoreUserPair(score, decodedEmail);
+                            if (!userSnapshot.child(userId).child("bestTime").getValue().toString().isEmpty() ) {
+                                String bestTime = userSnapshot.child(userId).child("bestTime").getValue(String.class);
+                                pairs[i] = new ScoreUserPair(bestTime, decodedEmail);
                                 i++;
                             }
                         }
                         // TODO 게임 클리어 시간 짧은 순으로 띄우기
-                        // ScoreUserPair 배열을 score 기준으로 내림차순 정렬
-                        Arrays.sort(pairs, Collections.reverseOrder());
-                        // JTable을 생성하여 사용자 ID와 점수를 표시
-                        String[] columnNames = {"Rank", "User ID", "Score"};
+                        Arrays.sort(pairs); // 클리어 시간이 더 짧은 순으로 정렬하기
+                        // JTable을 생성하여 사용자 ID와 최단 클리어 시간을 표시
+                        String[] columnNames = {"Rank", "User ID", "Best Time"};
                         Object[][] data = new Object[i][3];
                         for (int j = 0; j < i; j++) {
                             data[j][0] = j + 1;
                             data[j][1] = pairs[j].getUser();
-                            data[j][2] = pairs[j].getScore();
+                            data[j][2] = pairs[j].getBestTime();
                         }
                         ranktable = new JTable(data, columnNames);
                         ranktable.setDefaultEditor(Object.class, null);
@@ -440,6 +439,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                         add(rankingScrollPane);
                         rankingScrollPane.setBounds(150, 220, 500, 250);
                         rankingScrollPane.setVisible(true);
+
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {

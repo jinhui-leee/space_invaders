@@ -1,5 +1,9 @@
 package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.Game;
+import org.newdawn.spaceinvaders.Sprite;
+import org.newdawn.spaceinvaders.SpriteStore;
+
+import static java.lang.Math.random;
 
 public class ItemEntity extends Entity{
 
@@ -8,12 +12,12 @@ public class ItemEntity extends Entity{
     private Game game;
 
 
-    public ItemEntity(Game game, String ref){
+    public ItemEntity(Game game,String ref){
         super(ref,0,0);
         this.game=game;
 
         int x = (int)(Math.random() * (game.getWidth() - sprite.getWidth()));
-        int y = (int)(Math.random() * (game.getHeight()- sprite.getHeight()));
+        int y = (int)(Math.random() * 200)+200;
         super.setLocation(x, y);
 
 

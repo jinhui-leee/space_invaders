@@ -1,16 +1,16 @@
 package org.newdawn.spaceinvaders;
 
 class ScoreUserPair implements Comparable<ScoreUserPair> {
-    private int score;
+    private String bestTime;
     private String user;
 
-    public ScoreUserPair(int score, String user) {
-        this.score = score;
+    public ScoreUserPair(String bestTime, String user) {
+        this.bestTime = bestTime;
         this.user = user;
     }
 
-    public int getScore() {
-        return score;
+    public String getBestTime() {
+        return bestTime;
     }
 
     public String getUser() {
@@ -19,6 +19,7 @@ class ScoreUserPair implements Comparable<ScoreUserPair> {
 
     @Override
     public int compareTo(ScoreUserPair other) {
-        return Integer.compare(score, other.getScore());
+        return bestTime.compareTo(other.getBestTime());
+
     }
 }
