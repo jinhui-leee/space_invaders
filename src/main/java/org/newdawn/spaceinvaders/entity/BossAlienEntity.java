@@ -41,6 +41,16 @@ public class BossAlienEntity extends Entity{
 
         this.game = game;
         dx = -moveSpeed;
+
+        if (game.getGameDifficulty() == 0) {
+            this.life = 50;
+        }
+        else if (game.getGameDifficulty() == 1) {
+            this.life = 100;
+        }
+        else {
+            this.life = 150;
+        }
     }
 
     public void move(long delta) {
