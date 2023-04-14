@@ -157,4 +157,9 @@ public abstract class Entity {
 	 * @param other The entity with which this entity collided.
 	 */
 	public abstract void collidedWith(Entity other);
+
+	protected void setLocation(int x, int y) {
+		this.x=x;
+		this.y=y;
+	}
 }

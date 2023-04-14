@@ -39,6 +39,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
 {
     /** The stragey that allows us to use accelerate page flipping */
     private final BufferStrategy strategy;
+    int timer;
+    int timecheck;
+    int min=0;
+    int second=0;
 
     private final JLabel[] lifeLabel;
 
@@ -53,6 +57,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     /** The entity representing the player */
     private ShipEntity ship;
+    private Entity item;
+    private Entity obstacle;
+    private int itemnum=0;
+
+    private boolean itemact=false;
 
     /** The speed at which the player's ship should move (pixels/sec) */
     private double moveSpeed = 300;
@@ -580,6 +589,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         // clear out any existing entities and intialise a new set
         entities.clear();
         initEntities();
+        CreateItemEntities();
+        resetItem();
 
         if (stageLevel == 0) {
             for (int i=0; i<4; i++) lifeLabel[i].setVisible(false);
@@ -663,12 +674,25 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
             Entity bossAlien = new BossAlienEntity(this, 100, 50);
             entities.add(bossAlien);
+            //ObstacleEntity obstacle = new ObstacleEntity(this, "images/Obstacle.png", (int) (Math.random() * 750), 10);
 
             alienCount++;
         }
 
 
     }
+    private void CreateItemEntities(){
+        item=new ItemEntity(this,"images/item.gif");
+        entities.add(item);
+
+    }
+
+    private void CreateObstacle(){
+
+        obstacle=new ObstacleEntity(this,"images/obstacle.png",(int)(Math.random()*750),10);
+        entities.add(obstacle);
+    }
+
 
     /**
      * Notification from a game entity that the logic of the game
@@ -791,6 +815,27 @@ public class Game extends Canvas implements ActionListener, WindowListener
         // 총알 발사 시 효과음 재생
         Music.shotAudio();
     }
+    public void itemFire() {
+        // check that we have waiting long enough to fire
+        if (System.currentTimeMillis() - lastFire < firingInterval) {
+            return;
+        }
+
+        // if we waited long enough, create the shot entity, and record the time.
+        lastFire = System.currentTimeMillis();
+
+
+        for ( int i=0; i<5;i++){
+            ShotEntity shot_item = new ShotEntity(this,"images/shot.gif",ship.getX()+(i*60)-60,ship.getY()-30);
+            entities.add(shot_item);
+
+
+        }
+
+
+
+    }
+
 
     public void shotShip() {
 
@@ -800,7 +845,31 @@ public class Game extends Canvas implements ActionListener, WindowListener
         }
 
     }
+    public void useItem(){
 
+
+
+        int itemrandomnum=(int)(Math.random()*2)+1;
+
+        if(itemrandomnum==1){
+            firingInterval=250;
+        }
+        else if (itemrandomnum==2){
+            itemact=true;
+        }
+
+
+    }
+
+    public void resetItem(){
+        firingInterval=500;
+        itemact=false;
+    }
+    public void AddObstacle(){
+        ObstacleEntity obstacle = new ObstacleEntity(this, "images/obstacle.png", 10, (int) (Math.random() * 450));
+        entities.add(obstacle);
+
+    }
 
     /**
      * The main game loop. This loop is running during all game
@@ -846,6 +915,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // update the frame counter
                     lastFpsTime += delta;
                     fps++;
+                    timer++;
+                    if(timer>10000){
+                        timer=1;
+                    }
 
                     // update our FPS counter if a second has passed since
                     // we last recorded
@@ -861,6 +934,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
                     g.setColor(Color.black);
                     g.fillRect(0,0,800,600);
+                    g.setColor(Color.white);
+                    g.drawString("남은 적 수 "+String.valueOf(alienCount),10,30);
 
                     // cycle round asking each entity to move itself
                     //, 적 무리 만들고 움직이게 하기
@@ -954,13 +1029,22 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
                     // if we're pressing fire, attempt to fire
                     if (firePressed) {
-                        tryToFire();
-
-                        if (stageLevel >= bossStageLevel && !waitingForKeyPress) {
+                        if(itemact){
+                            itemFire();
+                        }
+                        else {
+                            tryToFire();
+                        }
+                        if (stageLevel >= bossStageLevel) {
                             shotShip();
                         }
 
                     }
+                    if(timer%200==0)
+                    {
+                        AddObstacle();
+                    }
+
 
 
                     // we want each frame to take 10 milliseconds, to do this
