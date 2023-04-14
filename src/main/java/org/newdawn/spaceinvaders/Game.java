@@ -479,8 +479,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
             else {
-                if (getGoldCnt >= 2) {
-                    getGoldCnt -= 2;
+                if (getGoldCnt >= 200) {
+                    getGoldCnt -= 200;
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
                     shipLife = ship.getLife()+1;
                     ship.setLife(shipLife);
@@ -979,8 +979,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 }
             }
         }
-
-
     }
 
     public void drawGameClear() {
