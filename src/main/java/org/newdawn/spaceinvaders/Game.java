@@ -38,7 +38,6 @@ import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
  */
 public class Game extends Canvas implements ActionListener, WindowListener
 {
-    public static final int NUMBER_OF_ALIENS_TO_DESTROY = ;
     /** The stragey that allows us to use accelerate page flipping */
     private final BufferStrategy strategy;
     int timer2;
@@ -947,7 +946,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     lastLoopTime = SystemTimer.getTime();
 
                     // update the frame counter
-                    elapsedTime+=delta;
                     lastFpsTime += delta;
                     fps++;
                     timer2++;
@@ -1043,6 +1041,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // current message
                     //아무키 누르는 거 대기 중(게임 시작 전, 게임 끝난 후)
                     if (waitingForKeyPress) {
+                        elapsedTime=0;
                         g.setColor(Color.white);
                         g.drawString(message,(800-g.getFontMetrics().stringWidth(message))/2,250);
                         g.drawString("Press any key",(800-g.getFontMetrics().stringWidth("Press any key"))/2,300);
