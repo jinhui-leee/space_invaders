@@ -5,7 +5,6 @@ import com.google.firebase.database.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -15,7 +14,10 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,15 +59,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
     String []btnColor;
 
-    static int gameLevel[];
-
-    Toolkit toolkit = Toolkit.getDefaultToolkit();
-    Dimension screenSize = toolkit.getScreenSize();
-
     private static User user;
-
-    /** 폰트 스타일 */
-    Font font_basic_bold = new Font("맑은 고딕",Font.BOLD,12);
 
     // 사용자 모드
     public Framework() {
@@ -183,6 +177,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             for (int i=0; i<9; i++) backgroundImage[i][3] = ImageIO.read(themeUrl[i]);
             //랭킹보기 배경
             for (int i=0; i<9; i++) backgroundImage[i][4] = ImageIO.read(themeUrl[i]);
+
             rankingLabel = new JLabel();
             ranktable = new JTable();
             rankingScrollPane = new JScrollPane();
@@ -192,10 +187,8 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, e);
         }
 
-
         //버튼 생성
         btnImage = new ImageIcon[10];
-
 
         btn = new JButton[13];
 
@@ -344,10 +337,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
             for (int i=0; i<5; i++) characterLabel[i].setVisible(false);
 
-//            rankingLabel = new JLabel();
-//            ranktable = new JTable();
-//            rankingScrollPane = new JScrollPane();
-
             rankingLabel.setVisible(false);
             rankingScrollPane.setVisible(false);
 
@@ -357,8 +346,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 btn[i].setVisible(true);
             }
         }
-        else
-        {
+        else {
             //메인화면 버튼 없애기 + 뒤로가기 버튼 만들기
             for (int i=0; i<7; i++) btn[i].setVisible(false);
             setLayout(null);
@@ -410,10 +398,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 rankingLabel.setBounds(250, 120, 300, 100);
                 rankingLabel.setVisible(true);
 
-                // 사용자 ID와 점수를 저장할 배열
-                String[] userIds = new String[100];
-                int [] scores = new int [100];
-
                 // 사용자 정보 받아오기
                 FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
                 DatabaseReference ref = userdatabase.getReference();
@@ -423,24 +407,26 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         int i = 0;
+                        ScoreUserPair[] pairs = new ScoreUserPair[(int)dataSnapshot.getChildrenCount()];
                         for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
                             String userId = userSnapshot.getKey();
                             String decodedEmail = new String(Base64.getDecoder().decode(userId));
                             if (userSnapshot.child(userId).hasChild("score")) {
                                 Integer score = userSnapshot.child(userId).child("score").getValue(Integer.class);
-                                userIds[i] = decodedEmail;
-                                scores[i] = score;
+                                pairs[i] = new ScoreUserPair(score, decodedEmail);
                                 i++;
                             }
                         }
-                        // TODO 게임 클리어 시간 짧은 순으로 띄우기(오름차순으로)
+                        // TODO 게임 클리어 시간 짧은 순으로 띄우기
+                        // ScoreUserPair 배열을 score 기준으로 내림차순 정렬
+                        Arrays.sort(pairs, Collections.reverseOrder());
                         // JTable을 생성하여 사용자 ID와 점수를 표시
                         String[] columnNames = {"Rank", "User ID", "Score"};
                         Object[][] data = new Object[i][3];
                         for (int j = 0; j < i; j++) {
                             data[j][0] = j + 1;
-                            data[j][1] = userIds[j];
-                            data[j][2] = scores[j];
+                            data[j][1] = pairs[j].getUser();
+                            data[j][2] = pairs[j].getScore();
                         }
                         ranktable = new JTable(data, columnNames);
                         ranktable.setDefaultEditor(Object.class, null);
@@ -481,23 +467,18 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     break;
 
                 case MAIN_MENU:
-
                     break;
 
                 case DESCRIPTION:
-
                     break;
 
                 case THEME:
-
                     break;
 
                 case CHARACTER:
-
                     break;
 
                 case RANKING:
-
                     break;
 
                 case STARTING:
@@ -606,46 +587,22 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             btnManager();
         }
         else if (e.getSource() == btn[10]) {
-            if(user!=null) {
-                Game game = new Game(0, user);
-                game.requestFocus();
-                Thread gameThread = new Thread(game::gameLoop);
-                gameThread.start();
-            }
-            else{
-                Game game = new Game(0, user);
-                game.requestFocus();
-                Thread gameThread = new Thread(game::gameLoop);
-                gameThread.start();
-            }
+            Game game = new Game(0, user, btnColor[theme], backgroundImage[theme][2]);
+            game.requestFocus();
+            Thread gameThread = new Thread(game::gameLoop);
+            gameThread.start();
         }
         else if (e.getSource() == btn[11]) {
-            if(user!=null) {
-                Game game = new Game(1, user);
-                game.requestFocus();
-                Thread gameThread = new Thread(game::gameLoop);
-                gameThread.start();
-            }
-            else{
-                Game game = new Game(1, user);
-                game.requestFocus();
-                Thread gameThread = new Thread(game::gameLoop);
-                gameThread.start();
-            }
+            Game game = new Game(1, user, btnColor[theme], backgroundImage[theme][2]);
+            game.requestFocus();
+            Thread gameThread = new Thread(game::gameLoop);
+            gameThread.start();
         }
         else if (e.getSource() == btn[12]) {
-            if(user!=null) {
-                Game game = new Game(2, user);
-                game.requestFocus();
-                Thread gameThread = new Thread(game::gameLoop);
-                gameThread.start();
-            }
-            else{
-                Game game = new Game(2, user);
-                game.requestFocus();
-                Thread gameThread = new Thread(game::gameLoop);
-                gameThread.start();
-            }
+            Game game = new Game(2, user, btnColor[theme], backgroundImage[theme][2]);
+            game.requestFocus();
+            Thread gameThread = new Thread(game::gameLoop);
+            gameThread.start();
         }
     }
     @Override
