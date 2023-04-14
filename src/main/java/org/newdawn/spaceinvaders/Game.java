@@ -38,6 +38,7 @@ import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
  */
 public class Game extends Canvas implements ActionListener, WindowListener
 {
+    public static final int NUMBER_OF_ALIENS_TO_DESTROY = ;
     /** The stragey that allows us to use accelerate page flipping */
     private final BufferStrategy strategy;
     int timer2;
