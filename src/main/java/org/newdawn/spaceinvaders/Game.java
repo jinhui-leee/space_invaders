@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.util.*;
+import java.util.List;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -40,11 +43,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
     int timecheck;
     int min=0;
     int second=0;
+    long delta;
+    boolean timeStop = true;
 
     private final JLabel[] lifeLabel;
 
     /** True if the game is currently "running", i.e. the game loop is looping */
-    private boolean gameRunning = true;
+    private boolean gameRunning = false;
 
     /** The list of all the entities that exist in our game */
     private final ArrayList entities = new ArrayList();
@@ -193,6 +198,28 @@ public class Game extends Canvas implements ActionListener, WindowListener
         music = new Music();
         music.playMusic();
 
+
+//        // TODO 테스트입니다아
+//        // 최종 점수
+//        int finalScore = 50;
+//
+//        if(user!=null) {
+//            // 기존 user 점수 저장
+//            final int score = user.score;
+//            JLabel scoreLabel = new JLabel(String.valueOf(score));
+//            scoreLabel.setBounds(250,20,60,25);
+//            panel.add(scoreLabel);
+//            System.out.println("기존 스코어 : " + score);
+//            System.out.println("최종 스코어 : " + finalScore);
+//            if (finalScore > score) {
+//                System.out.println("최고 스코어 갱신 !!");
+//            }
+//        }
+//        else{
+//            System.out.println("최종 스코어 : " + finalScore);
+//        }
+
+
         // 음악 재생 및 정지
         // 이미지 로드
         ImageIcon audioOn = new ImageIcon("src/main/resources/images/audioOn.png");
@@ -326,7 +353,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         // 경과 시간 표시
         // TODO 시간 가운데 정렬 바로 반영
-        timeLabel = new JLabel("00:00:00");
+        timeLabel = new JLabel();
         timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         timeLabel.setFont(font_basic_bold_size_14);
         timeLabel.setBounds(20,20,70,25);
@@ -475,7 +502,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
         }
-        //아이템 구매 : 생명 +1 200원
+        //아이템 구매 : 생명 +1, 200원
         else if (e.getSource() == itemPurchaseBtn[3]) {
             if (ship.getLife() >= 5) {
                 JOptionPane.showMessageDialog(null, "생명은 최대 5개입니다.");
@@ -611,6 +638,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         upPressed = false;
         downPressed = false;
         firePressed = false;
+
     }
 
     /**
@@ -721,6 +749,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         message = "Oh no! They got you, try again? " + " stage level : " + (stageLevel+1);
         stageLevel = 0;
         waitingForKeyPress = true;
+
+//        gameRunning = false;
     }
 
     /**
@@ -732,7 +762,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         waitingForKeyPress = true;
         stageLevel++;
 
-        //gameRunning = false;
+
+//        gameRunning = false;
     }
 
     /**
@@ -745,7 +776,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
             String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
 
             user.gold++;
-//            user.score++;
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference ref = database.getReference();
@@ -753,7 +783,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
             Map<String, Object> updates = new HashMap<>();
             updates.put("/" + encodedEmail + "/gold", user.gold);
-//            updates.put("/" + encodedEmail + "/score", user.score);
 
             userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
                 @Override
@@ -883,6 +912,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
     public void gameLoop() {
+        gameRunning = true;
 
         long lastLoopTime = SystemTimer.getTime();
         long startTime = lastLoopTime;
@@ -898,16 +928,17 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // move this loop
                     long delta = SystemTimer.getTime() - lastLoopTime;
                     String formattedTime = formatTime(SystemTimer.getTime() - startTime);
-//                    System.out.println("경과 시간 : " + formattedTime);
+                    SwingUtilities.invokeLater(() -> timeLabel.setText(formattedTime));
 
                     lastLoopTime = SystemTimer.getTime();
+
 
                     // update the frame counter
                     lastFpsTime += delta;
                     fps++;
                     timer++;
-                    if(timer>10000){
-                        timer=1;
+                    if (timer > 10000) {
+                        timer = 1;
                     }
 
                     // update our FPS counter if a second has passed since
@@ -1046,7 +1077,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // us our final value to wait for
                     SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
                 }
-            } else {
+            }
+            else {
                 // 스테이지 종료 후, 아이템 상점
                 if (stageLevel <= bossStageLevel) {
                     drawStoreMenu();
@@ -1070,25 +1102,27 @@ public class Game extends Canvas implements ActionListener, WindowListener
         Font font1 = null;
         Font font2 = null;
         Font font3 = null;
+        Font font4 = null;
         try {
             assert fontUrl != null;
             font1 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 40);
             font2 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 20);
             font3 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 14);
+            font4 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 30);
 
         } catch (FontFormatException | IOException e) {
             throw new RuntimeException(e);
         }
         g.setFont(font1);
-        g.drawString("게임 결과",(800-g.getFontMetrics().stringWidth("게임 결과"))/2,150);
+        g.drawString("게임 결과",(800-g.getFontMetrics().stringWidth("게임 결과"))/2,160);
 
         g.setFont(font2);
 
         if (user != null) {
-            g.drawString("<" + user.name + ">", (800-g.getFontMetrics().stringWidth("<" + user.name + ">"))/2, 190);
+            g.drawString("<" + user.name + ">", (800-g.getFontMetrics().stringWidth("<" + user.name + ">"))/2, 200);
         }
         else {
-            g.drawString("<#게스트>", (800-g.getFontMetrics().stringWidth("<#게스트>"))/2, 190);
+            g.drawString("<#게스트>", (800-g.getFontMetrics().stringWidth("<#게스트>"))/2, 200);
 
         }
 
@@ -1096,38 +1130,66 @@ public class Game extends Canvas implements ActionListener, WindowListener
         //클리어한 난이도
         if (gameDifficulty == 0)
         {
-            g.drawString("난이도 : 쉬움",(800-g.getFontMetrics().stringWidth("난이도 : 쉬움"))/2, 210);
+            g.drawString("난이도 : 쉬움",(800-g.getFontMetrics().stringWidth("난이도 : 쉬움"))/2, 220);
 
         }
         else if (gameDifficulty == 1) {
-            g.drawString("난이도 : 보통",(800-g.getFontMetrics().stringWidth("난이도 : 보통"))/2, 210);
+            g.drawString("난이도 : 보통",(800-g.getFontMetrics().stringWidth("난이도 : 보통"))/2, 220);
 
         }
         else {
-            g.drawString("난이도 : 어려움",(800-g.getFontMetrics().stringWidth("난이도 : 어려움"))/2, 200);
+            g.drawString("난이도 : 어려움",(800-g.getFontMetrics().stringWidth("난이도 : 어려움"))/2, 220);
 
         }
 
-        //클리어하는데 걸린 시간
-
 
         //아이템 사용 종류와 개수
-        g.drawString("총 구매 아이템 개수 : " + itemPurchaseCnt[4], (800-g.getFontMetrics().stringWidth("총 구매 아이템 개수 : " + itemPurchaseCnt[4]))/2, 290);
+        g.drawString("총 구매 아이템 개수 : " + itemPurchaseCnt[4], (800-g.getFontMetrics().stringWidth("총 구매 아이템 개수 : " + itemPurchaseCnt[4]))/2, 250);
 
         g.drawString("ship 속도 증가 : " + itemPurchaseCnt[0] + "  총알 속도 증가 : " + itemPurchaseCnt[1],
-                (800-g.getFontMetrics().stringWidth("ship 속도 증가 : " + itemPurchaseCnt[0] + "  총알 속도 증가 : " + itemPurchaseCnt[1]))/2, 320);
+                (800-g.getFontMetrics().stringWidth("ship 속도 증가 : " + itemPurchaseCnt[0] + "  총알 속도 증가 : " + itemPurchaseCnt[1]))/2, 290);
 
         g.drawString("총알 발사 간격 감소 : " + itemPurchaseCnt[2] + "  생명 추가 : " + itemPurchaseCnt[3],
-                (800-g.getFontMetrics().stringWidth("총알 발사 간격 감소 : " + itemPurchaseCnt[2] + "  생명 추가 : " + itemPurchaseCnt[3]))/2, 340);
+                (800-g.getFontMetrics().stringWidth("총알 발사 간격 감소 : " + itemPurchaseCnt[2] + "  생명 추가 : " + itemPurchaseCnt[3]))/2, 310);
 
 
-        //현재 랭킹
+        g.setFont(font4);
+//        //클리어하는데 걸린 시간
+        //TODO 클리어 시간으로 저장 및 받아오기
+        int finalScore = 100;
+        g.drawString("클리어 시간 : " + "01:16:68",
+                (800 - g.getFontMetrics().stringWidth("클리어 시간 : " + "01:16:68")) / 2, 400);
+
+
+//        //TODO 현재 랭킹
 //        if(user!=null) {
-//            g.drawString("현재 랭킹 : " + user.,
-//                    (800 - g.getFontMetrics().stringWidth("1위")) / 2, 450);
+//            // 사용자 정보 받아오기
+//            String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
+//            FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
+//            DatabaseReference ref = userdatabase.getReference();
+//            DatabaseReference userRef = ref.child("Users").child(encodedEmail);
+//
+//            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(DataSnapshot dataSnapshot) {
+//                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+//                        String userId = userSnapshot.getKey();
+//                        if (userSnapshot.child(userId).hasChild("score")) {
+//                            Integer score = userSnapshot.child(userId).child("score").getValue(Integer.class);
+//                            if (finalScore > score) {
+//                                g.drawString("최고 스코어 갱신 !!", (800 - g.getFontMetrics().stringWidth("최고 스코어 갱신 !!")) / 2, 400);
+////                                g.drawString("현재 랭킹 : " + "1위", (800 - g.getFontMetrics().stringWidth("현재 랭킹 : " + "1위")) / 2, 460);
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError) {
+//                    System.out.println("The read failed: " + databaseError.getCode());
+//                }
+//            });
 //        }
-        //TODO 현재 랭킹
-//        user.
 
 
         g.dispose();

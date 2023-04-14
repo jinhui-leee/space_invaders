@@ -45,7 +45,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
     JLabel rankingLabel;
 
-    JTable ranktable;
+    public static JTable ranktable;
 
     JScrollPane rankingScrollPane;
 
