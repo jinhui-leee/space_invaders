@@ -1,8 +1,12 @@
 package org.newdawn.spaceinvaders;
 
+import com.google.firebase.database.*;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +15,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,6 +42,8 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
     JLabel []themeLabel;
 
     JLabel rankingLabel;
+
+    JTable ranktable;
 
     JScrollPane rankingScrollPane;
 
@@ -176,6 +183,10 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             for (int i=0; i<9; i++) backgroundImage[i][3] = ImageIO.read(themeUrl[i]);
             //랭킹보기 배경
             for (int i=0; i<9; i++) backgroundImage[i][4] = ImageIO.read(themeUrl[i]);
+            rankingLabel = new JLabel();
+            ranktable = new JTable();
+            rankingScrollPane = new JScrollPane();
+
         }
         catch (IOException e) {
             Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, e);
@@ -320,7 +331,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             btn[i].setVisible(true);
         }
 
-
     }
 
     /**
@@ -333,6 +343,10 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             for (int i=0; i<9; i++) themeLabel[i].setVisible(false);
 
             for (int i=0; i<5; i++) characterLabel[i].setVisible(false);
+
+//            rankingLabel = new JLabel();
+//            ranktable = new JTable();
+//            rankingScrollPane = new JScrollPane();
 
             rankingLabel.setVisible(false);
             rankingScrollPane.setVisible(false);
@@ -396,30 +410,56 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 rankingLabel.setBounds(250, 120, 300, 100);
                 rankingLabel.setVisible(true);
 
-                // TODO 표 형태로 사용자 랭킹 띄우기(게임 클리어 시간 짧은 순으로 띄우기)
-                Object[][] data = {
-                        {"00:30", "1등"},
-                        {"00:31", "2등"},
-                        {"00:32", "3등"},
-                        {"00:33", "4등"},
-                        {"00:34", "5등"},
-                };
+                // 사용자 ID와 점수를 저장할 배열
+                String[] userIds = new String[100];
+                int [] scores = new int [100];
 
-                //컬럼 이름
-                String[] columnNames = {"클리어 시간", "순위"};
+                // 사용자 정보 받아오기
+                FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
+                DatabaseReference ref = userdatabase.getReference();
+                DatabaseReference usersRef = ref.child("Users");
 
-                // TableModel 생성
-                DefaultTableModel rankModel = new DefaultTableModel(data, columnNames);
-
-                // JTable 생성
-                JTable rankTable = new JTable(rankModel);
-
-                // JScrollPane에 JTable 추가
-                rankingScrollPane = new JScrollPane(rankTable);
-
-                add(rankingScrollPane);
-                rankingScrollPane.setBounds(150, 220, 500, 250);
-                rankingScrollPane.setVisible(true);
+                usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        int i = 0;
+                        for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
+                            String userId = userSnapshot.getKey();
+                            String decodedEmail = new String(Base64.getDecoder().decode(userId));
+                            if (userSnapshot.child(userId).hasChild("score")) {
+                                Integer score = userSnapshot.child(userId).child("score").getValue(Integer.class);
+                                userIds[i] = decodedEmail;
+                                scores[i] = score;
+                                i++;
+                            }
+                        }
+                        // TODO 게임 클리어 시간 짧은 순으로 띄우기(오름차순으로)
+                        // JTable을 생성하여 사용자 ID와 점수를 표시
+                        String[] columnNames = {"Rank", "User ID", "Score"};
+                        Object[][] data = new Object[i][3];
+                        for (int j = 0; j < i; j++) {
+                            data[j][0] = j + 1;
+                            data[j][1] = userIds[j];
+                            data[j][2] = scores[j];
+                        }
+                        ranktable = new JTable(data, columnNames);
+                        ranktable.setDefaultEditor(Object.class, null);
+                        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+                        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+                        TableColumnModel tcm = ranktable.getColumnModel();
+                        for(int c = 0 ; c < tcm.getColumnCount() ; c++){
+                            tcm.getColumn(c).setCellRenderer(dtcr);
+                        }
+                        rankingScrollPane = new JScrollPane(ranktable);
+                        add(rankingScrollPane);
+                        rankingScrollPane.setBounds(150, 220, 500, 250);
+                        rankingScrollPane.setVisible(true);
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        System.out.println("The read failed: " + databaseError.getCode());
+                    }
+                });
             }
         }
     }

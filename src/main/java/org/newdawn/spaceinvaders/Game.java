@@ -227,6 +227,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
             panel.add(getGoldLabel);
         }
 
+
         // 경과 시간 표시
         // TODO 시간 가운데 정렬 바로 반영
         timeLabel = new JLabel();
@@ -548,9 +549,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
             BossShotEntity shot = new BossShotEntity(this,"images/stone_boss_shot.png",ship.getX()+(i*30-30),100);
             entities.add(shot);
         }
-
     }
-
 
     /**
      * The main game loop. This loop is running during all game
