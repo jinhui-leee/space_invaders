@@ -730,20 +730,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         message = "Well done! You Win!" + "  stage level : " + stageLevel ;
         waitingForKeyPress = true;
         stageLevel++;
-        if (stageLevel > bossStageLevel) {
-            //쉬움
-            if (gameDifficulty == 0){
-                JOptionPane.showMessageDialog(null, "쉬움 클리어! ");
-            }
-            //보통
-            else if (gameDifficulty == 1) {
-                JOptionPane.showMessageDialog(null, "보통 클리어!");
-            }
-            //어려움
-            else { //gameDifficulty ==2
-                JOptionPane.showMessageDialog(null, "어려움 클리어!");
-            }
-        }
+
         //gameRunning = false;
     }
 
@@ -849,12 +836,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 
-        int itemrandomnum=(int)(Math.random()*2)+1;
+        int itemRandomNum=(int)(Math.random()*2)+1;
 
-        if(itemrandomnum==1){
+        if(itemRandomNum==1){
             firingInterval=250;
         }
-        else if (itemrandomnum==2){
+        else if (itemRandomNum==2){
             itemact=true;
         }
 
@@ -862,7 +849,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
     public void resetItem(){
-        firingInterval=500;
+
+        firingInterval=defaultFiringInterval;
         itemact=false;
     }
     public void AddObstacle(){
@@ -1035,7 +1023,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         else {
                             tryToFire();
                         }
-                        if (stageLevel >= bossStageLevel) {
+                        if (stageLevel == bossStageLevel && !waitingForKeyPress) {
                             shotShip();
                         }
 
@@ -1067,16 +1055,21 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     public void drawGameClear() {
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+
+        g.drawImage(getStoreBackgroundImage(),0,0,800,600,null);
+
         g.setColor(Color.white);
 
         URL fontUrl = getClass().getResource("/font/Cafe24Danjunghae.ttf");
 
         Font font1 = null;
         Font font2 = null;
+        Font font3 = null;
         try {
             assert fontUrl != null;
             font1 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 40);
             font2 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 20);
+            font3 = Font.createFont(Font.TRUETYPE_FONT, fontUrl.openStream()).deriveFont(Font.BOLD, 14);
 
         } catch (FontFormatException | IOException e) {
             throw new RuntimeException(e);
@@ -1086,18 +1079,27 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         g.setFont(font2);
 
+        if (user != null) {
+            g.drawString("<" + user.name + ">", (800-g.getFontMetrics().stringWidth("<" + user.name + ">"))/2, 190);
+        }
+        else {
+            g.drawString("<#게스트>", (800-g.getFontMetrics().stringWidth("<#게스트>"))/2, 190);
+
+        }
+
+        g.setFont(font3);
         //클리어한 난이도
         if (gameDifficulty == 0)
         {
-            g.drawString("난이도 : 쉬움",800-g.getFontMetrics().stringWidth("난이도 : 쉬움")/2, 200);
+            g.drawString("난이도 : 쉬움",(800-g.getFontMetrics().stringWidth("난이도 : 쉬움"))/2, 210);
 
         }
         else if (gameDifficulty == 1) {
-            g.drawString("난이도 : 보통",800-g.getFontMetrics().stringWidth("난이도 : 보통")/2, 200);
+            g.drawString("난이도 : 보통",(800-g.getFontMetrics().stringWidth("난이도 : 보통"))/2, 210);
 
         }
         else {
-            g.drawString("난이도 : 어려움",800-g.getFontMetrics().stringWidth("난이도 : 어려움")/2, 200);
+            g.drawString("난이도 : 어려움",(800-g.getFontMetrics().stringWidth("난이도 : 어려움"))/2, 200);
 
         }
 
@@ -1105,14 +1107,23 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         //아이템 사용 종류와 개수
-        g.drawString("총 구매 아이템 개수 : " + itemPurchaseCnt[4], 800-g.getFontMetrics().stringWidth("총 구매 아이템 개수 : " + itemPurchaseCnt[4])/2, 280);
-        g.drawString("ship 속도 증가 : " + itemPurchaseCnt[0],800-g.getFontMetrics().stringWidth("ship 속도 증가 : " + itemPurchaseCnt[0])/2, 300);
-        g.drawString("총알 속도 증가 : " + itemPurchaseCnt[1],800-g.getFontMetrics().stringWidth("난이도 : 보통")/2, 320);
-        g.drawString("총알 발사 간격 감소 : " + itemPurchaseCnt[2],800-g.getFontMetrics().stringWidth("총알 발사 간격 감소 : " + itemPurchaseCnt[2])/2, 340);
-        g.drawString("생명 추가 : " + itemPurchaseCnt[3],800-g.getFontMetrics().stringWidth("생명 추가 : " + itemPurchaseCnt[3])/2, 360);
+        g.drawString("총 구매 아이템 개수 : " + itemPurchaseCnt[4], (800-g.getFontMetrics().stringWidth("총 구매 아이템 개수 : " + itemPurchaseCnt[4]))/2, 290);
+
+        g.drawString("ship 속도 증가 : " + itemPurchaseCnt[0] + "  총알 속도 증가 : " + itemPurchaseCnt[1],
+                (800-g.getFontMetrics().stringWidth("ship 속도 증가 : " + itemPurchaseCnt[0] + "  총알 속도 증가 : " + itemPurchaseCnt[1]))/2, 320);
+
+        g.drawString("총알 발사 간격 감소 : " + itemPurchaseCnt[2] + "  생명 추가 : " + itemPurchaseCnt[3],
+                (800-g.getFontMetrics().stringWidth("총알 발사 간격 감소 : " + itemPurchaseCnt[2] + "  생명 추가 : " + itemPurchaseCnt[3]))/2, 340);
 
 
         //현재 랭킹
+
+
+
+
+
+        g.dispose();
+        strategy.show();
 
     }
 
