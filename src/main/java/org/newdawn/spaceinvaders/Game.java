@@ -150,6 +150,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private String totalClearTime ="";
     private Integer totalClearTimeInt = 0;
 
+    private String newBestTime;
+
+    private JLabel bestTimeLabel;
+
     long startTime;
 
     private long timeRecord;
@@ -738,12 +742,22 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 //        gameRunning = false;
     }
-
-    public int parseTime(String timeStr) {
+    // String 형으로 된 시간을 Int 형으로 변환
+    public int timeStringToInt(String timeStr) {
         String[] tokens = timeStr.split(":");
         int minutes = Integer.parseInt(tokens[0]);
         int seconds = Integer.parseInt(tokens[1]);
-        return minutes * 60 + seconds;
+        int millis = Integer.parseInt(tokens[2]);
+        int timeInt = minutes * 60 * 1000 + seconds * 1000 + millis;
+        return timeInt;
+    }
+    // Int 형으로 된 시간을 String 형으로 변환
+    public String timeIntToString(int timeInt) {
+        int minutes = timeInt / 1000 / 60;
+        int seconds = (timeInt / 1000) % 60;
+        int millis = timeInt % 1000;
+        String timeStr = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
+        return timeStr;
     }
 
     /**
@@ -753,22 +767,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void notifyWin() {
         message = "Well done! You Win!" + "  stage level : " + (stageLevel+1)+" clear time : " + time ;
         // 새로운 기록을 누적값에 추가
-        timeInt = parseTime(time);
+        timeInt = timeStringToInt(time);
         totalClearTimeInt += timeInt;
-        System.out.println("time : "+time); // 제대로 가져옴
-        System.out.println("timeInt : "+timeInt);
-        System.out.println("totalClearTime : "+totalClearTimeInt);
+        totalClearTime = timeIntToString(totalClearTimeInt);
 
-
-//        if(totalClearTimeInt!=null) {
-//        bestTimeUserPair = new BestTimeUserPair(bestTime, user.email);
-//        timeInt = bestTimeUserPair.parseTime(time);
-//        System.out.println("time : "+time); // 제대로 가져옴
-//        System.out.println("timeInt : "+timeInt);
-//        totalClearTimeInt += timeInt;
-//        // TODO 누적되는지 확인
-//        System.out.println("totalClearTime : "+totalClearTime);
-////        }
         waitingForKeyPress = true;
         stageLevel++;
 
@@ -784,7 +786,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         alienCount--;
         if (user != null) {
             String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
-
+            // 몬스터 죽일 때마다 골드 1 증가
             user.gold++;
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -859,6 +861,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         for (int i=0; i<5;i++){
             ShotEntity shot_item = new ShotEntity(this,"images/shot.gif",ship.getX()+(i*60)-60,ship.getY()-30);
             entities.add(shot_item);
+            Music.shotAudio();
 
 
         }
@@ -893,7 +896,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 
-        int itemrandomnum=3;//(int)(Math.random()*3)+1;
+        int itemrandomnum=(int)(Math.random()*3)+1;
         if (itemrandomnum==1){
             itemact=true;
         }
@@ -1197,31 +1200,48 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         g.setFont(font4);
-        //TODO 클리어 시간으로 저장 및 받아오기
-        g.drawString("최종 클리어 시간 : " + totalClearTime,
-                (800 - g.getFontMetrics().stringWidth("클리어 시간 : " + "00:00:00")) / 2, 400);
-
 
         //TODO 현재 랭킹
+        //사용자의 경우 기존 점수와 비교
         if(user!=null) {
-            // 기존 user 점수 저장
+            // 기존 user 점수 = bestTime
             final String bestTime = user.bestTime;
-            JLabel bestTimeLabel = new JLabel(String.valueOf(bestTime));
-            bestTimeLabel.setBounds(250,20,60,25);
-            panel.add(bestTimeLabel);
-            System.out.println("기존 스코어 : " + bestTime);
-            System.out.println("최종 스코어 : " + totalClearTime);
+            bestTimeInt = timeStringToInt(bestTime);
+            totalClearTimeInt = timeStringToInt(totalClearTime);
 
-            bestTimeInt = parseTime(bestTime);
-            totalClearTimeInt = parseTime(totalClearTime);
+            // Best Time 갱신인 경우 사용자 DB bestTime에 저장
+            if (totalClearTimeInt < bestTimeInt) {
+                g.drawString("Best Time 갱신 !!", (800 - g.getFontMetrics().stringWidth("Best Time 갱신 !!")) / 2, 360);
+                g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
+                g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
 
+                String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference ref = database.getReference();
+                DatabaseReference userRef = ref.child("Users").child(encodedEmail);
 
-            if (totalClearTimeInt > bestTimeInt) {
-                g.drawString("Best Time 갱신 !!", (800 - g.getFontMetrics().stringWidth("Best Time 갱신 !!")) / 2, 400);
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("/" + encodedEmail + "/bestTime", totalClearTime);
+
+                userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+//						Log.d(TAG, "Data could not be saved: " + databaseError.getMessage());
+                        } else {
+//						Log.d(TAG, "Data saved successfully.");
+                        }
+                    }
+                });
+            }
+            else{
+                g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
+                g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
             }
         }
+        // 게스트는 최종 클리어 시간만 띄움
         else{
-            g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 440);
+            g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
         }
 
         g.dispose();
