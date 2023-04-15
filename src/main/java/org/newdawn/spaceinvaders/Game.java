@@ -1182,7 +1182,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         }
 
-
         //아이템 사용 종류와 개수
         g.drawString("총 구매 아이템 개수 : " + itemPurchaseCnt[4], (800-g.getFontMetrics().stringWidth("총 구매 아이템 개수 : " + itemPurchaseCnt[4]))/2, 250);
 
