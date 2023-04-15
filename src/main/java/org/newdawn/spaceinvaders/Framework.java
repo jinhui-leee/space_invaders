@@ -315,7 +315,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             characterLabel[i].addMouseListener(this);
         }
 
-
         //메인화면 버튼 생성
         for(int i=0; i<7; i++) {
             this.add(btn[i]);
