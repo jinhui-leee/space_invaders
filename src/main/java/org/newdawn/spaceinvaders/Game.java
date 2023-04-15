@@ -836,12 +836,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 
-        int itemrandomnum=(int)(Math.random()*2)+1;
+        int itemRandomNum=(int)(Math.random()*2)+1;
 
-        if(itemrandomnum==1){
+        if(itemRandomNum==1){
             firingInterval=250;
         }
-        else if (itemrandomnum==2){
+        else if (itemRandomNum==2){
             itemact=true;
         }
 
@@ -849,7 +849,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
     public void resetItem(){
-        firingInterval=500;
+
+        firingInterval=defaultFiringInterval;
         itemact=false;
     }
     public void AddObstacle(){
