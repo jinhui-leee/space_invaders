@@ -891,15 +891,15 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void useItem(){
 
 
-        int itemrandomnum=(int)(Math.random()*3)+1;
-        if (itemrandomnum==1){
+        int itemRandomNum=(int)(Math.random()*3)+1;
+        if (itemRandomNum==1){
             itemact=true;
         }
-        else if(itemrandomnum==2){
+        else if(itemRandomNum==2){
             firingInterval-=250;
             itemact2=true;
         }
-        else if(itemrandomnum==3){
+        else if(itemRandomNum==3){
             itemact3 = true;
 
             Timer timer = new Timer();
@@ -1099,7 +1099,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         } else {
                             tryToFire();
                         }
-                        if (stageLevel >= bossStageLevel) {
+                        if (stageLevel >= bossStageLevel && !waitingForKeyPress) {
                             shotShip();
                         }
 
@@ -1250,24 +1250,19 @@ public class Game extends Canvas implements ActionListener, WindowListener
         g.drawString("ship 속도", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("ship 속도")/2, 360);
         g.drawString("+20", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("+20")/2, 380);
         g.drawString("20코인", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("20코인")/2, 400);
-
         g.drawString("총알 속도", itemPurchaseBtn[1].getX() + itemPurchaseBtn[1].getWidth() / 2 - g.getFontMetrics().stringWidth("총알 속도")/2, 360);
         g.drawString("+5", itemPurchaseBtn[1].getX() + itemPurchaseBtn[1].getWidth() / 2 - g.getFontMetrics().stringWidth("+5")/2, 380);
         g.drawString("20코인", itemPurchaseBtn[1].getX() + itemPurchaseBtn[1].getWidth() / 2 - g.getFontMetrics().stringWidth("20코인")/2, 400);
-
         g.drawString("총알 발사 간격", itemPurchaseBtn[2].getX() + itemPurchaseBtn[2].getWidth() / 2 - g.getFontMetrics().stringWidth("총알 발사 간격")/2, 360);
         g.drawString("+10", itemPurchaseBtn[2].getX() + itemPurchaseBtn[2].getWidth() / 2 - g.getFontMetrics().stringWidth("+10")/2, 380);
         g.drawString("50코인",itemPurchaseBtn[2].getX() + itemPurchaseBtn[2].getWidth() / 2 - g.getFontMetrics().stringWidth("50코인")/2 , 400) ;
-
         g.drawString("ship 생명", itemPurchaseBtn[3].getX() + itemPurchaseBtn[3].getWidth() / 2 - g.getFontMetrics().stringWidth("ship 생명")/2, 360);
         g.drawString("+1", itemPurchaseBtn[3].getX() + itemPurchaseBtn[3].getWidth() / 2 - g.getFontMetrics().stringWidth("+1")/2, 380);
         g.drawString("200코인", itemPurchaseBtn[3].getX() + itemPurchaseBtn[3].getWidth() / 2 - g.getFontMetrics().stringWidth("200코인")/2, 400);
-
         g.drawString("스테이지 " + stageLevel + "클리어! 코인으로 아이템을 구매하세요!",(800-g.getFontMetrics().stringWidth("스테이지 " + stageLevel + "클리어! 코인으로 아이템을 구매하세요!"))/2,200);
 
 
         URL fontUrl = getClass().getResource("/font/Cafe24Danjunghae.ttf");
-
         Font font = null;
         try {
             assert fontUrl != null;
@@ -1277,10 +1272,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
         }
         g.setFont(font);
         g.drawString("아이템 상점",(800-g.getFontMetrics().stringWidth("아이템 상점"))/2,150);
-
-
-
-
 
         // 버튼 그리기
         btnManager();
