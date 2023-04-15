@@ -419,11 +419,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                                 pairs.add(new BestTimeUserPair(bestTimeInt, decodedEmail));
                             }
                         }
-                        // TODO 게임 클리어 시간 짧은 순으로 띄우기
                         pairs.sort((x, y) -> {return x.getBestTime() - y.getBestTime();});
-                        for (BestTimeUserPair bestTimeUserPair : pairs) {
-                            System.out.println(bestTimeUserPair.getBestTime());
-                        }
                         // JTable을 생성하여 사용자 ID와 최단 클리어 시간을 표시
                         String[] columnNames = {"Rank", "User ID", "Best Time"};
                         Object[][] data = new Object[pairs.size()][3];
