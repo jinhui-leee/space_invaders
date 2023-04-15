@@ -23,15 +23,12 @@ public class ItemEntity extends Entity{
 
     }
 
-
     @Override
     public void collidedWith(Entity other) {
         ItemActivity=true;
-
         if(other instanceof ShipEntity){
             game.removeEntity(this);
             game.useItem();
-
         }
     }
 }

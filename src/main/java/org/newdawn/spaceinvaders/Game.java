@@ -891,17 +891,17 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void useItem(){
 
 
-        int itemrandomnum=(int)(Math.random()*3)+1;
+        int itemrandomnum=3;//(int)(Math.random()*3)+1;
         if (itemrandomnum==1){
             itemact=true;
         }
         else if(itemrandomnum==2){
-            firingInterval-=250;
+            firingInterval-=350;
             itemact2=true;
         }
         else if(itemrandomnum==3){
             itemact3 = true;
-
+            firingInterval-=300;
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
