@@ -42,15 +42,14 @@ public class BossAlienEntity extends Entity{
         this.game = game;
         dx = -moveSpeed;
 
-        //TODO 테스트를 위해서 보스 체력 조정했음
         if (game.getGameDifficulty() == 0) {
-            this.life = 1; //50
+            this.life = 50; //50
         }
         else if (game.getGameDifficulty() == 1) {
-            this.life = 1; //100
+            this.life = 100; //100
         }
         else {
-            this.life = 1; //150
+            this.life = 150; //150
         }
     }
 

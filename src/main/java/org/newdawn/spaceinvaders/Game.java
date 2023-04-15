@@ -661,23 +661,22 @@ public class Game extends Canvas implements ActionListener, WindowListener
         entities.add(ship);
 
 
-        //TODO 테스트를 위해서 몬스터 수 조정했음
         //create a block of aliens (5 rows, by 12 aliens, spaced evenly)
         if (stageLevel < bossStageLevel) {
             alienCount = 0;
             //적(외계인) 생성 : 12x5 크기
             int alienRow, alienX;
             if (gameDifficulty == 0) {
-                alienRow = 1; //4
-                alienX = 1; //6
+                alienRow = 4; //4
+                alienX = 6; //6
             }
             else if (gameDifficulty == 1) {
-                alienRow = 1; //5
-                alienX = 1; //7
+                alienRow = 5; //5
+                alienX = 7; //7
             }
             else {
-                alienRow = 1; //6
-                alienX = 1; //8
+                alienRow = 6; //6
+                alienX = 8; //8
             }
 
 
@@ -890,7 +889,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
         }
     }
     public void useItem(){
-
 
 
         int itemrandomnum=(int)(Math.random()*3)+1;
@@ -1132,7 +1130,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
             }
         }
     }
-    //TODO 랭킹 연결하기
     public void drawGameClear() {
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 
@@ -1197,8 +1194,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         g.setFont(font4);
-
-        //TODO 현재 랭킹
         //사용자의 경우 기존 점수와 비교
         if(user!=null) {
             // 기존 user 점수 = bestTime
