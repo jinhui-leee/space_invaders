@@ -1197,15 +1197,46 @@ public class Game extends Canvas implements ActionListener, WindowListener
         //사용자의 경우 기존 점수와 비교
         if(user!=null) {
             // 기존 user 점수 = bestTime
-            final String bestTime = user.bestTime;
-            bestTimeInt = timeStringToInt(bestTime);
-            totalClearTimeInt = timeStringToInt(totalClearTime);
+            if(!bestTime.isEmpty()) {
+                final String bestTime = user.bestTime;
+                bestTimeInt = timeStringToInt(bestTime);
+                totalClearTimeInt = timeStringToInt(totalClearTime);
 
-            // Best Time 갱신인 경우 사용자 DB bestTime에 저장
-            if (totalClearTimeInt < bestTimeInt) {
-                g.drawString("Best Time 갱신 !!", (800 - g.getFontMetrics().stringWidth("Best Time 갱신 !!")) / 2, 360);
-                g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
-                g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
+                // Best Time 갱신인 경우 사용자 DB bestTime에 저장
+                if (totalClearTimeInt < bestTimeInt) {
+                    g.drawString("Best Time 갱신 !!", (800 - g.getFontMetrics().stringWidth("Best Time 갱신 !!")) / 2, 360);
+                    g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
+                    g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
+
+                    String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference ref = database.getReference();
+                    DatabaseReference userRef = ref.child("Users").child(encodedEmail);
+
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("/" + encodedEmail + "/bestTime", totalClearTime);
+
+                    userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                            if (databaseError != null) {
+//						Log.d(TAG, "Data could not be saved: " + databaseError.getMessage());
+                            } else {
+//						Log.d(TAG, "Data saved successfully.");
+                            }
+                        }
+                    });
+                }
+                // 갱신하지 못한 경우
+                else{
+                    g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
+                    g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
+                }
+            }
+            // 게임 처음 실행인 경우
+            else{
+                totalClearTimeInt = timeStringToInt(totalClearTime);
+                g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 410);
 
                 String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -1225,10 +1256,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         }
                     }
                 });
-            }
-            else{
-                g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
-                g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
             }
         }
         // 게스트는 최종 클리어 시간만 띄움

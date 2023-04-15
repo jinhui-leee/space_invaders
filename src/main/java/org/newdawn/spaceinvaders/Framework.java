@@ -14,8 +14,8 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Base64;
+import java.util.*;
+import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -405,25 +405,36 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         int i = 0;
-                        BestTimeUserPair[] pairs = new BestTimeUserPair[(int)dataSnapshot.getChildrenCount()];
+                        ArrayList<BestTimeUserPair> pairs = new ArrayList<>();
                         for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
                             String userId = userSnapshot.getKey();
                             String decodedEmail = new String(Base64.getDecoder().decode(userId));
                             if (!userSnapshot.child(userId).child("bestTime").getValue().toString().isEmpty()) {
                                 String bestTime = userSnapshot.child(userId).child("bestTime").getValue(String.class);
-                                pairs[i] = new BestTimeUserPair(bestTime, decodedEmail);
-                                i++;
+                                String[] tokens = bestTime.split(":");
+                                int minutes = Integer.parseInt(tokens[0]);
+                                int seconds = Integer.parseInt(tokens[1]);
+                                int millis = Integer.parseInt(tokens[2]);
+                                int bestTimeInt = minutes * 60 * 1000 + seconds * 1000 + millis;
+                                pairs.add(new BestTimeUserPair(bestTimeInt, decodedEmail));
                             }
                         }
                         // TODO 게임 클리어 시간 짧은 순으로 띄우기
-                        Arrays.sort(pairs); // 클리어 시간이 더 짧은 순으로 정렬하기
+                        pairs.sort((x, y) -> {return x.getBestTime() - y.getBestTime();});
+                        for (BestTimeUserPair bestTimeUserPair : pairs) {
+                            System.out.println(bestTimeUserPair.getBestTime());
+                        }
                         // JTable을 생성하여 사용자 ID와 최단 클리어 시간을 표시
                         String[] columnNames = {"Rank", "User ID", "Best Time"};
-                        Object[][] data = new Object[i][3];
-                        for (int j = 0; j < i; j++) {
+                        Object[][] data = new Object[pairs.size()][3];
+                        for (int j = 0; j < pairs.size(); j++) {
                             data[j][0] = j + 1;
-                            data[j][1] = pairs[j].getUser();
-                            data[j][2] = pairs[j].getBestTime();
+                            data[j][1] = pairs.get(j).getUser();
+                            int minutes = pairs.get(j).getBestTime() / 1000 / 60;
+                            int seconds = (pairs.get(j).getBestTime() / 1000) % 60;
+                            int millis = pairs.get(j).getBestTime() % 1000*10;
+                            data[j][2] = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
+
                         }
                         ranktable = new JTable(data, columnNames);
                         ranktable.setDefaultEditor(Object.class, null);

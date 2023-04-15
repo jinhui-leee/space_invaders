@@ -1,15 +1,15 @@
 package org.newdawn.spaceinvaders;
 
-class BestTimeUserPair implements Comparable<BestTimeUserPair> {
-    private String bestTime;
+class BestTimeUserPair {
+    private int bestTime;
     private String user;
 
-    public BestTimeUserPair(String bestTime, String user) {
+    public BestTimeUserPair(int bestTime, String user) {
         this.bestTime = bestTime;
         this.user = user;
     }
 
-    public String getBestTime() {
+    public int getBestTime() {
         return bestTime;
     }
 
@@ -17,9 +17,7 @@ class BestTimeUserPair implements Comparable<BestTimeUserPair> {
         return user;
     }
 
-    @Override
     public int compareTo(BestTimeUserPair other) {
-        return bestTime.compareTo(other.getBestTime());
-
+        return this.bestTime - other.bestTime;
     }
 }
