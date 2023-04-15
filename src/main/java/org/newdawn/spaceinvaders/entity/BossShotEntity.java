@@ -62,7 +62,6 @@ public class BossShotEntity extends Entity{
             game.removeEntity(other);
 
             // notify the game that the alien has been killed
-            game.notifyDeath();
             used = true;
         }
 
