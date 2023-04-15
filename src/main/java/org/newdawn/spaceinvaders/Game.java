@@ -117,10 +117,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     Dimension screenSize = toolkit.getScreenSize();
 
     /** 글자 크기 */
-    static Font font_basic = new Font("맑은 고딕",Font.PLAIN,12);
-    static Font font_basic_bold = new Font("맑은 고딕",Font.BOLD,12);
     static Font font_basic_bold_size_14 = new Font("맑은 고딕",Font.BOLD,14);
-    static Font font_basic_bold_size_16 = new Font("맑은 고딕",Font.BOLD,16);
 
 
     private final JButton audioBtn;
@@ -916,7 +913,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
     public void resetItem(){
-        firingInterval=500;
+        firingInterval=defaultFiringInterval;
         itemact=false;
         itemact2=false;
         itemact3=false;
