@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The entity that represents the players ship
- * 
+ *
  * @author Kevin Glass
  */
 public class ShipEntity extends Entity {
@@ -19,10 +19,10 @@ public class ShipEntity extends Entity {
 	private int life = 1;
 
 	private boolean used = false;
-	
+
 	/**
 	 * Create a new entity to represent the players ship
-	 *  
+	 *
 	 * @param game The game in which the ship is being created
 	 * @param ref The reference to the sprite to show for the ship
 	 * @param x The initial x location of the player's ship
@@ -30,7 +30,7 @@ public class ShipEntity extends Entity {
 	 */
 	public ShipEntity(Game game, String ref, int x, int y) {
 		super(ref,x,y);
-		
+
 		this.game = game;
 	}
 
@@ -45,7 +45,7 @@ public class ShipEntity extends Entity {
 	/**
 	 * Request that the ship move itself based on an elapsed ammount of
 	 * time
-	 * 
+	 *
 	 * @param delta The time that has elapsed since last move (ms)
 	 */
 	public void move(long delta) {
@@ -59,13 +59,13 @@ public class ShipEntity extends Entity {
 		if ((dx > 0) && (x > 750)) {
 			return;
 		}
-		
+
 		super.move(delta);
 	}
-	
+
 	/**
 	 * Notification that the player's ship has collided with something
-	 * 
+	 *
 	 * @param other The entity with which the ship has collided
 	 */
 	public void collidedWith(Entity other) {
@@ -89,6 +89,17 @@ public class ShipEntity extends Entity {
 						used = false;
 					}
 				}, 1000); //1초간 무적
+			}
+			if(game.itemact3){
+				used = true;
+				System.out.println("life = " + life);
+				Timer timer = new Timer();
+				timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						used = false;
+					}
+				}, 5000); //1초간 무적
 			}
 			else {
 				game.notifyDeath();

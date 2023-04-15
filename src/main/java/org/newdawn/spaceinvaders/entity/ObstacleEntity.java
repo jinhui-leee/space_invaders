@@ -85,7 +85,7 @@ public class ObstacleEntity extends Entity {
             game.removeEntity(this);
             game.removeEntity(other);
             game.notifyDeath();
-            used =true;
+            used = true;
         }
     }
 }

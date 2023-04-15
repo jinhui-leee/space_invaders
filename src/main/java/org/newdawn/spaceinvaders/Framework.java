@@ -1,7 +1,11 @@
 package org.newdawn.spaceinvaders;
 
+import com.google.firebase.database.*;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +14,8 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,9 +37,15 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
     int themeChoice = 0;
 
-    static int theme = 0;
+    int theme = 0;
 
     JLabel []themeLabel;
+
+    JLabel rankingLabel;
+
+    public static JTable ranktable;
+
+    JScrollPane rankingScrollPane;
 
     ImageIcon[] characterImage;
 
@@ -46,7 +58,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
     String []btnColor;
 
     private static User user;
-
 
     // 사용자 모드
     public Framework() {
@@ -164,15 +175,18 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             for (int i=0; i<9; i++) backgroundImage[i][3] = ImageIO.read(themeUrl[i]);
             //랭킹보기 배경
             for (int i=0; i<9; i++) backgroundImage[i][4] = ImageIO.read(themeUrl[i]);
+
+            rankingLabel = new JLabel();
+            ranktable = new JTable();
+            rankingScrollPane = new JScrollPane();
+
         }
         catch (IOException e) {
             Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, e);
         }
 
-
         //버튼 생성
         btnImage = new ImageIcon[10];
-
 
         btn = new JButton[13];
 
@@ -194,8 +208,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         //선택하기 테마, 캐릭터
         btnImageUrl[8] = getClass().getResource("/images/btn9.png");
         btnImageUrl[9] = getClass().getResource("/images/btn9.png");
-
-
 
 
         String []btnStr = new String[13];
@@ -310,7 +322,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             btn[i].setVisible(true);
         }
 
-
     }
 
     /**
@@ -324,15 +335,16 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
             for (int i=0; i<5; i++) characterLabel[i].setVisible(false);
 
+            rankingLabel.setVisible(false);
+            rankingScrollPane.setVisible(false);
+
             setLayout(null);
             for (int i=0; i<7; i++) {
                 btn[i].setBackground(Color.decode(btnColor[theme]));
                 btn[i].setVisible(true);
             }
-
         }
-        else
-        {
+        else {
             //메인화면 버튼 없애기 + 뒤로가기 버튼 만들기
             for (int i=0; i<7; i++) btn[i].setVisible(false);
             setLayout(null);
@@ -359,7 +371,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     add(themeLabel[i]);
                     themeLabel[i].setVisible(true);
                 }
-
             }
             else if (gameState == GameState.CHARACTER) {
                 btn[9].setBackground(Color.decode(btnColor[theme]));
@@ -371,7 +382,69 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     characterLabel[i].setVisible(true);
                 }
             }
+            /** ranking 화면 구현 */
+            else if (gameState == GameState.RANKING) {
+                // '사용자 랭킹' 텍스트 띄우기
+                ImageIcon rankingIcon = new ImageIcon("src/main/resources/images/rankingtitle.png");
+                Image imgRankingTitle = rankingIcon.getImage();
 
+                Image changeImgRankingTitle = imgRankingTitle.getScaledInstance(300, 100, Image.SCALE_SMOOTH);
+                ImageIcon changeIconRankingTitle = new ImageIcon(changeImgRankingTitle);
+
+                rankingLabel = new JLabel(changeIconRankingTitle);
+                add(rankingLabel);
+                rankingLabel.setBounds(250, 120, 300, 100);
+                rankingLabel.setVisible(true);
+
+                // 사용자 정보 받아오기
+                FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
+                DatabaseReference ref = userdatabase.getReference();
+                DatabaseReference usersRef = ref.child("Users");
+
+                usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        int i = 0;
+                        BestTimeUserPair[] pairs = new BestTimeUserPair[(int)dataSnapshot.getChildrenCount()];
+                        for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
+                            String userId = userSnapshot.getKey();
+                            String decodedEmail = new String(Base64.getDecoder().decode(userId));
+                            if (!userSnapshot.child(userId).child("bestTime").getValue().toString().isEmpty()) {
+                                String bestTime = userSnapshot.child(userId).child("bestTime").getValue(String.class);
+                                pairs[i] = new BestTimeUserPair(bestTime, decodedEmail);
+                                i++;
+                            }
+                        }
+                        // TODO 게임 클리어 시간 짧은 순으로 띄우기
+                        Arrays.sort(pairs); // 클리어 시간이 더 짧은 순으로 정렬하기
+                        // JTable을 생성하여 사용자 ID와 최단 클리어 시간을 표시
+                        String[] columnNames = {"Rank", "User ID", "Best Time"};
+                        Object[][] data = new Object[i][3];
+                        for (int j = 0; j < i; j++) {
+                            data[j][0] = j + 1;
+                            data[j][1] = pairs[j].getUser();
+                            data[j][2] = pairs[j].getBestTime();
+                        }
+                        ranktable = new JTable(data, columnNames);
+                        ranktable.setDefaultEditor(Object.class, null);
+                        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+                        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+                        TableColumnModel tcm = ranktable.getColumnModel();
+                        for(int c = 0 ; c < tcm.getColumnCount() ; c++){
+                            tcm.getColumn(c).setCellRenderer(dtcr);
+                        }
+                        rankingScrollPane = new JScrollPane(ranktable);
+                        add(rankingScrollPane);
+                        rankingScrollPane.setBounds(150, 220, 500, 250);
+                        rankingScrollPane.setVisible(true);
+
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        System.out.println("The read failed: " + databaseError.getCode());
+                    }
+                });
+            }
         }
     }
 
@@ -392,23 +465,18 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     break;
 
                 case MAIN_MENU:
-
                     break;
 
                 case DESCRIPTION:
-
                     break;
 
                 case THEME:
-
                     break;
 
                 case CHARACTER:
-
                     break;
 
                 case RANKING:
-
                     break;
 
                 case STARTING:
@@ -461,8 +529,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         }
 
     }
-
-
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -470,7 +536,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         if (e.getSource() == btn[0]) {
             gameState = GameState.OPTIONS;
             btnManager();
-
         }
         //게임설명
         else if (e.getSource() == btn[1]) {
@@ -481,7 +546,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         else if (e.getSource() == btn[2]) {
             gameState = GameState.THEME;
             btnManager();
-
         }
         //캐릭터설정
         else if (e.getSource() == btn[3]) {
@@ -503,7 +567,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             Register register = new Register();
             register.register();
         }
-
         //뒤로가기
         else if (e.getSource() == btn[7]) {
             gameState = GameState.MAIN_MENU;
@@ -608,6 +671,4 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
     public void mouseExited(MouseEvent e) {
 
     }
-
-
 }

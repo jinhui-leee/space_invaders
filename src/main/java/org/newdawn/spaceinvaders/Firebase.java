@@ -16,10 +16,10 @@ public class Firebase {
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setDatabaseUrl("https://source-code-analysis-default-rtdb.firebaseio.com")
-//                    .setDatabaseUrl("https://source-code-analysis.firebaseio.com")
                     .build();
 
             FirebaseApp.initializeApp(options);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

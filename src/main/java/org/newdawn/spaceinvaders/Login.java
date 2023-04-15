@@ -128,7 +128,7 @@ public class Login extends JPanel implements ActionListener {
                             JOptionPane.showMessageDialog(login, "등록되지 않은 이메일입니다.", "이메일 불일치", JOptionPane.DEFAULT_OPTION);
                         }
                     }
-    //                    @Override
+                    //                    @Override
                     public void onCancelled(DatabaseError databaseError) {
                         // 데이터 가져오기를 실패한 경우, 로그인 실패 처리를 합니다.
                         JOptionPane.showMessageDialog(login, "로그인에 실패했습니다.", "로그인 실패", JOptionPane.DEFAULT_OPTION);
