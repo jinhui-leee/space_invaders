@@ -141,7 +141,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private String time = "";
     private Integer timeInt = 0;
 
-    private String bestTime = "";
+//    private String bestTime = "";
     private Integer bestTimeInt = 0;
 
     private String totalClearTime ="";
@@ -1099,7 +1099,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         } else {
                             tryToFire();
                         }
-                        if (stageLevel >= bossStageLevel) {
+                        if (stageLevel >= bossStageLevel && gameRunning) {
                             shotShip();
                         }
 
@@ -1193,14 +1193,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         g.setFont(font4);
-        //사용자의 경우 기존 점수와 비교
         if(user!=null) {
-            // 기존 user 점수 = bestTime
-            if(!bestTime.isEmpty()) {
-                final String bestTime = user.bestTime;
+            if(!user.bestTime.isEmpty()) {
+                String bestTime = user.bestTime;
                 bestTimeInt = timeStringToInt(bestTime);
                 totalClearTimeInt = timeStringToInt(totalClearTime);
-
                 // Best Time 갱신인 경우 사용자 DB bestTime에 저장
                 if (totalClearTimeInt < bestTimeInt) {
                     g.drawString("Best Time 갱신 !!", (800 - g.getFontMetrics().stringWidth("Best Time 갱신 !!")) / 2, 360);
@@ -1256,11 +1253,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     }
                 });
             }
+            // 기존 user 점수 = bestTime
         }
         // 게스트는 최종 클리어 시간만 띄움
         else{
             g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
         }
+        //사용자의 경우 기존 점수와 비교
 
         g.dispose();
         strategy.show();
