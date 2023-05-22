@@ -13,7 +13,7 @@ public class Login extends JPanel implements ActionListener {
 
     JFrame login;
 
-    JButton loginbtn;
+    JButton loginBtn;
     JTextField inputID;
     JTextField inputPWD;
 
@@ -69,12 +69,12 @@ public class Login extends JPanel implements ActionListener {
         inputPWD.setFont(font_basic);
         loginPanel.add(inputPWD);
 
-        loginbtn = new JButton("로그인");
-        loginbtn.setBounds(125, 230, 150, 40);
-        loginbtn.setFont(font_basic_bold);
-        loginPanel.add(loginbtn);
+        loginBtn = new JButton("로그인");
+        loginBtn.setBounds(125, 230, 150, 40);
+        loginBtn.setFont(font_basic_bold);
+        loginPanel.add(loginBtn);
 
-        loginbtn.addActionListener(this);
+        loginBtn.addActionListener(this);
 
         login.pack();
         login.setResizable(false);
@@ -86,7 +86,7 @@ public class Login extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         // 로그인 버튼이 클릭된 경우
-        if (e.getSource() == loginbtn) {
+        if (e.getSource() == loginBtn) {
 
             String id = inputID.getText();
             String pw = inputPWD.getText();

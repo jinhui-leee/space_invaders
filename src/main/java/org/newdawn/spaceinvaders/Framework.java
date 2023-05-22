@@ -396,14 +396,13 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 rankingLabel.setVisible(true);
 
                 // 사용자 정보 받아오기
-                FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
-                DatabaseReference ref = userdatabase.getReference();
+                FirebaseDatabase userDatabase = FirebaseDatabase.getInstance();
+                DatabaseReference ref = userDatabase.getReference();
                 DatabaseReference usersRef = ref.child("Users");
 
                 usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        int i = 0;
                         ArrayList<BestTimeUserPair> pairs = new ArrayList<>();
                         for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
                             String userId = userSnapshot.getKey();
