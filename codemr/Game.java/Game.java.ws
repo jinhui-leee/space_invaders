@@ -1,0 +1,1 @@
+{"space_invaders":{"name":"space_invaders","packages":{"org.newdawn.spaceinvaders":{"packageName":"org.newdawn.spaceinvaders","isAll":false,"classes":["Lorg.newdawn.spaceinvaders.Game","Lorg.newdawn.spaceinvaders.Game.KeyInputHandler"]}}}}
