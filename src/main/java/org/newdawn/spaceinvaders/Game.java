@@ -1409,4 +1409,5 @@ public class Game extends Canvas implements ActionListener
 //		g.gameLoop();
         Window w = new Window();
     }
+    //TODO 확인
 }
