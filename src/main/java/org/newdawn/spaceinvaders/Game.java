@@ -1053,7 +1053,10 @@ public class Game extends Canvas implements ActionListener
                         } else {
                             tryToFire();
                         }
-                        if (stageLevel >= bossStageLevel && gameRunning) {
+//                        if (stageLevel >= bossStageLevel && gameRunning) {
+//
+//                        }
+                        if (stageLevel >= bossStageLevel && !waitingForKeyPress) {
                             shotShip();
                         }
 
