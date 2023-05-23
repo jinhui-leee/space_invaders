@@ -4,8 +4,6 @@ import org.newdawn.spaceinvaders.Game;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The entity that represents the players ship
@@ -90,7 +88,7 @@ public class ShipEntity extends Entity {
 					}
 				}, 1000); //1초간 무적
 			}
-			if(game.itemact3){
+			if(game.itemAct3){
 				used = true;
 				System.out.println("life = " + life);
 				Timer timer = new Timer();

@@ -13,19 +13,17 @@ public class Login extends JPanel implements ActionListener {
 
     JFrame login;
 
-    JButton loginbtn;
+    JButton loginBtn;
     JTextField inputID;
     JTextField inputPWD;
 
     static Font font_basic = new Font("맑은 고딕",Font.PLAIN,12);
     static Font font_basic_bold = new Font("맑은 고딕",Font.BOLD,12);
     static Font font_basic_bold_size_14 = new Font("맑은 고딕",Font.BOLD,14);
-    static Font font_basic_bold_size_16 = new Font("맑은 고딕",Font.BOLD,16);
 
     static Toolkit toolkit = Toolkit.getDefaultToolkit();
     static Dimension screenSize = toolkit.getScreenSize();
 
-    static String encodedEmail;
 
     public void login() {
 
@@ -69,12 +67,12 @@ public class Login extends JPanel implements ActionListener {
         inputPWD.setFont(font_basic);
         loginPanel.add(inputPWD);
 
-        loginbtn = new JButton("로그인");
-        loginbtn.setBounds(125, 230, 150, 40);
-        loginbtn.setFont(font_basic_bold);
-        loginPanel.add(loginbtn);
+        loginBtn = new JButton("로그인");
+        loginBtn.setBounds(125, 230, 150, 40);
+        loginBtn.setFont(font_basic_bold);
+        loginPanel.add(loginBtn);
 
-        loginbtn.addActionListener(this);
+        loginBtn.addActionListener(this);
 
         login.pack();
         login.setResizable(false);
@@ -86,7 +84,7 @@ public class Login extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         // 로그인 버튼이 클릭된 경우
-        if (e.getSource() == loginbtn) {
+        if (e.getSource() == loginBtn) {
 
             String id = inputID.getText();
             String pw = inputPWD.getText();
@@ -98,8 +96,8 @@ public class Login extends JPanel implements ActionListener {
             }
             else {
                 // 사용자 정보 받아오기
-                FirebaseDatabase userdatabase = FirebaseDatabase.getInstance();
-                DatabaseReference ref = userdatabase.getReference();
+                FirebaseDatabase userDatabase = FirebaseDatabase.getInstance();
+                DatabaseReference ref = userDatabase.getReference();
                 DatabaseReference usersRef = ref.child("Users").child(encodedEmail);
 
                 usersRef.child(encodedEmail).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -112,7 +110,7 @@ public class Login extends JPanel implements ActionListener {
                             for(DataSnapshot postSnapshot : dataSnapshot.getChildren()){
                                 user = dataSnapshot.getValue(User.class);
                             }
-                            if (pw.equals(user.password)) {
+                            if (pw.equals(user.getPassword())) {
                                 // 비밀번호가 일치하는 경우, 로그인 성공 처리를 합니다.
                                 JOptionPane.showMessageDialog(login, "로그인 성공 ! " + user.name + "님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
                                 login.dispose();

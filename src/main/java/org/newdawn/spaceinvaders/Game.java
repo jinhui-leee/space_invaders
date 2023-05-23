@@ -18,24 +18,8 @@ import org.newdawn.spaceinvaders.entity.*;
 
 import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
 
-/**
- * The main hook of our game. This class with both act as a manager
- * for the display and central mediator for the game logic.
- *
- * Display management will consist of a loop that cycles round all
- * entities in the game asking them to move and then drawing them
- * in the appropriate place. With the help of an inner class it
- * will also allow the player to control the main ship.
- *
- * As a mediator it will be informed when entities within our game
- * detect events (e.g. alient killed, played died) and will take
- * appropriate game actions.
- *
- * @author Kevin Glass
- */
 public class Game extends Canvas implements ActionListener, WindowListener
 {
-    /** The stragey that allows us to use accelerate page flipping */
     private final BufferStrategy strategy;
     int timer2;
 
@@ -54,11 +38,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private ShipEntity ship;
     private Entity item;
     private Entity obstacle;
-    private int itemnum=0;
 
-    private boolean itemact=false;
-    private boolean itemact2=false;
-    public boolean itemact3=false;
+    private boolean itemAct =false;
+    private boolean itemAct2 =false;
+    public boolean itemAct3 =false;
 
     /** The speed at which the player's ship should move (pixels/sec) */
     private double moveSpeed = 300;
@@ -74,8 +57,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     /** The message to display which waiting for a key press */
     private String message = "";
-
-    private String messageEnemyCnt = "";
 
     /** True if we're holding up game play until a key has been pressed */
     private boolean waitingForKeyPress = true;
@@ -101,9 +82,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     /** The current number of frames recorded */
     private int fps;
-
-    /** The normal title of the game window */
-    private final String windowTitle = "Space Invaders 102";
 
     /** The game window that we'll update with the frame count */
     private final JFrame container;
@@ -136,24 +114,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private final JLabel getGoldLabel;
 
     /** 경과 시간 초기값 = 0 */
-    private BestTimeUserPair bestTimeUserPair;
     private final JLabel timeLabel;
     private String time = "";
-    private Integer timeInt = 0;
-
-    private String bestTime = "";
-    private Integer bestTimeInt = 0;
 
     private String totalClearTime ="";
     private Integer totalClearTimeInt = 0;
-
-    private String newBestTime;
-
-    private JLabel bestTimeLabel;
-
-    long startTime;
-
-    private long timeRecord;
 
     private final int gameDifficulty;
 
@@ -161,12 +126,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     private final String btnColor;
 
-    private JButton []itemPurchaseBtn;
-
-    private JPanel panel;
+    private final JButton []itemPurchaseBtn;
 
     private int shotSpeed = -330;
-    private int itemshot2speed=-1000;
 
     //총알 발사 간격 아이템 사용 이후, 원래 총알 간격으로 돌아가기 위한 총알 간격
     private long defaultFiringInterval = 500;
@@ -182,25 +144,20 @@ public class Game extends Canvas implements ActionListener, WindowListener
      */
     public Game(int gameDifficulty, User user, String themeColor, BufferedImage image) {
 
-        // create a frame to contain our game
         container = new JFrame("Space Invaders 102");
 
-        // get hold the content of the frame and set up the resolution of the game
-        //JPanel
-        panel = (JPanel) container.getContentPane();
 
-        //panel = new JPanel();
+        JPanel panel = (JPanel) container.getContentPane();
+
         panel.setLayout(null);
         panel.setPreferredSize(new Dimension(800,600));
 
-        // setup our canvas size and put it into the content of the frame 절대 위치,크기 조정
         setBounds(0,0,800,600);
         container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
 
         this.btnColor = themeColor;
         this.storeBackgroundImage = image;
 
-//        bestTimeUserPair = new BestTimeUserPair(bestTime, user.email);
 
         // Music 객체 받아오고 재생
         music = new Music();
@@ -351,33 +308,23 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
 
-        // 윈도우 리스너 이벤트 add
         addWindowListener(this);
 
 
         panel.add(this);
 
-
-        // Tell AWT not to bother repainting our canvas since we're
-        // going to do that our self in accelerated mode
-        //setIgnoreRepaint(true);
         container.pack();
         container.setResizable(false);
         container.setVisible(true);
 
-        // add a listener to respond to the user closing the window. If they
-        // do we'd like to exit the game
+
         container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // add a key input system (defined below) to our canvas
-        // so we can respond to key pressed
         addKeyListener(new KeyInputHandler());
 
-        // request the focus so key events come to us
         requestFocus();
 
-        // create the buffering strategy which will allow AWT
-        // to manage our accelerated graphics
+
         createBufferStrategy(2);
         strategy = getBufferStrategy();
 
@@ -393,11 +340,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
             if (music.isPlaying()) {
                 music.stopMusic();
                 audioBtn.setIcon(this.changeIconAudioOn);
-//                audioBtn.setFocusable(false);
             } else {
                 music.playMusic();
                 audioBtn.setIcon(this.changeIconAudioOff);
-//                audioBtn.setFocusable(false);
 
             }
         }
@@ -405,8 +350,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         else if (e.getSource() == itemPurchaseBtn[0]) {
 
             if (user != null) {
-                if (user.gold >= 20) {
-                    user.gold -= 20;
+                if (user.getGold() >= 20) {
+                    user.setGold(user.getGold()- 20);
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
                     moveSpeed += 20;
                     itemPurchaseCnt[0]++;
@@ -432,8 +377,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         //아이템 구매 : 총알 속도 -5 증가, 20원
         else if (e.getSource() == itemPurchaseBtn[1]) {
             if (user != null) {
-                if (user.gold >= 20) {
-                    user.gold -= 20;
+                if (user.getGold() >= 20) {
+                    user.setGold(user.getGold()- 20);
                     shotSpeed -= 5;
                     itemPurchaseCnt[1]++;
                     itemPurchaseCnt[4]++;
@@ -459,8 +404,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         //아이템 구매 : 총알 발사 간격 -10, 50원
         else if (e.getSource() == itemPurchaseBtn[2]) {
             if (user != null) {
-                if (user.gold >= 50) {
-                    user.gold -= 50;
+                if (user.getGold() >= 50) {
+                    user.setGold(user.getGold()- 50);
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
                     firingInterval-=10;
                     itemPurchaseCnt[2]++;
@@ -493,8 +438,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 JOptionPane.showMessageDialog(null, "생명은 최대 5개입니다.");
             }
             else if (user != null) {
-                if (user.gold >= 200) {
-                    user.gold -= 200;
+                if (user.getGold() >= 200) {
+                    user.setGold(user.getGold()- 200);
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
                     shipLife = ship.getLife()+1;
                     ship.setLife(shipLife);
@@ -559,13 +504,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
     @Override
     public void windowClosing(WindowEvent e) {
         // 윈도우 창이 닫힐 때 처리할 내용
-//		if (music != null) {
         if (music.isPlaying()) {
             music.stopMusic();
-//			audioBtn.setIcon(this.changeIconAudioOn);
         }
-//			music.stopMusic();
-//		}
+
     }
 
     @Override
@@ -598,16 +540,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
 
-
-    /**
-     * Start a fresh game, this should clear out any old data and
-     * create a new set.
-     */
     private void startGame() {
         // clear out any existing entities and intialise a new set
         entities.clear();
         initEntities();
-        CreateItemEntities();
+        createItemEntities();
         resetItem();
 
         if (stageLevel == 0) {
@@ -626,10 +563,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     }
 
-    /**
-     * Initialise the starting state of the entities (ship and aliens). Each
-     * entitiy will be added to the overall list of entities in the game.
-     */
+
     private void initEntities() {
         // create the player ship and place it roughly in the center of the screen
         if (Framework.character == 0)
@@ -661,22 +595,21 @@ public class Game extends Canvas implements ActionListener, WindowListener
         entities.add(ship);
 
 
-        //create a block of aliens (5 rows, by 12 aliens, spaced evenly)
         if (stageLevel < bossStageLevel) {
             alienCount = 0;
-            //적(외계인) 생성 : 12x5 크기
+            //적(외계인) 생성
             int alienRow, alienX;
             if (gameDifficulty == 0) {
-                alienRow = 4; //4
-                alienX = 6; //6
+                alienRow = 4;
+                alienX = 6;
             }
             else if (gameDifficulty == 1) {
-                alienRow = 5; //5
-                alienX = 7; //7
+                alienRow = 5;
+                alienX = 7;
             }
             else {
-                alienRow = 6; //6
-                alienX = 8; //8
+                alienRow = 6;
+                alienX = 8;
             }
 
 
@@ -697,7 +630,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
             alienCount++;
         }
     }
-    private void CreateItemEntities(){
+    private void createItemEntities(){
         item=new ItemEntity(this,"images/item.gif");
         entities.add(item);
 
@@ -709,35 +642,24 @@ public class Game extends Canvas implements ActionListener, WindowListener
         entities.add(obstacle);
     }
 
-    /**
-     * Notification from a game entity that the logic of the game
-     * should be run at the next opportunity (normally as a result of some
-     * game event)
-     */
+
     public void updateLogic() {
         logicRequiredThisLoop = true;
     }
 
-    /**
-     * Remove an entity from the game. The entity removed will
-     * no longer move or be drawn.
-     *
-     * @param entity The entity that should be removed
-     */
+
     public void removeEntity(Entity entity) {
         removeList.add(entity);
     }
 
-    /**
-     * Notification that the player has died.
-     */
+
     public void notifyDeath() {
         message = "Oh no! They got you, try again? " + " stage level : " + (stageLevel+1);
         stageLevel = 0;
         waitingForKeyPress = true;
 
-//        gameRunning = false;
     }
+
     // String 형으로 된 시간을 Int 형으로 변환
     public int timeStringToInt(String timeStr) {
         String[] tokens = timeStr.split(":");
@@ -763,7 +685,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void notifyWin() {
         message = "Well done! You Win!" + "  stage level : " + (stageLevel+1)+" clear time : " + time ;
         // 새로운 기록을 누적값에 추가
-        timeInt = timeStringToInt(time);
+        Integer timeInt = timeStringToInt(time);
         totalClearTimeInt += timeInt;
         totalClearTime = timeIntToString(totalClearTimeInt);
 
@@ -813,8 +735,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
             notifyWin();
         }
 
-        // if there are still some aliens left then they all need to get faster, so
-        // speed up all the existing aliens
+
         for (int i=0;i<entities.size();i++) {
             Entity entity = (Entity) entities.get(i);
 
@@ -825,13 +746,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         }
     }
 
-    /**
-     * Attempt to fire a shot from the player. Its called "try"
-     * since we must first check that the player can fire at this
-     * point, i.e. has he/she waited long enough between shots
-     */
+
     public void tryToFire() {
-        // check that we have waiting long enough to fire
         if (System.currentTimeMillis() - lastFire < firingInterval) {
             return;
         }
@@ -845,12 +761,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
     public void itemFire() {
-        // check that we have waiting long enough to fire
         if (System.currentTimeMillis() - lastFire < firingInterval) {
             return;
         }
 
-        // if we waited long enough, create the shot entity, and record the time.
         lastFire = System.currentTimeMillis();
 
 
@@ -875,7 +789,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         lastFire = System.currentTimeMillis();
         ShotEntity shot = new ShotEntity(this,"images/shot2.png",ship.getX()+10,ship.getY()-30);
 
-        shot.setMoveSpeed(itemshot2speed);
+        int itemShot2Speed = -1000;
+        shot.setMoveSpeed(itemShot2Speed);
         entities.add(shot);
         // 총알 발사 시 효과음 재생
         Music.shotAudio();
@@ -893,28 +808,29 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         int itemRandomNum=(int)(Math.random()*3)+1;
         if (itemRandomNum==1){
-            itemact=true;
+            itemAct =true;
         }
         else if(itemRandomNum==2){
             firingInterval-=250;
-            itemact2=true;
+            itemAct2 =true;
         }
         else if(itemRandomNum==3){
-            itemact3 = true;
+            itemAct3 = true;
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
-                public void run() {itemact3 = false;}
+                public void run() {
+                    itemAct3 = false;}
             }, 3000); //3초간 무적
         }
     }
 
     public void resetItem(){
         firingInterval=defaultFiringInterval;
-        itemact=false;
-        itemact2=false;
-        itemact3=false;
+        itemAct =false;
+        itemAct2 =false;
+        itemAct3 =false;
     }
     public void AddObstacle(){
         ObstacleEntity obstacle = new ObstacleEntity(this, "images/obstacle.png", 10, (int) (Math.random() * 450));
@@ -922,32 +838,17 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     }
 
-    /**
-     * The main game loop. This loop is running during all game
-     * play as is responsible for the following activities:
-     * <p>
-     * - Working out the speed of the game loop to update moves
-     * - Moving the game entities
-     * - Drawing the screen contents (entities, text)
-     * - Updating game events
-     * - Checking Input
-     * <p>
-     */
+
 
     public void gameLoop() {
         long lastLoopTime = SystemTimer.getTime();
         long startTime = lastLoopTime;
         long elapsedTime=0;
 
-        // keep looping round til the game ends
 
         while (true) {
             if (gameRunning) {
-                // 게임 실행 중인 코드
                 while (gameRunning) {
-                    // work out how long its been since the last update, this
-                    // will be used to calculate how far the entities should
-                    // move this loop
                     long delta = SystemTimer.getTime() - lastLoopTime;
                     elapsedTime+=delta;
                     lastLoopTime = SystemTimer.getTime();
@@ -971,14 +872,14 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     // update our FPS counter if a second has passed since
                     // we last recorded
                     if (lastFpsTime >= 1000) {
-                        container.setTitle(windowTitle+" (FPS: "+fps+")");
+                        /* The normal title of the game window */
+                        String windowTitle = "Space Invaders 102";
+                        container.setTitle(windowTitle +" (FPS: "+fps+")");
                         lastFpsTime = 0;
                         fps = 0;
                     }
 
 
-                    // Get hold of a graphics context for the accelerated
-                    // surface and blank it out
                     //배경색
                     Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
                     g.setColor(Color.black);
@@ -988,9 +889,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     int stringWidth = g.getFontMetrics().stringWidth(messageEnemyCnt);
                     g.drawString(messageEnemyCnt, (getWidth() - stringWidth) / 2, 30);
 
-//                    g.drawString(String.valueOf(minutes)+"분" +String.valueOf(seconds),700,80);
-
-                    if(itemact3)
+                    if(itemAct3)
                     {
                         g.setColor(Color.blue);
                         Font font = new Font("Arial", Font.BOLD, 70);
@@ -1015,9 +914,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         entity.draw(g);
                     }
 
-                    // brute force collisions, compare every entity against
-                    // every other entity. If any of them collide notify
-                    // both entities that the collision has occured
                     for (int p=0; p<entities.size(); p++) {
                         for (int s=p+1; s<entities.size(); s++) {
                             Entity me = (Entity) entities.get(p);
@@ -1039,13 +935,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         }
                     }
 
-                    // remove any entity that has been marked for clear up
                     entities.removeAll(removeList);
                     removeList.clear();
 
-                    // if a game event has indicated that game logic should
-                    // be resolved, cycle round every entity requesting that
-                    // their personal logic should be considered.
                     if (logicRequiredThisLoop) {
                         for (int i=0;i<entities.size();i++) {
                             Entity entity = (Entity) entities.get(i);
@@ -1055,9 +947,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         logicRequiredThisLoop = false;
                     }
 
-                    // if we're waiting for an "any key" press then draw the
-                    // current message
-                    //아무키 누르는 거 대기 중(게임 시작 전, 게임 끝난 후)
+
                     if (waitingForKeyPress) {
                         elapsedTime=0;
                         g.setColor(Color.white);
@@ -1065,14 +955,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         g.drawString("Press any key",(800-g.getFontMetrics().stringWidth("Press any key"))/2,300);
                     }
 
-                    // finally, we've completed drawing so clear up the graphics
-                    // and flip the buffer over
                     g.dispose();
                     strategy.show();
 
-                    // resolve the movement of the ship. First assume the ship
-                    // isn't moving. If either cursor key is pressed then
-                    // update the movement appropraitely
                     ship.setHorizontalMovement(0);
                     ship.setVerticalMovement(0);
 
@@ -1089,11 +974,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         ship.setVerticalMovement(moveSpeed);
                     }
 
-                    // if we're pressing fire, attempt to fire
                     if (firePressed) {
-                        if(itemact){
+                        if(itemAct){
                             itemFire();
-                        } else if (itemact2) {
+                        } else if (itemAct2) {
                             item2Fire();
 
                         } else {
@@ -1109,12 +993,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         AddObstacle();
                     }
 
-
-
-                    // we want each frame to take 10 milliseconds, to do this
-                    // we've recorded when we started the frame. We add 10 milliseconds
-                    // to this and then factor in the current time to give
-                    // us our final value to wait for
                     SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
                 }
             }
@@ -1198,7 +1076,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         if(user!=null) {
             // 기존 user 점수 = bestTime
             final String bestTime = user.bestTime;
-            bestTimeInt = timeStringToInt(bestTime);
+            int bestTimeInt = timeStringToInt(bestTime);
             totalClearTimeInt = timeStringToInt(totalClearTime);
 
             // Best Time 갱신인 경우 사용자 DB bestTime에 저장
@@ -1284,37 +1162,14 @@ public class Game extends Canvas implements ActionListener, WindowListener
         return storeBackgroundImage;
     }
 
-
     public String getBtnColor() {
         return btnColor;
     }
 
-    /**
-     * A class to handle keyboard input from the user. The class
-     * handles both dynamic input during game play, i.e. left/right
-     * and shoot, and more static type input (i.e. press any key to
-     * continue)
-     *
-     * This has been implemented as an inner class more through
-     * habbit then anything else. Its perfectly normal to implement
-     * this as seperate class if slight less convienient.
-     *
-     * @author Kevin Glass
-     */
     private class KeyInputHandler extends KeyAdapter {
-        /** The number of key presses we've had while waiting for an "any key" press */
         private int pressCount = 1;
 
-        /**
-         * Notification from AWT that a key has been pressed. Note that
-         * a key being pressed is equal to being pushed down but *NOT*
-         * released. Thats where keyTyped() comes in.
-         *
-         * @param e The details of the key that was pressed
-         */
         public void keyPressed(KeyEvent e) {
-            // if we're waiting for an "any key" typed then we don't
-            // want to do anything with just a "press"
             if (waitingForKeyPress) {
                 return;
             }
@@ -1337,14 +1192,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
             }
         }
 
-        /**
-         * Notification from AWT that a key has been released.
-         *
-         * @param e The details of the key that was released
-         */
         public void keyReleased(KeyEvent e) {
-            // if we're waiting for an "any key" typed then we don't
-            // want to do anything with just a "released"
             if (waitingForKeyPress) {
                 return;
             }
@@ -1366,23 +1214,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
             }
         }
 
-        /**
-         * Notification from AWT that a key has been typed. Note that
-         * typing a key means to both press and then release it.
-         *
-         * @param e The details of the key that was typed.
-         */
+
         public void keyTyped(KeyEvent e) {
-            // if we're waiting for a "any key" type then
-            // check if we've recieved any recently. We may
-            // have had a keyType() event from the user releasing
-            // the shoot or move keys, hence the use of the "pressCount"
-            // counter.
+
             if (waitingForKeyPress) {
                 if (pressCount == 1) {
-                    // since we've now recieved our key typed
-                    // event we can mark it as such and start
-                    // our new game
+
                     waitingForKeyPress = false;
                     if (stageLevel == 0) {
                         startGame();
@@ -1397,7 +1234,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 }
             }
 
-            // if we hit escape, then quit the game
             if (e.getKeyChar() == 27) {
                 System.exit(0);
             }
@@ -1408,21 +1244,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         return gameDifficulty;
     }
 
-    /**
-     * The entry point into the game. We'll simply create an
-     * instance of class which will start the display and game
-     * loop.
-     *
-     * @param argv The arguments that are passed into our game
-     */
     public static void main(String[] argv) {
-//		Game g = new Game();
 
-        // Start the main game loop, note: this method will not
-        // return until the game has finished running. Hence we are
-        // using the actual main thread to run the game.
-
-//		g.gameLoop();
-        Window w = new Window();
+        new Window();
     }
 }

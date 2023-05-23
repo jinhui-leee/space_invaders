@@ -21,7 +21,7 @@ public class Register extends JPanel implements ActionListener {
 
     JFrame register;
 
-    JButton registerbtn;
+    JButton registerBtn;
 
     JTextField inputID;
     JTextField inputPWD;
@@ -83,12 +83,12 @@ public class Register extends JPanel implements ActionListener {
         inputName.setFont(font_basic);
         registerPanel.add(inputName);
 
-        registerbtn = new JButton("회원가입");
-        registerbtn.setBounds(125, 230, 150, 40);
-        registerbtn.setFont(font_basic_bold);
-        registerPanel.add(registerbtn);
+        registerBtn = new JButton("회원가입");
+        registerBtn.setBounds(125, 230, 150, 40);
+        registerBtn.setFont(font_basic_bold);
+        registerPanel.add(registerBtn);
 
-        registerbtn.addActionListener(this);
+        registerBtn.addActionListener(this);
 
         register.pack();
         register.setResizable(false);
@@ -106,7 +106,7 @@ public class Register extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         // 회원가입 버튼이 클릭된 경우
-        if (e.getSource() == registerbtn) {
+        if (e.getSource() == registerBtn) {
             String id = inputID.getText();
             String pwd = inputPWD.getText();
             String name = inputName.getText();

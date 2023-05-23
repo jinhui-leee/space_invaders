@@ -361,7 +361,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 }
             }
             else if (gameState == GameState.THEME) {
-                //btn[8].setBounds(350, 450, 100, 40);
+                btn[8].setBounds(350, 450, 100, 40);
                 btn[8].setBackground(Color.decode(btnColor[theme]));
                 add(btn[8]);
                 btn[8].setVisible(true);
