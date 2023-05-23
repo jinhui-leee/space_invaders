@@ -16,8 +16,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.*;
 import org.newdawn.spaceinvaders.entity.*;
 
-import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
-
 /**
  * The main hook of our game. This class with both act as a manager
  * for the display and central mediator for the game logic.
@@ -33,7 +31,7 @@ import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
  *
  * @author Kevin Glass
  */
-public class Game extends Canvas implements ActionListener, WindowListener
+public class Game extends Canvas implements ActionListener
 {
     /** The stragey that allows us to use accelerate page flipping */
     private final BufferStrategy strategy;
@@ -141,7 +139,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private String time = "";
     private Integer timeInt = 0;
 
-    private String bestTime = "";
+//    private String bestTime = "";
     private Integer bestTimeInt = 0;
 
     private String totalClearTime ="";
@@ -176,7 +174,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private int []itemPurchaseCnt;
 
 
-
     /**
      * Construct our game and set it running.
      */
@@ -200,8 +197,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
         this.btnColor = themeColor;
         this.storeBackgroundImage = image;
 
-//        bestTimeUserPair = new BestTimeUserPair(bestTime, user.email);
-
         // Music 객체 받아오고 재생
         music = new Music();
         music.playMusic();
@@ -224,7 +219,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         this.changeIconAudioOn = changeIconAudioOn;
 
         // 음악 재생 버튼 생성
-        audioBtn = new JButton(changeIconAudioOff);
+        audioBtn = new JButton(changeIconAudioOn);
         audioBtn.setBounds(753,20,30,30);
         audioBtn.addActionListener(this);
         panel.add(audioBtn);
@@ -243,7 +238,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         panel.add(imageGetGoldLabel);
 
         //생명 표시 (최대 5개)
-        URL shipLifeUrl = getClass().getResource("/icon/itemIcon4.png");
+        URL shipLifeUrl = getClass().getResource("/icon/itemIcon4_black.png");
         ImageIcon shipLifeImageIcon = new ImageIcon(shipLifeUrl);
         Image shipLifeImage = shipLifeImageIcon.getImage();
 
@@ -259,8 +254,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
             lifeLabel[i].setVisible(false);
         }
         lifeLabel[4].setVisible(true);
-
-
 
         //아이템 구입 버튼
         itemPurchaseBtn = new JButton[5];
@@ -336,7 +329,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
             panel.add(getGoldLabel);
         }
 
-
         // 경과 시간 표시
         timeLabel = new JLabel();
         timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -344,19 +336,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
         timeLabel.setBounds(20,20,70,25);
         panel.add(timeLabel);
 
-
         itemPurchaseCnt = new int[5];
         Arrays.fill(itemPurchaseCnt, 0);
 
-
-
-
         // 윈도우 리스너 이벤트 add
-        addWindowListener(this);
-
+        container.addWindowListener(windowListener);
 
         panel.add(this);
-
 
         // Tell AWT not to bother repainting our canvas since we're
         // going to do that our self in accelerated mode
@@ -386,24 +372,22 @@ public class Game extends Canvas implements ActionListener, WindowListener
         initEntities();
     }
 
+
     // 음악 재생 및 정지
     public void actionPerformed(ActionEvent e) {
         // 오디오 버튼 클릭 시 이미지 변경 및 소리 조절
         if (e.getSource() == audioBtn) {
             if (music.isPlaying()) {
                 music.stopMusic();
-                audioBtn.setIcon(this.changeIconAudioOn);
-//                audioBtn.setFocusable(false);
-            } else {
-                music.playMusic();
                 audioBtn.setIcon(this.changeIconAudioOff);
-//                audioBtn.setFocusable(false);
-
+            }
+            else {
+                music.playMusic();
+                audioBtn.setIcon(this.changeIconAudioOn);
             }
         }
         //아이템 구매 : ship +20 속도 증가, 20원
         else if (e.getSource() == itemPurchaseBtn[0]) {
-
             if (user != null) {
                 if (user.gold >= 20) {
                     user.gold -= 20;
@@ -421,13 +405,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     moveSpeed += 20;
                     itemPurchaseCnt[0]++;
                     itemPurchaseCnt[4]++;
-
-
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
-
-
         }
         //아이템 구매 : 총알 속도 -5 증가, 20원
         else if (e.getSource() == itemPurchaseBtn[1]) {
@@ -437,10 +417,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     shotSpeed -= 5;
                     itemPurchaseCnt[1]++;
                     itemPurchaseCnt[4]++;
-
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
-
-
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
@@ -450,7 +427,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     shotSpeed -= 5;
                     itemPurchaseCnt[1]++;
                     itemPurchaseCnt[4]++;
-
                     SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
@@ -465,8 +441,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     firingInterval-=10;
                     itemPurchaseCnt[2]++;
                     itemPurchaseCnt[4]++;
-
-
                     defaultFiringInterval = firingInterval;
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
@@ -478,11 +452,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     firingInterval-=10;
                     itemPurchaseCnt[2]++;
                     itemPurchaseCnt[4]++;
-
-
                     defaultFiringInterval = firingInterval;
-
-
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
@@ -500,9 +470,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     ship.setLife(shipLife);
                     itemPurchaseCnt[3]++;
                     itemPurchaseCnt[4]++;
-
                     lifeLabel[5-ship.getLife()].setVisible(true);
-
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
@@ -514,21 +482,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     ship.setLife(shipLife);
                     itemPurchaseCnt[3]++;
                     itemPurchaseCnt[4]++;
-
                     lifeLabel[5-ship.getLife()].setVisible(true);
-
-
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
-
         }
         //다음 스테이지 넘어가기
         else if (e.getSource() == itemPurchaseBtn[4]) {
             gameRunning = true;
             btnManager();
             startGame();
-
         }
     }
     public void btnManager() {
@@ -550,55 +513,46 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         }
     }
-    @Override
-    public void windowOpened(WindowEvent e) {
-        // 윈도우 창이 열릴 때 처리할 내용
-//		music.playMusic();
-    }
-
-    @Override
-    public void windowClosing(WindowEvent e) {
-        // 윈도우 창이 닫힐 때 처리할 내용
-//		if (music != null) {
-        if (music.isPlaying()) {
-            music.stopMusic();
-//			audioBtn.setIcon(this.changeIconAudioOn);
+    WindowListener windowListener = new WindowAdapter() {
+        @Override
+        public void windowOpened(WindowEvent e) {
+            // 윈도우 창이 열릴 때 처리할 내용
         }
-//			music.stopMusic();
-//		}
-    }
 
-    @Override
-    public void windowClosed(WindowEvent e) {
-        // 윈도우 창이 닫힌 후 처리할 내용
-    }
+        @Override
+        public void windowClosing(WindowEvent e) {
+            // 윈도우 창이 닫힐 때 처리할 내용
+            music.stopMusic();
+        }
 
-    @Override
-    public void windowIconified(WindowEvent e) {
-        // 윈도우 창이 최소화될 때 처리할 내용
-    }
+        @Override
+        public void windowClosed(WindowEvent e) {
+            // 윈도우 창이 닫힌 후 처리할 내용
+        }
 
-    @Override
-    public void windowDeiconified(WindowEvent e) {
-        // 윈도우 창이 최소화에서 복원될 때 처리할 내용
-    }
+        @Override
+        public void windowIconified(WindowEvent e) {
+            // 윈도우 창이 최소화될 때 처리할 내용
+        }
 
-    @Override
-    public void windowActivated(WindowEvent e) {
-        // 윈도우 창이 활성화될 때 처리할 내용
-    }
+        @Override
+        public void windowDeiconified(WindowEvent e) {
+            // 윈도우 창이 최소화에서 복원될 때 처리할 내용
+        }
 
-    @Override
-    public void windowDeactivated(WindowEvent e) {
-        // 윈도우 창이 비활성화될 때 처리할 내용
-    }
+        @Override
+        public void windowActivated(WindowEvent e) {
+            // 윈도우 창이 활성화될 때 처리할 내용
+        }
 
+        @Override
+        public void windowDeactivated(WindowEvent e) {
+            // 윈도우 창이 비활성화될 때 처리할 내용
+        }
+    };
     public void requestFocus() {
         container.requestFocus();
     }
-
-
-
     /**
      * Start a fresh game, this should clear out any old data and
      * create a new set.
@@ -1099,6 +1053,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         } else {
                             tryToFire();
                         }
+//                        if (stageLevel >= bossStageLevel && gameRunning) {
+//
+//                        }
                         if (stageLevel >= bossStageLevel && !waitingForKeyPress) {
                             shotShip();
                         }
@@ -1193,14 +1150,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         g.setFont(font4);
-        //사용자의 경우 기존 점수와 비교
         if(user!=null) {
-            // 기존 user 점수 = bestTime
-            if(!bestTime.isEmpty()) {
-                final String bestTime = user.bestTime;
+            if(!user.bestTime.isEmpty()) {
+                String bestTime = user.bestTime;
                 bestTimeInt = timeStringToInt(bestTime);
                 totalClearTimeInt = timeStringToInt(totalClearTime);
-
                 // Best Time 갱신인 경우 사용자 DB bestTime에 저장
                 if (totalClearTimeInt < bestTimeInt) {
                     g.drawString("Best Time 갱신 !!", (800 - g.getFontMetrics().stringWidth("Best Time 갱신 !!")) / 2, 360);
@@ -1256,15 +1210,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     }
                 });
             }
+            // 기존 user 점수 = bestTime
         }
         // 게스트는 최종 클리어 시간만 띄움
         else{
             g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
         }
+        //사용자의 경우 기존 점수와 비교
 
         g.dispose();
         strategy.show();
-
     }
 
     public void drawStoreMenu() {
@@ -1291,7 +1246,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         g.drawString("스테이지 " + stageLevel + "클리어! 코인으로 아이템을 구매하세요!",(800-g.getFontMetrics().stringWidth("스테이지 " + stageLevel + "클리어! 코인으로 아이템을 구매하세요!"))/2,200);
 
-
         URL fontUrl = getClass().getResource("/font/Cafe24Danjunghae.ttf");
 
         Font font = null;
@@ -1304,10 +1258,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
         g.setFont(font);
         g.drawString("아이템 상점",(800-g.getFontMetrics().stringWidth("아이템 상점"))/2,150);
 
-
-
-
-
         // 버튼 그리기
         btnManager();
 
@@ -1318,7 +1268,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public BufferedImage getStoreBackgroundImage() {
         return storeBackgroundImage;
     }
-
 
     public String getBtnColor() {
         return btnColor;
