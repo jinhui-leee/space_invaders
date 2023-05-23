@@ -238,11 +238,11 @@ public class Game extends Canvas implements ActionListener
         panel.add(imageGetGoldLabel);
 
         //생명 표시 (최대 5개)
-        URL shipLifeUrl = getClass().getResource("/icon/itemIcon4.png");
+        URL shipLifeUrl = getClass().getResource("/icon/itemIcon4_black.png");
         ImageIcon shipLifeImageIcon = new ImageIcon(shipLifeUrl);
         Image shipLifeImage = shipLifeImageIcon.getImage();
 
-        //shipLifeImage = shipLifeImage.getScaledInstance(20,20, Image.SCALE_SMOOTH);
+        shipLifeImage = shipLifeImage.getScaledInstance(20,20, Image.SCALE_SMOOTH);
         shipLifeImageIcon = new ImageIcon(shipLifeImage);
 
         lifeLabel = new JLabel[5];

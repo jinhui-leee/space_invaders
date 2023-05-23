@@ -161,9 +161,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         themeUrl[8] = this.getClass().getResource("/images/background_d9.png");
 
 
-
-
-
         try {
             //메인화면 배경
             for (int i=0; i<9; i++) backgroundImage[i][0] = ImageIO.read(backgroundUrl[i]);
@@ -257,17 +254,13 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 else  btn[i].setBounds(220 + 120*(i-10), 420, 100, 50);
 
             }
-
             btn[i].addActionListener(this);
-
         }
-
 
         //테마 설정 아이콘
         themeChoiceImage = new ImageIcon[9];
         URL []themeChoiceUrl = new URL[9];
         themeLabel = new JLabel[9];
-
 
         themeChoiceUrl[0] = getClass().getResource("/icon/themeIcon1.png");
         themeChoiceUrl[1] = getClass().getResource("/icon/themeIcon2.png");
@@ -320,7 +313,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             this.add(btn[i]);
             btn[i].setVisible(true);
         }
-
     }
 
     /**
@@ -653,27 +645,21 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         else if (e.getSource() == characterLabel[4]) {
             characterChoice = 4;
         }
-
-
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-
     }
 }
