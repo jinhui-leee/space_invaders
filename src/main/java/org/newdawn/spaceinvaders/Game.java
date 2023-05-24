@@ -600,7 +600,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
     // String 형으로 된 시간을 Int 형으로 변환
-    public int timeStringToInt(String timeStr) {
+    public int convertTimeStringToInt(String timeStr) {
         String[] tokens = timeStr.split(":");
         int minutes = Integer.parseInt(tokens[0]);
         int seconds = Integer.parseInt(tokens[1]);
@@ -609,7 +609,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         return timeInt;
     }
     // Int 형으로 된 시간을 String 형으로 변환
-    public String timeIntToString(int timeInt) {
+    public String convertTimeIntToString(int timeInt) {
         int minutes = timeInt / 1000 / 60;
         int seconds = (timeInt / 1000) % 60;
         int millis = timeInt % 1000;
@@ -624,9 +624,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void notifyWin() {
         message = "Well done! You Win!" + "  stage level : " + (stageLevel+1)+" clear time : " + timeString;
         // 새로운 기록을 누적값에 추가
-        Integer timeInt = timeStringToInt(timeString);
+        Integer timeInt = convertTimeStringToInt(timeString);
         totalClearTimeInt += timeInt;
-        totalClearTime = timeIntToString(totalClearTimeInt);
+        totalClearTime = convertTimeIntToString(totalClearTimeInt);
 
         waitingForKeyPress = true;
         stageLevel++;
@@ -1014,8 +1014,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
         if(user!=null) {
             // 기존 user 점수 = bestTime
             final String bestTime = user.getBestTime();
-            int bestTimeInt = timeStringToInt(bestTime);
-            totalClearTimeInt = timeStringToInt(totalClearTime);
+            int bestTimeInt = convertTimeStringToInt(bestTime);
+            totalClearTimeInt = convertTimeStringToInt(totalClearTime);
 
             // Best Time 갱신인 경우 사용자 DB bestTime에 저장
             if (totalClearTimeInt < bestTimeInt) {
