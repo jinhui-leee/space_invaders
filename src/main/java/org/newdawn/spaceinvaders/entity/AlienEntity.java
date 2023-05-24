@@ -28,7 +28,7 @@ public class AlienEntity extends Entity {
 	 * Create a new alien entity
 	 * 
 	 * @param game The game in which this entity is being created
-	 * @param x The intial x location of this alien
+	 * @param x The intial x location of this alien.....
 	 * @param y The intial y location of this alient
 	 */
 	public AlienEntity(Game game, int x, int y) {
