@@ -36,13 +36,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     /** The entity representing the player */
     private ShipEntity shipEntity;
-    private Entity itemEntity;
-
-    private boolean isItemActivated = false;
-    private boolean isItem2Activated = false;
-    private boolean isItem3Activated = false;
-
-
+    private ItemEntity itemEntity;
 
 
     /** The speed at which the player's ship should move (pixels/sec) */
@@ -124,8 +118,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     private final int gameDifficulty;
 
-    private final BufferedImage backgroundImage;
-
     private JButton []itemPurchaseBtn;
 
     private int shotSpeed = -330;
@@ -139,7 +131,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     private int []itemPurchaseCnt;
 
-    private String themeColor;
+    private Theme theme;
 
 
 
@@ -149,9 +141,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public Game(int gameDifficulty, User user, Theme theme) {
         this.gameDifficulty = gameDifficulty;
         if(user != null) Game.user = user;
-        this.themeColor = theme.getThemeColor();
-        this.backgroundImage = theme.getBackground();
-
+        this.theme = theme;
         container = new JFrame("Space Invaders 102");
         setBounds(0,0,800,600);
         container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
@@ -282,7 +272,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         itemPurchaseBtn[4].setBounds(350 , 530,100,40);
         for (int i=0; i<itemPurchaseBtn.length; i++) {
             itemPurchaseBtn[i].setForeground(Color.WHITE);
-            itemPurchaseBtn[i].setBackground(Color.decode(themeColor));
+            itemPurchaseBtn[i].setBackground(Color.decode(theme.getThemeColor()));
             itemPurchaseBtn[i].addActionListener(this);
             panel.add(itemPurchaseBtn[i]);
             itemPurchaseBtn[i].setVisible(false);
@@ -486,8 +476,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         // clear out any existing entities and initial a new set
         entities.clear();
         initEntities();
-        createItemEntities();
-        resetItem();
+        itemEntity.resetItem();
 
         if (stageLevel == 0) {
             for (int i = 0; i < 4; i++) lifeLabel[i].setVisible(false);
@@ -571,9 +560,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
             alienCount++;
         }
+
+        createItemEntities();
     }
     private void createItemEntities(){
-        itemEntity =new ItemEntity(this,"images/item.gif");
+        itemEntity = new ItemEntity(this,"images/item.gif");
         entities.add(itemEntity);
 
     }
@@ -740,35 +731,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
             entities.add(shot);
         }
     }
-    public void useItem(){
 
 
-        int itemRandomNum=(int)(Math.random()*3)+1;
-        if (itemRandomNum==1){
-            isItemActivated =true;
-        }
-        else if(itemRandomNum==2){
-            firingInterval-=250;
-            isItem2Activated =true;
-        }
-        else if(itemRandomNum==3){
-            isItem3Activated = true;
 
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    isItem3Activated = false;}
-            }, 3000); //3초간 무적
-        }
-    }
 
-    public void resetItem(){
-        firingInterval = defaultFiringInterval;
-        isItemActivated = false;
-        isItem2Activated = false;
-        isItem3Activated = false;
-    }
     public void addObstacle(){
         ObstacleEntity obstacle = new ObstacleEntity(this, "images/obstacle.png", 10, (int) (Math.random() * 450));
         entities.add(obstacle);
@@ -826,7 +792,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     int stringWidth = g.getFontMetrics().stringWidth(messageEnemyCnt);
                     g.drawString(messageEnemyCnt, (getWidth() - stringWidth) / 2, 30);
 
-                    if(isItem3Activated)
+                    if(itemEntity.isItem3Activated())
                     {
                         g.setColor(Color.blue);
                         Font font = new Font("Arial", Font.BOLD, 70);
@@ -912,9 +878,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     }
 
                     if (firePressed) {
-                        if(isItemActivated){
+                        if(itemEntity.isItemActivated()){
                             fireItem();
-                        } else if (isItem2Activated) {
+
+                        } else if (itemEntity.isItem2Activated()) {
                             fireItem2();
 
                         } else {
@@ -948,7 +915,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void drawGameClear() {
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 
-        g.drawImage(getBackgroundImage(),0,0,800,600,null);
+        g.drawImage(theme.getBackground(),0,0,800,600,null);
 
         g.setColor(Color.white);
 
@@ -1061,7 +1028,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
         g.setColor(Color.white);
 
-        g.drawImage(getBackgroundImage(),0,0,800,600,null);
+        g.drawImage(theme.getBackground(),0,0,800,600,null);
         g.drawString("ship 속도", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("ship 속도")/2, 360);
         g.drawString("+20", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("+20")/2, 380);
         g.drawString("20코인", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("20코인")/2, 400);
@@ -1094,9 +1061,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         strategy.show();
     }
 
-    public BufferedImage getBackgroundImage() {
-        return backgroundImage;
-    }
+
 
 
 
@@ -1175,9 +1140,32 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
     public boolean isItem3Activated() {
-        return isItem3Activated;
+        return itemEntity.isItem3Activated();
     }
 
+    public double getMoveSpeed() {
+        return moveSpeed;
+    }
+
+    public void setMoveSpeed(double moveSpeed) {
+        this.moveSpeed = moveSpeed;
+    }
+
+    public long getFiringInterval() {
+        return firingInterval;
+    }
+
+    public void setFiringInterval(long firingInterval) {
+        this.firingInterval = firingInterval;
+    }
+
+    public long getDefaultFiringInterval() {
+        return defaultFiringInterval;
+    }
+
+    public void setDefaultFiringInterval(long defaultFiringInterval) {
+        this.defaultFiringInterval = defaultFiringInterval;
+    }
 
     public int getGameDifficulty() {
         return gameDifficulty;

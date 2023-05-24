@@ -2,7 +2,7 @@ package org.newdawn.spaceinvaders;
 
 public class Store {
 
-    int storeItem;
+    int itemPurchaseCnt;
 
 
 
@@ -14,6 +14,21 @@ public class Store {
 
     public void drawStore() {
         //화면 출력
+    }
+
+    public int purchaseITem(int item) {
+        if (item == 0) {
+
+        }
+        else if (item == 1) {
+
+        }
+        else if (item == 2) {
+
+        } else if (item == 3) {
+
+        }
+        return 0;
     }
 
 
