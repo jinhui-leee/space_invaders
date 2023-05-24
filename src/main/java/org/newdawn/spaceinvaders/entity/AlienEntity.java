@@ -29,7 +29,7 @@ public class AlienEntity extends Entity {
 	 * 
 	 * @param game The game in which this entity is being created
 	 * @param x The intial x location of this alien.....
-	 * @param y The intial y location of this alient
+	 * @param y The intial y location of this alient//올라가
 	 */
 	public AlienEntity(Game game, int x, int y) {
 		super("images/ben10.png",x,y);
