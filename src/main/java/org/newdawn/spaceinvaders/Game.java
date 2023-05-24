@@ -17,6 +17,7 @@ import javax.swing.*;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.*;
+import io.grpc.internal.JsonUtil;
 import org.newdawn.spaceinvaders.entity.*;
 
 import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
@@ -615,7 +616,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * Initialise the starting state of the entities (ship and aliens). Each
      * entitiy will be added to the overall list of entities in the game.
      */
-    private void initEntities() {
+    private void initEntities() {//framework
         // create the player ship and place it roughly in the center of the screen
         if (Framework.character == 0)
         {
@@ -977,7 +978,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
                         g.setColor(Color.blue);
                         Font font = new Font("Arial", Font.BOLD, 70);
                         g.setFont(font);
-                        g.drawString("GOD MODE",(800-g.getFontMetrics().stringWidth("GOD MODE"))/2,300);                    }
+                        g.drawString("GOD MODE",(800-g.getFontMetrics().stringWidth("GOD MODE"))/2,300);
+
+                    }
 
 
                     // cycle round asking each entity to move itself

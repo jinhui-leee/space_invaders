@@ -31,7 +31,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
     int themeChoice = 0;
 
-    static int theme = 0;
+    public static int theme = 0;
 
     JLabel []themeLabel;
 

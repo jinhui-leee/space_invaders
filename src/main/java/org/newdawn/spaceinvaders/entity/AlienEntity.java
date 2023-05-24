@@ -1,5 +1,6 @@
 package org.newdawn.spaceinvaders.entity;
 
+import org.newdawn.spaceinvaders.Framework;
 import org.newdawn.spaceinvaders.Game;
 import org.newdawn.spaceinvaders.Sprite;
 import org.newdawn.spaceinvaders.SpriteStore;
@@ -15,7 +16,7 @@ public class AlienEntity extends Entity {
 	/** The game in which the entity exists */
 	private Game game;
 	/** The animation frames */
-	private Sprite[] frames = new Sprite[4];
+	private Sprite[] frames = new Sprite[2];
 	/** The time since the last frame change took place */
 	private long lastFrameChange;
 	/** The frame duration in milliseconds, i.e. how long any given frame of animation lasts */
@@ -31,16 +32,58 @@ public class AlienEntity extends Entity {
 	 * @param y The intial y location of this alient
 	 */
 	public AlienEntity(Game game, int x, int y) {
-		super("images/alien.gif",x,y);
-		
-		// setup the animatin frames
-		frames[0] = sprite;
-		frames[1] = SpriteStore.get().getSprite("images/alien2.gif");
-		frames[2] = sprite;
-		frames[3] = SpriteStore.get().getSprite("images/alien3.gif");
-		
-		this.game = game;
-		dx = -moveSpeed;
+		super("images/ben10.png",x,y);
+
+
+		if(Framework.theme==0) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien1A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien1B.png");
+			}
+		else if(Framework.theme==1) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien2A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien2B.png");
+		}
+		else if(Framework.theme==2) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien3A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien3B.png");
+		}
+		else if(Framework.theme==3) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien4A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien4B.png");
+		}
+		else if(Framework.theme==4) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien5A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien5B.png");
+		}
+		else if(Framework.theme==5) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien6A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien6B.png");
+		}
+		else if(Framework.theme==6) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien7A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien7B.png");
+		}
+		else if(Framework.theme==7) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien8A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien8B.png");
+		}
+		else if(Framework.theme==8) {
+			// setup the animatin frames
+			frames[0] = SpriteStore.get().getSprite("images/alien9A.png");
+			frames[1] = SpriteStore.get().getSprite("images/alien9B.png");
+		}
+
+			this.game = game;
+			dx = -moveSpeed;
+
 	}
 
 	/**
