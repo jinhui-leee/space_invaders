@@ -37,7 +37,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
     /** The entity representing the player */
     private ShipEntity shipEntity;
     private Entity itemEntity;
-    private Entity obstacleEntity;
 
     private boolean isItemActivated = false;
     private boolean isItem2Activated = false;
@@ -147,11 +146,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
     /**
      * Construct our game and set it running.
      */
-    public Game(int gameDifficulty, User user, String themeColor, BufferedImage image) {
+    public Game(int gameDifficulty, User user, Theme theme) {
         this.gameDifficulty = gameDifficulty;
         if(user != null) Game.user = user;
-        this.themeColor = themeColor;
-        this.backgroundImage = image;
+        this.themeColor = theme.getThemeColor();
+        this.backgroundImage = theme.getBackground();
 
         container = new JFrame("Space Invaders 102");
         setBounds(0,0,800,600);
@@ -484,7 +483,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
     private void startGame() {
-        // clear out any existing entities and intialise a new set
+        // clear out any existing entities and initial a new set
         entities.clear();
         initEntities();
         createItemEntities();
