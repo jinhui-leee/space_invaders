@@ -14,7 +14,7 @@ public class ShipEntity extends Entity {
 	/** The game in which the ship exists */
 	private Game game;
 
-	private int life = 1;
+	private int shipLife = 1;
 
 	private boolean used = false;
 
@@ -32,12 +32,12 @@ public class ShipEntity extends Entity {
 		this.game = game;
 	}
 
-	public int getLife() {
-		return life;
+	public int getShipLife() {
+		return shipLife;
 	}
 
-	public void setLife(int life) {
-		this.life = life;
+	public void setShipLife(int shipLife) {
+		this.shipLife = shipLife;
 	}
 
 	/**
@@ -72,14 +72,14 @@ public class ShipEntity extends Entity {
 			return;
 		}
 
-		// if its an alien, notify the game that the player
+		// if it's an alien, notify the game that the player
 		// is dead
 		if (other instanceof AlienEntity || other instanceof BossAlienEntity || other instanceof BossShotEntity) {
 
-			if (life > 1){
-				life--;
+			if (shipLife > 1){
+				shipLife--;
 				used = true;
-				System.out.println("life = " + life);
+				System.out.println("life = " + shipLife);
 				Timer timer = new Timer();
 				timer.schedule(new TimerTask() {
 					@Override
@@ -88,16 +88,16 @@ public class ShipEntity extends Entity {
 					}
 				}, 1000); //1초간 무적
 			}
-			if(game.itemAct3){
+			if(game.isItem3Activated()){
 				used = true;
-				System.out.println("life = " + life);
+				System.out.println("life = " + shipLife);
 				Timer timer = new Timer();
 				timer.schedule(new TimerTask() {
 					@Override
 					public void run() {
 						used = false;
 					}
-				}, 5000); //1초간 무적
+				}, 10000); //10초간 무적
 			}
 			else {
 				game.notifyDeath();

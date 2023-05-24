@@ -19,13 +19,13 @@ import java.util.Map;
 
 public class Register extends JPanel implements ActionListener {
 
-    JFrame register;
+    JFrame registerFrame;
 
     JButton registerBtn;
 
-    JTextField inputID;
-    JTextField inputPWD;
-    JTextField inputName;
+    JTextField idTextField;
+    JTextField pwTextField;
+    JTextField nameTextField;
 
     Font font_basic = new Font("맑은 고딕", Font.PLAIN, 12);
     Font font_basic_bold = new Font("맑은 고딕", Font.BOLD, 12);
@@ -36,41 +36,40 @@ public class Register extends JPanel implements ActionListener {
 
     public void register() {
 
-        register = new JFrame("회원가입");
+        registerFrame = new JFrame("회원가입");
 
         // 회원가입 창
-        JPanel registerPanel = (JPanel) register.getContentPane();
+        JPanel registerPanel = (JPanel) registerFrame.getContentPane();
         registerPanel.setPreferredSize(new Dimension(400, 300));
         registerPanel.setLayout(null);
 
-        register.setLocation(screenSize.width / 2 - 200, screenSize.height / 2 - 150);
+        registerFrame.setLocation(screenSize.width / 2 - 200, screenSize.height / 2 - 150);
 
         Color loginBGC = new Color(225, 235, 239);
         registerPanel.setBackground(loginBGC);
         // 회원가입 창이 가장 상위 레벨에 뜨게 함
-        register.setAlwaysOnTop(true);
+        registerFrame.setAlwaysOnTop(true);
+
 
         JLabel IDLabel = new JLabel("아이디");
         IDLabel.setHorizontalAlignment(JLabel.CENTER);
         IDLabel.setBounds(100, 50, 60, 20);
         IDLabel.setFont(font_basic_bold_size_14);
         registerPanel.add(IDLabel);
-
-        inputID = new JTextField();
-        inputID.setBounds(170, 50, 150, 20);
-        inputID.setFont(font_basic);
-        registerPanel.add(inputID);
+        idTextField = new JTextField();
+        idTextField.setBounds(170, 50, 150, 20);
+        idTextField.setFont(font_basic);
+        registerPanel.add(idTextField);
 
         JLabel PWDLabel = new JLabel("비밀번호");
         PWDLabel.setHorizontalAlignment(JLabel.CENTER);
         PWDLabel.setBounds(100, 75, 60, 20);
         PWDLabel.setFont(font_basic_bold_size_14);
         registerPanel.add(PWDLabel);
-
-        inputPWD = new JTextField();
-        inputPWD.setBounds(170, 75, 150, 20);
-        inputPWD.setFont(font_basic);
-        registerPanel.add(inputPWD);
+        pwTextField = new JTextField();
+        pwTextField.setBounds(170, 75, 150, 20);
+        pwTextField.setFont(font_basic);
+        registerPanel.add(pwTextField);
 
         JLabel NameLabel = new JLabel("닉네임");
         NameLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -78,10 +77,10 @@ public class Register extends JPanel implements ActionListener {
         NameLabel.setFont(font_basic_bold_size_14);
         registerPanel.add(NameLabel);
 
-        inputName = new JTextField();
-        inputName.setBounds(170, 100, 150, 20);
-        inputName.setFont(font_basic);
-        registerPanel.add(inputName);
+        nameTextField = new JTextField();
+        nameTextField.setBounds(170, 100, 150, 20);
+        nameTextField.setFont(font_basic);
+        registerPanel.add(nameTextField);
 
         registerBtn = new JButton("회원가입");
         registerBtn.setBounds(125, 230, 150, 40);
@@ -90,9 +89,9 @@ public class Register extends JPanel implements ActionListener {
 
         registerBtn.addActionListener(this);
 
-        register.pack();
-        register.setResizable(false);
-        register.setVisible(true);
+        registerFrame.pack();
+        registerFrame.setResizable(false);
+        registerFrame.setVisible(true);
     }
 
     // 이메일 형식 검사
@@ -107,21 +106,21 @@ public class Register extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // 회원가입 버튼이 클릭된 경우
         if (e.getSource() == registerBtn) {
-            String id = inputID.getText();
-            String pwd = inputPWD.getText();
-            String name = inputName.getText();
+            String id = idTextField.getText();
+            String pwd = pwTextField.getText();
+            String name = nameTextField.getText();
             Integer gold = 0;
             String bestTime = "";
             String encodedEmail = Base64.getEncoder().encodeToString(id.getBytes());
 
             // 빈칸으로 제출 시
             if (id.isEmpty() || pwd.isEmpty() || name.isEmpty()) {
-                JOptionPane.showMessageDialog(register, "내용을 입력하세요.", "경고", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(registerFrame, "내용을 입력하세요.", "경고", JOptionPane.WARNING_MESSAGE);
             }
 
             // 이메일 형식이 아닌 경우
             else if (!Register.isValid(id)) {
-                JOptionPane.showMessageDialog(register, "이메일 형식이 올바르지 않습니다.", "경고", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(registerFrame, "이메일 형식이 올바르지 않습니다.", "경고", JOptionPane.WARNING_MESSAGE);
             }
 
             else{
@@ -135,7 +134,7 @@ public class Register extends JPanel implements ActionListener {
                             .setDisplayName(bestTime);
                     UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
 
-                    // Realtime Database에 저장
+                    // Realtime Database 저장
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference ref = database.getReference();
                     DatabaseReference usersRef = ref.child("Users").child(encodedEmail);
@@ -145,10 +144,10 @@ public class Register extends JPanel implements ActionListener {
 
                     usersRef.setValueAsync(users);
 
-                    JOptionPane.showMessageDialog(register, "가입이 완료되었습니다.", "알림", JOptionPane.INFORMATION_MESSAGE);
-                    register.dispose();
+                    JOptionPane.showMessageDialog(registerFrame, "가입이 완료되었습니다.", "알림", JOptionPane.INFORMATION_MESSAGE);
+                    registerFrame.dispose();
                 } catch (FirebaseAuthException ex) {
-                    JOptionPane.showMessageDialog(register, "가입 중 오류가 발생하였습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(registerFrame, "가입 중 오류가 발생하였습니다.", "오류", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
                 }
             }

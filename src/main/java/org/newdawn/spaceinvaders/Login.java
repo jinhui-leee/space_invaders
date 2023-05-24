@@ -11,11 +11,11 @@ import java.util.Base64;
 
 public class Login extends JPanel implements ActionListener {
 
-    JFrame login;
+    JFrame loginFrame;
 
     JButton loginBtn;
-    JTextField inputID;
-    JTextField inputPWD;
+    JTextField idTextField;
+    JTextField pwTextField;
 
     static Font font_basic = new Font("맑은 고딕",Font.PLAIN,12);
     static Font font_basic_bold = new Font("맑은 고딕",Font.BOLD,12);
@@ -27,14 +27,14 @@ public class Login extends JPanel implements ActionListener {
 
     public void login() {
 
-        login = new JFrame("로그인");
+        loginFrame = new JFrame("로그인");
 
 //		로그인 창
-        JPanel loginPanel = (JPanel) login.getContentPane();
+        JPanel loginPanel = (JPanel) loginFrame.getContentPane();
         loginPanel.setPreferredSize(new Dimension(400, 300));
         loginPanel.setLayout(null);
 
-        login.setLocation(screenSize.width / 2 - 200, screenSize.height / 2 - 150);
+        loginFrame.setLocation(screenSize.width / 2 - 200, screenSize.height / 2 - 150);
 
         Color loginBGC = new Color(225, 235, 239);
         loginPanel.setBackground(loginBGC);
@@ -51,10 +51,10 @@ public class Login extends JPanel implements ActionListener {
         IDLabel.setFont(font_basic_bold_size_14);
         loginPanel.add(IDLabel);
 
-        inputID = new JTextField();
-        inputID.setBounds(170, 50, 150, 20);
-        inputID.setFont(font_basic);
-        loginPanel.add(inputID);
+        idTextField = new JTextField();
+        idTextField.setBounds(170, 50, 150, 20);
+        idTextField.setFont(font_basic);
+        loginPanel.add(idTextField);
 
         JLabel PWDLabel = new JLabel("비밀번호");
         PWDLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -62,10 +62,10 @@ public class Login extends JPanel implements ActionListener {
         PWDLabel.setFont(font_basic_bold_size_14);
         loginPanel.add(PWDLabel);
 
-        inputPWD = new JTextField();
-        inputPWD.setBounds(170, 75, 150, 20);
-        inputPWD.setFont(font_basic);
-        loginPanel.add(inputPWD);
+        pwTextField = new JTextField();
+        pwTextField.setBounds(170, 75, 150, 20);
+        pwTextField.setFont(font_basic);
+        loginPanel.add(pwTextField);
 
         loginBtn = new JButton("로그인");
         loginBtn.setBounds(125, 230, 150, 40);
@@ -74,11 +74,11 @@ public class Login extends JPanel implements ActionListener {
 
         loginBtn.addActionListener(this);
 
-        login.pack();
-        login.setResizable(false);
-        login.setVisible(true);
+        loginFrame.pack();
+        loginFrame.setResizable(false);
+        loginFrame.setVisible(true);
 
-        login.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        loginFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     @Override
@@ -86,13 +86,13 @@ public class Login extends JPanel implements ActionListener {
         // 로그인 버튼이 클릭된 경우
         if (e.getSource() == loginBtn) {
 
-            String id = inputID.getText();
-            String pw = inputPWD.getText();
+            String id = idTextField.getText();
+            String pw = pwTextField.getText();
             String encodedEmail = Base64.getEncoder().encodeToString(id.getBytes());
 
             // 빈칸으로 제출 시
             if (id.isEmpty() || pw.isEmpty()) {
-                JOptionPane.showMessageDialog(login, "아이디 또는 비밀번호를 입력하셔야 됩니다.", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(loginFrame, "아이디 또는 비밀번호를 입력하셔야 됩니다.", "아이디나 비번을 입력!", JOptionPane.DEFAULT_OPTION);
             }
             else {
                 // 사용자 정보 받아오기
@@ -112,24 +112,24 @@ public class Login extends JPanel implements ActionListener {
                             }
                             if (pw.equals(user.getPassword())) {
                                 // 비밀번호가 일치하는 경우, 로그인 성공 처리를 합니다.
-                                JOptionPane.showMessageDialog(login, "로그인 성공 ! " + user.name + "님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
-                                login.dispose();
+                                JOptionPane.showMessageDialog(loginFrame, "로그인 성공 ! " + user.getName() + "님, 반갑습니다.", "로그인 성공 !", JOptionPane.DEFAULT_OPTION);
+                                loginFrame.dispose();
                                 // Window로 user 정보 전달
                                 Framework framework = new Framework(user);
 
                             } else {
                                 // 비밀번호가 일치하지 않는 경우, 로그인 실패 처리를 합니다.
-                                JOptionPane.showMessageDialog(login, "비밀번호가 일치하지 않습니다.", "비밀번호 불일치", JOptionPane.DEFAULT_OPTION);
+                                JOptionPane.showMessageDialog(loginFrame, "비밀번호가 일치하지 않습니다.", "비밀번호 불일치", JOptionPane.DEFAULT_OPTION);
                             }
                         } else {
                             // 입력된 이메일을 키로 하는 데이터가 존재하지 않는 경우, 로그인 실패 처리를 합니다.
-                            JOptionPane.showMessageDialog(login, "등록되지 않은 이메일입니다.", "이메일 불일치", JOptionPane.DEFAULT_OPTION);
+                            JOptionPane.showMessageDialog(loginFrame, "등록되지 않은 이메일입니다.", "이메일 불일치", JOptionPane.DEFAULT_OPTION);
                         }
                     }
                     //                    @Override
                     public void onCancelled(DatabaseError databaseError) {
                         // 데이터 가져오기를 실패한 경우, 로그인 실패 처리를 합니다.
-                        JOptionPane.showMessageDialog(login, "로그인에 실패했습니다.", "로그인 실패", JOptionPane.DEFAULT_OPTION);
+                        JOptionPane.showMessageDialog(loginFrame, "로그인에 실패했습니다.", "로그인 실패", JOptionPane.DEFAULT_OPTION);
                     }
                 });
             }

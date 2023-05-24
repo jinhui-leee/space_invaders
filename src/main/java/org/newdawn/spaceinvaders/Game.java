@@ -21,9 +21,9 @@ import static com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener;
 public class Game extends Canvas implements ActionListener, WindowListener
 {
     private final BufferStrategy strategy;
-    int timer2;
+    int gameTimer;
 
-    private final JLabel[] lifeLabel;
+    private JLabel[] lifeLabel;
 
     /** True if the game is currently "running", i.e. the game loop is looping */
     private boolean gameRunning = true;
@@ -35,13 +35,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private final ArrayList removeList = new ArrayList();
 
     /** The entity representing the player */
-    private ShipEntity ship;
-    private Entity item;
-    private Entity obstacle;
+    private ShipEntity shipEntity;
+    private Entity itemEntity;
+    private Entity obstacleEntity;
 
-    private boolean itemAct =false;
-    private boolean itemAct2 =false;
-    public boolean itemAct3 =false;
+    private boolean isItemActivated = false;
+    private boolean isItem2Activated = false;
+    private boolean isItem3Activated = false;
+
+
+
 
     /** The speed at which the player's ship should move (pixels/sec) */
     private double moveSpeed = 300;
@@ -98,44 +101,46 @@ public class Game extends Canvas implements ActionListener, WindowListener
     static Font font_basic_bold_size_14 = new Font("맑은 고딕",Font.BOLD,14);
 
 
-    private final JButton audioBtn;
+    private  JButton audioBtn;
 
-    private final Music music;
+    private  Music backgroundMusic;
 
-    private final ImageIcon changeIconAudioOff;
-    private final ImageIcon changeIconAudioOn;
+    private  ImageIcon changeIconAudioOff;
+    private ImageIcon changeIconAudioOn;
 
-    public ImageIcon changeIconGetGold;
+    public ImageIcon changeGoldIcon;
 
     private static User user;
 
     /** 골드 초기값 = 0 */
-    private int getGoldCnt = 0;
-    private final JLabel getGoldLabel;
+    private int goldCnt = 0;
+    private JLabel goldLabel;
 
     /** 경과 시간 초기값 = 0 */
-    private final JLabel timeLabel;
-    private String time = "";
+    private JLabel timeLabel;
+    private String timeString = "";
 
     private String totalClearTime ="";
     private Integer totalClearTimeInt = 0;
 
     private final int gameDifficulty;
 
-    private final BufferedImage storeBackgroundImage;
+    private final BufferedImage backgroundImage;
 
-    private final String btnColor;
-
-    private final JButton []itemPurchaseBtn;
+    private JButton []itemPurchaseBtn;
 
     private int shotSpeed = -330;
 
     //총알 발사 간격 아이템 사용 이후, 원래 총알 간격으로 돌아가기 위한 총알 간격
     private long defaultFiringInterval = 500;
+
     private JLabel[] itemStoreLabel;
-    private int shipLife;
+
+    private int shipEntityLife;
 
     private int []itemPurchaseCnt;
+
+    private String themeColor;
 
 
 
@@ -143,25 +148,74 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * Construct our game and set it running.
      */
     public Game(int gameDifficulty, User user, String themeColor, BufferedImage image) {
+        this.gameDifficulty = gameDifficulty;
+        if(user != null) Game.user = user;
+        this.themeColor = themeColor;
+        this.backgroundImage = image;
 
         container = new JFrame("Space Invaders 102");
-
-
-        JPanel panel = (JPanel) container.getContentPane();
-
-        panel.setLayout(null);
-        panel.setPreferredSize(new Dimension(800,600));
-
         setBounds(0,0,800,600);
         container.setLocation(screenSize.width/2 - 400, screenSize.height/2 - 300);
 
-        this.btnColor = themeColor;
-        this.storeBackgroundImage = image;
+        loadContent();
+
+        addWindowListener(this);
+
+        container.pack();
+        container.setResizable(false);
+        container.setVisible(true);
+        container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        addKeyListener(new KeyInputHandler());
+        requestFocus();
+        createBufferStrategy(2);
+        strategy = getBufferStrategy();
+
+        initEntities();
+    }
+
+    public void loadContent() {
+
+        JPanel panel = (JPanel) container.getContentPane();
+        panel.setLayout(null);
+        panel.setPreferredSize(new Dimension(800,600));
+
+        JLabel userNameLabel;
+
+        if (user!=null){
+            // 로그인한 사용자 표시 (로그인 시 사용한 ID를 통해 파이어베이스에서 사용자 정보 가져옴)
+            userNameLabel = new JLabel(user.getName());
+            //int nameLength = user.getName().length();
+
+            // 획득 골드 숫자 표시
+            goldLabel = new JLabel(user.getGold().toString());
+
+        }
+
+        else{
+            userNameLabel = new JLabel("게스트");
+
+            // 획득 골드 숫자 표시
+            goldLabel = new JLabel(String.valueOf(goldCnt));
+
+        }
+        userNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        userNameLabel.setBounds(120,20,60,25);
+
+        panel.add(userNameLabel);
+
+        userNameLabel.setFont(font_basic_bold_size_14);
+
+        goldLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        Color goldBGC = new Color(210, 216, 217);
+        goldLabel.setBackground(goldBGC);
+        goldLabel.setBounds(685,25,50,20);
+        panel.add(goldLabel);
 
 
         // Music 객체 받아오고 재생
-        music = new Music();
-        music.playMusic();
+        backgroundMusic = new Music();
+        backgroundMusic.playMusic();
 
         // 음악 재생 및 정지
         // 이미지 로드
@@ -193,7 +247,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         Image changeImgGetGold = imgGetGold.getScaledInstance(20,20, Image.SCALE_SMOOTH);
         ImageIcon changeIconGetGold = new ImageIcon(changeImgGetGold);
 
-        this.changeIconGetGold = changeIconGetGold;
+        this.changeGoldIcon = changeIconGetGold;
 
         JLabel imageGetGoldLabel = new JLabel(changeIconGetGold);
         imageGetGoldLabel.setBounds(655,25,20,20);
@@ -229,7 +283,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         itemPurchaseBtn[4].setBounds(350 , 530,100,40);
         for (int i=0; i<itemPurchaseBtn.length; i++) {
             itemPurchaseBtn[i].setForeground(Color.WHITE);
-            itemPurchaseBtn[i].setBackground(Color.decode(getBtnColor()));
+            itemPurchaseBtn[i].setBackground(Color.decode(themeColor));
             itemPurchaseBtn[i].addActionListener(this);
             panel.add(itemPurchaseBtn[i]);
             itemPurchaseBtn[i].setVisible(false);
@@ -253,47 +307,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
             itemStoreLabel[i].setVisible(false);
         }
 
-        // 사용자 모드
-        if (user!=null){
-            // 사용자 정보 받아오기
-            Game.user = user;
-
-            // 로그인한 사용자 표시 (로그인 시 사용한 ID를 통해 파이어베이스에서 사용자 정보 가져옴)
-            JLabel getUserNameLabel = new JLabel(user.name);
-            getUserNameLabel.setFont(font_basic_bold_size_14);
-            int nameLength = user.name.length();
-            getUserNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            getUserNameLabel.setBounds(120,20,(nameLength*20),25);
-            panel.add(getUserNameLabel);
-
-            // 획득 골드 숫자 표시
-            getGoldLabel = new JLabel();
-            getGoldLabel.setText(user.gold.toString());
-            getGoldLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-            Color goldBGC = new Color(210, 216, 217);
-            getGoldLabel.setBackground(goldBGC);
-            getGoldLabel.setBounds(685,25,50,20);
-            panel.add(getGoldLabel);
-        }
-
-        else{
-            JLabel getUserNameLabel = new JLabel("게스트");
-            getUserNameLabel.setFont(font_basic_bold_size_14);
-            getUserNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            getUserNameLabel.setBounds(120,20,60,25);
-            panel.add(getUserNameLabel);
-
-            // 획득 골드 숫자 표시
-            getGoldLabel = new JLabel();
-            getGoldLabel.setText(String.valueOf(getGoldCnt));
-            getGoldLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-            Color goldBGC = new Color(210, 216, 217);
-            getGoldLabel.setBackground(goldBGC);
-            getGoldLabel.setBounds(685,25,50,20);
-            panel.add(getGoldLabel);
-        }
-
-
         // 경과 시간 표시
         timeLabel = new JLabel();
         timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -305,43 +318,19 @@ public class Game extends Canvas implements ActionListener, WindowListener
         itemPurchaseCnt = new int[5];
         Arrays.fill(itemPurchaseCnt, 0);
 
-
-
-
-        addWindowListener(this);
-
-
         panel.add(this);
 
-        container.pack();
-        container.setResizable(false);
-        container.setVisible(true);
-
-
-        container.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        addKeyListener(new KeyInputHandler());
-
-        requestFocus();
-
-
-        createBufferStrategy(2);
-        strategy = getBufferStrategy();
-
-        this.gameDifficulty = gameDifficulty;
-
-        initEntities();
     }
 
     // 음악 재생 및 정지
     public void actionPerformed(ActionEvent e) {
         // 오디오 버튼 클릭 시 이미지 변경 및 소리 조절
         if (e.getSource() == audioBtn) {
-            if (music.isPlaying()) {
-                music.stopMusic();
+            if (backgroundMusic.isPlaying()) {
+                backgroundMusic.stopMusic();
                 audioBtn.setIcon(this.changeIconAudioOn);
             } else {
-                music.playMusic();
+                backgroundMusic.playMusic();
                 audioBtn.setIcon(this.changeIconAudioOff);
 
             }
@@ -349,120 +338,75 @@ public class Game extends Canvas implements ActionListener, WindowListener
         //아이템 구매 : ship +20 속도 증가, 20원
         else if (e.getSource() == itemPurchaseBtn[0]) {
 
-            if (user != null) {
-                if (user.getGold() >= 20) {
-                    user.setGold(user.getGold()- 20);
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
-                    moveSpeed += 20;
-                    itemPurchaseCnt[0]++;
-                    itemPurchaseCnt[4]++;
-                }
-                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
-            }
-            else {
-                if (getGoldCnt >= 20) {
-                    getGoldCnt -= 20;
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
-                    moveSpeed += 20;
-                    itemPurchaseCnt[0]++;
-                    itemPurchaseCnt[4]++;
+            if (goldCnt >= 20) {
+                goldCnt -= 20;
+                SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(goldCnt)));
+                moveSpeed += 20;
+                itemPurchaseCnt[0]++;
+                itemPurchaseCnt[4]++;
 
-
+                if (user != null) {
+                    user.setGold(goldCnt);
                 }
-                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
+            else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
 
 
         }
         //아이템 구매 : 총알 속도 -5 증가, 20원
         else if (e.getSource() == itemPurchaseBtn[1]) {
-            if (user != null) {
-                if (user.getGold() >= 20) {
-                    user.setGold(user.getGold()- 20);
-                    shotSpeed -= 5;
-                    itemPurchaseCnt[1]++;
-                    itemPurchaseCnt[4]++;
 
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
+            if (goldCnt >= 20) {
+                goldCnt -= 20;
+                SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(goldCnt)));
+                shotSpeed -= 5;
+                itemPurchaseCnt[1]++;
+                itemPurchaseCnt[4]++;
 
-
+                if (user != null) {
+                    user.setGold(goldCnt);
                 }
-                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
-            else {
-                if (getGoldCnt >= 20) {
-                    getGoldCnt -= 20;
-                    shotSpeed -= 5;
-                    itemPurchaseCnt[1]++;
-                    itemPurchaseCnt[4]++;
-
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
-                }
-                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
-            }
+            else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
         }
+
         //아이템 구매 : 총알 발사 간격 -10, 50원
         else if (e.getSource() == itemPurchaseBtn[2]) {
-            if (user != null) {
-                if (user.getGold() >= 50) {
-                    user.setGold(user.getGold()- 50);
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
-                    firingInterval-=10;
-                    itemPurchaseCnt[2]++;
-                    itemPurchaseCnt[4]++;
+            if (goldCnt >= 50) {
+                goldCnt -= 50;
+                SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(goldCnt)));
+                firingInterval-=10;
+                itemPurchaseCnt[2]++;
+                itemPurchaseCnt[4]++;
 
+                defaultFiringInterval = firingInterval;
 
-                    defaultFiringInterval = firingInterval;
+                if (user != null) {
+                    user.setGold(goldCnt);
                 }
-                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
-            else {
-                if (getGoldCnt >= 50) {
-                    getGoldCnt -= 50;
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
-                    firingInterval-=10;
-                    itemPurchaseCnt[2]++;
-                    itemPurchaseCnt[4]++;
+            else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
 
-
-                    defaultFiringInterval = firingInterval;
-
-
-                }
-                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
-            }
         }
         //아이템 구매 : 생명 +1, 200원
         else if (e.getSource() == itemPurchaseBtn[3]) {
-            if (ship.getLife() >= 5) {
+            if (shipEntity.getShipLife() >= 5) {
                 JOptionPane.showMessageDialog(null, "생명은 최대 5개입니다.");
             }
-            else if (user != null) {
-                if (user.getGold() >= 200) {
-                    user.setGold(user.getGold()- 200);
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
-                    shipLife = ship.getLife()+1;
-                    ship.setLife(shipLife);
-                    itemPurchaseCnt[3]++;
-                    itemPurchaseCnt[4]++;
-
-                    lifeLabel[5-ship.getLife()].setVisible(true);
-
-                }
-                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
-            }
             else {
-                if (getGoldCnt >= 200) {
-                    getGoldCnt -= 200;
-                    SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
-                    shipLife = ship.getLife()+1;
-                    ship.setLife(shipLife);
+                if (goldCnt >= 200) {
+                    goldCnt -= 200;
+                    SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(goldCnt)));
+                    shipEntityLife = shipEntity.getShipLife()+1;
+                    shipEntity.setShipLife(shipEntityLife);
                     itemPurchaseCnt[3]++;
                     itemPurchaseCnt[4]++;
 
-                    lifeLabel[5-ship.getLife()].setVisible(true);
+                    lifeLabel[5- shipEntity.getShipLife()].setVisible(true);
 
-
+                    if (user != null) {
+                        user.setGold(goldCnt);
+                    }
                 }
                 else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
             }
@@ -471,12 +415,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
         //다음 스테이지 넘어가기
         else if (e.getSource() == itemPurchaseBtn[4]) {
             gameRunning = true;
-            btnManager();
+            manageComponent();
             startGame();
-
         }
     }
-    public void btnManager() {
+    public void manageComponent() {
         if (gameRunning) {
             for (int i=0; i<itemPurchaseBtn.length; i++) {
                 itemPurchaseBtn[i].setVisible(false);
@@ -504,8 +447,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
     @Override
     public void windowClosing(WindowEvent e) {
         // 윈도우 창이 닫힐 때 처리할 내용
-        if (music.isPlaying()) {
-            music.stopMusic();
+        if (backgroundMusic.isPlaying()) {
+            backgroundMusic.stopMusic();
         }
 
     }
@@ -550,10 +493,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
         if (stageLevel == 0) {
             for (int i = 0; i < 4; i++) lifeLabel[i].setVisible(false);
             lifeLabel[4].setVisible(true);
-            shipLife = 1;
+            shipEntityLife = 1;
         }
 
-        ship.setLife(shipLife);
+        shipEntity.setShipLife(shipEntityLife);
         // blank out any keyboard settings we might currently have
         leftPressed = false;
         rightPressed = false;
@@ -568,31 +511,31 @@ public class Game extends Canvas implements ActionListener, WindowListener
         // create the player ship and place it roughly in the center of the screen
         if (Framework.character == 0)
         {
-            ship = new ShipEntity(this,"images/ship.gif",370,550);
+            shipEntity = new ShipEntity(this,"images/ship.gif",370,550);
 
         }
         else if (Framework.character == 1)
         {
-            ship = new ShipEntity(this,"images/ship2.png",370,550);
+            shipEntity = new ShipEntity(this,"images/ship2.png",370,550);
 
         }
         else if (Framework.character == 2)
         {
-            ship = new ShipEntity(this,"images/ship3.png",370,550);
+            shipEntity = new ShipEntity(this,"images/ship3.png",370,550);
 
         }
         else if (Framework.character == 3)
         {
-            ship = new ShipEntity(this,"images/ship4.png",370,550);
+            shipEntity = new ShipEntity(this,"images/ship4.png",370,550);
 
         }
         else if (Framework.character == 4)
         {
-            ship = new ShipEntity(this,"images/ship5.png",370,550);
+            shipEntity = new ShipEntity(this,"images/ship5.png",370,550);
 
         }
-        ship.setLife(shipLife);
-        entities.add(ship);
+        shipEntity.setShipLife(shipEntityLife);
+        entities.add(shipEntity);
 
 
         if (stageLevel < bossStageLevel) {
@@ -631,16 +574,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
         }
     }
     private void createItemEntities(){
-        item=new ItemEntity(this,"images/item.gif");
-        entities.add(item);
+        itemEntity =new ItemEntity(this,"images/item.gif");
+        entities.add(itemEntity);
 
     }
 
-    private void CreateObstacle(){
 
-        obstacle=new ObstacleEntity(this,"images/obstacle.png",(int)(Math.random()*750),10);
-        entities.add(obstacle);
-    }
 
 
     public void updateLogic() {
@@ -683,9 +622,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * are dead.
      */
     public void notifyWin() {
-        message = "Well done! You Win!" + "  stage level : " + (stageLevel+1)+" clear time : " + time ;
+        message = "Well done! You Win!" + "  stage level : " + (stageLevel+1)+" clear time : " + timeString;
         // 새로운 기록을 누적값에 추가
-        Integer timeInt = timeStringToInt(time);
+        Integer timeInt = timeStringToInt(timeString);
         totalClearTimeInt += timeInt;
         totalClearTime = timeIntToString(totalClearTimeInt);
 
@@ -700,19 +639,19 @@ public class Game extends Canvas implements ActionListener, WindowListener
      * Notification that an alien has been killed
      */
     public void notifyAlienKilled() {
-        // reduce the alient count, if there are none left, the player has won!
+        // reduce the alien count, if there are none left, the player has won!
         alienCount--;
         if (user != null) {
-            String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
+            String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
             // 몬스터 죽일 때마다 골드 1 증가
-            user.gold++;
+            user.setGold(user.getGold()+1);
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference ref = database.getReference();
             DatabaseReference userRef = ref.child("Users").child(encodedEmail);
 
             Map<String, Object> updates = new HashMap<>();
-            updates.put("/" + encodedEmail + "/gold", user.gold);
+            updates.put("/" + encodedEmail + "/gold", user.getGold());
 
             userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
                 @Override
@@ -725,11 +664,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 }
             });
             // update the UI with the new gold value
-            SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(user.gold)));
+            SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(user.getGold())));
         }
         else{
-            getGoldCnt++;
-            SwingUtilities.invokeLater(() -> getGoldLabel.setText(Integer.toString(getGoldCnt)));
+            goldCnt++;
+            SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(goldCnt)));
         }
         if (alienCount <= 0) {
             notifyWin();
@@ -754,13 +693,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         // if we waited long enough, create the shot entity, and record the time.
         lastFire = System.currentTimeMillis();
-        ShotEntity shot = new ShotEntity(this,"images/shot.gif",ship.getX()+10,ship.getY()-30);
+        ShotEntity shot = new ShotEntity(this,"images/shot.gif", shipEntity.getX()+10, shipEntity.getY()-30);
         entities.add(shot);
         // 총알 발사 시 효과음 재생
-        Music.shotAudio();
+        Music.playShotAudio();
     }
 
-    public void itemFire() {
+    public void fireItem() {
         if (System.currentTimeMillis() - lastFire < firingInterval) {
             return;
         }
@@ -769,17 +708,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         for (int i=0; i<5;i++){
-            ShotEntity shot_item = new ShotEntity(this,"images/shot.gif",ship.getX()+(i*60)-60,ship.getY()-30);
+            ShotEntity shot_item = new ShotEntity(this,"images/shot.gif", shipEntity.getX()+(i*60)-60, shipEntity.getY()-30);
             entities.add(shot_item);
-            Music.shotAudio();
-
+            Music.playShotAudio();
 
         }
 
 
 
     }
-    public void item2Fire() {
+    public void fireItem2() {
         // check that we have waiting long enough to fire
         if (System.currentTimeMillis() - lastFire < firingInterval) {
             return;
@@ -787,19 +725,19 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         // if we waited long enough, create the shot entity, and record the time.
         lastFire = System.currentTimeMillis();
-        ShotEntity shot = new ShotEntity(this,"images/shot2.png",ship.getX()+10,ship.getY()-30);
+        ShotEntity shot = new ShotEntity(this,"images/shot2.png", shipEntity.getX()+10, shipEntity.getY()-30);
 
         int itemShot2Speed = -1000;
         shot.setMoveSpeed(itemShot2Speed);
         entities.add(shot);
         // 총알 발사 시 효과음 재생
-        Music.shotAudio();
+        Music.playShotAudio();
     }
 
-    public void shotShip() {
+    public void shootShip() {
 
         for (int i=0; i<3; i++) {
-            BossShotEntity shot = new BossShotEntity(this,"images/stone_boss_shot.png",ship.getX()+(i*30-30),100);
+            BossShotEntity shot = new BossShotEntity(this,"images/stone_boss_shot.png", shipEntity.getX()+(i*30-30),100);
             entities.add(shot);
         }
     }
@@ -808,31 +746,31 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
         int itemRandomNum=(int)(Math.random()*3)+1;
         if (itemRandomNum==1){
-            itemAct =true;
+            isItemActivated =true;
         }
         else if(itemRandomNum==2){
             firingInterval-=250;
-            itemAct2 =true;
+            isItem2Activated =true;
         }
         else if(itemRandomNum==3){
-            itemAct3 = true;
+            isItem3Activated = true;
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    itemAct3 = false;}
+                    isItem3Activated = false;}
             }, 3000); //3초간 무적
         }
     }
 
     public void resetItem(){
-        firingInterval=defaultFiringInterval;
-        itemAct =false;
-        itemAct2 =false;
-        itemAct3 =false;
+        firingInterval = defaultFiringInterval;
+        isItemActivated = false;
+        isItem2Activated = false;
+        isItem3Activated = false;
     }
-    public void AddObstacle(){
+    public void addObstacle(){
         ObstacleEntity obstacle = new ObstacleEntity(this, "images/obstacle.png", 10, (int) (Math.random() * 450));
         entities.add(obstacle);
 
@@ -857,16 +795,16 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     int seconds=(int)(elapsedTime/1000)%60;
                     int millis = (int)(elapsedTime % 1000);
 
-                    time = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
+                    timeString = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
 
-                    SwingUtilities.invokeLater(() -> timeLabel.setText(time));
+                    SwingUtilities.invokeLater(() -> timeLabel.setText(timeString));
 
                     // update the frame counter
                     lastFpsTime += delta;
                     fps++;
-                    timer2++;
-                    if(timer2>10000){
-                        timer2=1;
+                    gameTimer++;
+                    if(gameTimer >10000){
+                        gameTimer =1;
                     }
 
                     // update our FPS counter if a second has passed since
@@ -889,7 +827,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     int stringWidth = g.getFontMetrics().stringWidth(messageEnemyCnt);
                     g.drawString(messageEnemyCnt, (getWidth() - stringWidth) / 2, 30);
 
-                    if(itemAct3)
+                    if(isItem3Activated)
                     {
                         g.setColor(Color.blue);
                         Font font = new Font("Arial", Font.BOLD, 70);
@@ -928,7 +866,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                                         (me instanceof AlienEntity || him instanceof AlienEntity
                                                 || me instanceof BossAlienEntity || him instanceof BossAlienEntity
                                                 || me instanceof BossShotEntity || him instanceof BossShotEntity)) {
-                                    lifeLabel[4-ship.getLife()].setVisible(false);
+                                    lifeLabel[4- shipEntity.getShipLife()].setVisible(false);
                                 }
 
                             }
@@ -958,39 +896,39 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     g.dispose();
                     strategy.show();
 
-                    ship.setHorizontalMovement(0);
-                    ship.setVerticalMovement(0);
+                    shipEntity.setHorizontalMovement(0);
+                    shipEntity.setVerticalMovement(0);
 
                     if ((leftPressed) && (!rightPressed)) {
-                        ship.setHorizontalMovement(-moveSpeed);
+                        shipEntity.setHorizontalMovement(-moveSpeed);
                     } else if ((rightPressed) && (!leftPressed)) {
-                        ship.setHorizontalMovement(moveSpeed);
+                        shipEntity.setHorizontalMovement(moveSpeed);
                     }
 
                     if ((upPressed)&&(!downPressed)) {
-                        ship.setVerticalMovement(-moveSpeed);
+                        shipEntity.setVerticalMovement(-moveSpeed);
                     }
                     else if ((downPressed)&&(!upPressed)) {
-                        ship.setVerticalMovement(moveSpeed);
+                        shipEntity.setVerticalMovement(moveSpeed);
                     }
 
                     if (firePressed) {
-                        if(itemAct){
-                            itemFire();
-                        } else if (itemAct2) {
-                            item2Fire();
+                        if(isItemActivated){
+                            fireItem();
+                        } else if (isItem2Activated) {
+                            fireItem2();
 
                         } else {
                             tryToFire();
                         }
                         if (stageLevel >= bossStageLevel && !waitingForKeyPress) {
-                            shotShip();
+                            shootShip();
                         }
 
                     }
-                    if(timer2%200==0)
+                    if(gameTimer %200==0)
                     {
-                        AddObstacle();
+                        addObstacle();
                     }
 
                     SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
@@ -1011,7 +949,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void drawGameClear() {
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 
-        g.drawImage(getStoreBackgroundImage(),0,0,800,600,null);
+        g.drawImage(getBackgroundImage(),0,0,800,600,null);
 
         g.setColor(Color.white);
 
@@ -1037,7 +975,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         g.setFont(font2);
 
         if (user != null) {
-            g.drawString("<" + user.name + ">", (800-g.getFontMetrics().stringWidth("<" + user.name + ">"))/2, 200);
+            g.drawString("<" + user.getName() + ">", (800-g.getFontMetrics().stringWidth("<" + user.getName() + ">"))/2, 200);
         }
         else {
             g.drawString("<#게스트>", (800-g.getFontMetrics().stringWidth("<#게스트>"))/2, 200);
@@ -1075,7 +1013,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         //사용자의 경우 기존 점수와 비교
         if(user!=null) {
             // 기존 user 점수 = bestTime
-            final String bestTime = user.bestTime;
+            final String bestTime = user.getBestTime();
             int bestTimeInt = timeStringToInt(bestTime);
             totalClearTimeInt = timeStringToInt(totalClearTime);
 
@@ -1085,7 +1023,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                 g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
                 g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
 
-                String encodedEmail = Base64.getEncoder().encodeToString(user.email.getBytes());
+                String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference ref = database.getReference();
                 DatabaseReference userRef = ref.child("Users").child(encodedEmail);
@@ -1124,7 +1062,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
         g.setColor(Color.white);
 
-        g.drawImage(getStoreBackgroundImage(),0,0,800,600,null);
+        g.drawImage(getBackgroundImage(),0,0,800,600,null);
         g.drawString("ship 속도", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("ship 속도")/2, 360);
         g.drawString("+20", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("+20")/2, 380);
         g.drawString("20코인", itemPurchaseBtn[0].getX() + itemPurchaseBtn[0].getWidth() / 2 - g.getFontMetrics().stringWidth("20코인")/2, 400);
@@ -1151,20 +1089,17 @@ public class Game extends Canvas implements ActionListener, WindowListener
         g.setFont(font);
         g.drawString("아이템 상점",(800-g.getFontMetrics().stringWidth("아이템 상점"))/2,150);
 
-        // 버튼 그리기
-        btnManager();
+        manageComponent();
 
         g.dispose();
         strategy.show();
     }
 
-    public BufferedImage getStoreBackgroundImage() {
-        return storeBackgroundImage;
+    public BufferedImage getBackgroundImage() {
+        return backgroundImage;
     }
 
-    public String getBtnColor() {
-        return btnColor;
-    }
+
 
     private class KeyInputHandler extends KeyAdapter {
         private int pressCount = 1;
@@ -1239,6 +1174,11 @@ public class Game extends Canvas implements ActionListener, WindowListener
             }
         }
     }
+
+    public boolean isItem3Activated() {
+        return isItem3Activated;
+    }
+
 
     public int getGameDifficulty() {
         return gameDifficulty;

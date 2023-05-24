@@ -19,7 +19,7 @@ public class BossAlienEntity extends Entity{
     /** The current frame of animation being displayed */
     private int frameNumber;
 
-    private int life = 100;
+    private int life;
 
 
 
@@ -43,20 +43,20 @@ public class BossAlienEntity extends Entity{
         dx = -moveSpeed;
 
         if (game.getGameDifficulty() == 0) {
-            this.life = 50; //50
+            this.life = 50;
         }
         else if (game.getGameDifficulty() == 1) {
-            this.life = 100; //100
+            this.life = 100;
         }
         else {
-            this.life = 150; //150
+            this.life = 150;
         }
     }
 
     public void move(long delta) {
         // since the move tells us how much time has passed
         // by we can use it to drive the animation, however
-        // its the not the prettiest solution
+        // it's not the prettiest solution
         lastFrameChange += delta;
 
         // if we need to change the frame, update the frame number
@@ -99,10 +99,6 @@ public class BossAlienEntity extends Entity{
         if (y > 570) {
             game.notifyDeath();
         }
-    }
-
-    public int getLife() {
-        return life;
     }
 
     @Override

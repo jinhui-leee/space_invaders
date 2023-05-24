@@ -1,13 +1,9 @@
 package org.newdawn.spaceinvaders.entity;
 import org.newdawn.spaceinvaders.Game;
-import org.newdawn.spaceinvaders.Sprite;
-import org.newdawn.spaceinvaders.SpriteStore;
-
-import static java.lang.Math.random;
 
 public class ItemEntity extends Entity{
 
-    public boolean ItemActivity=false;
+    private boolean isItemActivated = false;
 
     private Game game;
 
@@ -26,7 +22,7 @@ public class ItemEntity extends Entity{
 
     @Override
     public void collidedWith(Entity other) {
-        ItemActivity=true;
+        isItemActivated = true;
 
         if(other instanceof ShipEntity){
             game.removeEntity(this);

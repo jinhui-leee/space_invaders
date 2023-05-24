@@ -10,7 +10,7 @@ import org.newdawn.spaceinvaders.SpriteStore;
  * @author Kevin Glass
  */
 public class AlienEntity extends Entity {
-	/** The speed at which the alient moves horizontally */
+	/** The speed at which the alien moves horizontally */
 	private double moveSpeed = 75;
 	/** The game in which the entity exists */
 	private Game game;
@@ -33,7 +33,7 @@ public class AlienEntity extends Entity {
 	public AlienEntity(Game game, int x, int y) {
 		super("images/alien.gif",x,y);
 		
-		// setup the animatin frames
+		// set up the animation frames
 		frames[0] = sprite;
 		frames[1] = SpriteStore.get().getSprite("images/alien2.gif");
 		frames[2] = sprite;
@@ -51,7 +51,7 @@ public class AlienEntity extends Entity {
 	public void move(long delta) {
 		// since the move tells us how much time has passed
 		// by we can use it to drive the animation, however
-		// its the not the prettiest solution
+		// it's not the prettiest solution
 		lastFrameChange += delta;
 		
 		// if we need to change the frame, update the frame number
