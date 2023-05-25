@@ -40,7 +40,7 @@ public class Music {
             isPlaying = false;
         }
     }
-    public static void shotAudio () {
+    public static void playShotAudio() {
         try {
             File file = new File("src/main/resources/audio/Shot.wav");
             Clip clip = AudioSystem.getClip();

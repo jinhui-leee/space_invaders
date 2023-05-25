@@ -1,13 +1,11 @@
 package org.newdawn.spaceinvaders;
 
 public class User {
-
-
-    public String email;
-    public String password;
-    public String name;
-    public Integer gold;
-    public String bestTime;
+    private String email;
+    private String password;
+    private String name;
+    private Integer gold;
+    private String bestTime;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
@@ -20,7 +18,6 @@ public class User {
         this.gold = gold;
         this.bestTime = bestTime;
     }
-
 
     public String getEmail() {
         return email;

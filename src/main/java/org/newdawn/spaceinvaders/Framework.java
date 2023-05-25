@@ -2,7 +2,6 @@ package org.newdawn.spaceinvaders;
 
 import com.google.firebase.database.*;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -12,20 +11,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.Timer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Framework extends JLabel implements ActionListener, MouseListener {
-
-    public JFrame window;
-    private JLabel label;
-
     enum GameState {STARTING, PLAYING, MAIN_MENU, OPTIONS, DESCRIPTION, THEME, CHARACTER, RANKING}
     GameState gameState;
+
+    Theme theme;
 
     JButton btn[];
 
@@ -35,15 +28,17 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
     ImageIcon[] themeChoiceImage;
 
-    int themeChoice = 0;
-
-    int theme = 0;
+    static public int themeChoice = 0;
 
     JLabel []themeLabel;
 
+    JLabel themeTitleLabel;
+
+    JLabel characterTitleLabel;
+
     JLabel rankingLabel;
 
-    public static JTable ranktable;
+    public static JTable rankTable;
 
     JScrollPane rankingScrollPane;
 
@@ -61,7 +56,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
     // 사용자 모드
     public Framework() {
-
         // 파이어베이스 애플리케이션 초기화
         Firebase.initialize();
 
@@ -73,7 +67,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(blankCursorImg, new Point(0, 0), null);
             this.setCursor(blankCursor);
         }
-
         gameState = GameState.STARTING;
 
         Thread gameThread = new Thread() {
@@ -83,14 +76,11 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             }
         };
         gameThread.start();
-
     }
 
     // 사용자 모드
     public Framework(User user) {
-
-        // 필수......
-        this.user = user;
+        Framework.user = user;
 
         // 파이어베이스 애플리케이션 초기화
         Firebase.initialize();
@@ -103,9 +93,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(blankCursorImg, new Point(0, 0), null);
             this.setCursor(blankCursor);
         }
-
         gameState = GameState.STARTING;
-
         Thread gameThread = new Thread() {
             @Override
             public void run(){
@@ -113,74 +101,20 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             }
         };
         gameThread.start();
-
     }
 
     /** 이미지 url 관리*/
 
-    private void loadContent() {
+    public void loadContent() {
 
-        //배경화면 생성
-        backgroundImage = new BufferedImage[9][5];
-        URL []backgroundUrl = new URL[9];
+        theme = new Theme();
 
-        backgroundUrl[0] = this.getClass().getResource("/images/background1.png");
-        backgroundUrl[1] = this.getClass().getResource("/images/background2.png");
-        backgroundUrl[2] = this.getClass().getResource("/images/background3.png");
-        backgroundUrl[3] = this.getClass().getResource("/images/background4.png");
-        backgroundUrl[4] = this.getClass().getResource("/images/background5.png");
-        backgroundUrl[5] = this.getClass().getResource("/images/background6.png");
-        backgroundUrl[6] = this.getClass().getResource("/images/background7.png");
-        backgroundUrl[7] = this.getClass().getResource("/images/background8.png");
-        backgroundUrl[8] = this.getClass().getResource("/images/background9.png");
+        themeTitleLabel = new JLabel();
+        characterTitleLabel = new JLabel();
 
-        //설명화면 생성
-        URL []descriptionUrl = new URL[9];
-
-        descriptionUrl[0] = this.getClass().getResource("/images/description.png");
-        descriptionUrl[1] = this.getClass().getResource("/images/description2.png");
-        descriptionUrl[2] = this.getClass().getResource("/images/description3.png");
-        descriptionUrl[3] = this.getClass().getResource("/images/description4.png");
-        descriptionUrl[4] = this.getClass().getResource("/images/description5.png");
-        descriptionUrl[5] = this.getClass().getResource("/images/description6.png");
-        descriptionUrl[6] = this.getClass().getResource("/images/description7.png");
-        descriptionUrl[7] = this.getClass().getResource("/images/description8.png");
-        descriptionUrl[8] = this.getClass().getResource("/images/description9.png");
-
-        //테마화면 생성
-        URL []themeUrl = new URL[9];
-
-        themeUrl[0] = this.getClass().getResource("/images/background_d.png");
-        themeUrl[1] = this.getClass().getResource("/images/background_d2.png");
-        themeUrl[2] = this.getClass().getResource("/images/background_d3.png");
-        themeUrl[3] = this.getClass().getResource("/images/background_d4.png");
-        themeUrl[4] = this.getClass().getResource("/images/background_d5.png");
-        themeUrl[5] = this.getClass().getResource("/images/background_d6.png");
-        themeUrl[6] = this.getClass().getResource("/images/background_d7.png");
-        themeUrl[7] = this.getClass().getResource("/images/background_d8.png");
-        themeUrl[8] = this.getClass().getResource("/images/background_d9.png");
-
-
-        try {
-            //메인화면 배경
-            for (int i=0; i<9; i++) backgroundImage[i][0] = ImageIO.read(backgroundUrl[i]);
-            //게임설명 배경
-            for (int i=0; i<9; i++) backgroundImage[i][1] = ImageIO.read(descriptionUrl[i]);
-            //테마설정 배경
-            for (int i=0; i<9; i++) backgroundImage[i][2] = ImageIO.read(themeUrl[i]);
-            //캐릭터 설정 배경
-            for (int i=0; i<9; i++) backgroundImage[i][3] = ImageIO.read(themeUrl[i]);
-            //랭킹보기 배경
-            for (int i=0; i<9; i++) backgroundImage[i][4] = ImageIO.read(themeUrl[i]);
-
-            rankingLabel = new JLabel();
-            ranktable = new JTable();
-            rankingScrollPane = new JScrollPane();
-
-        }
-        catch (IOException e) {
-            Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, e);
-        }
+        rankingLabel = new JLabel();
+        rankTable = new JTable();
+        rankingScrollPane = new JScrollPane();
 
         //버튼 생성
         btnImage = new ImageIcon[10];
@@ -247,20 +181,24 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             else {
                 btn[i] = new JButton(btnStr[i]);
                 btn[i].setForeground(Color.WHITE);
-                btn[i].setBackground(Color.decode(btnColor[0]));
+                btn[i].setBackground(Color.decode(theme.getThemeColor()));
                 if (i < 5) btn[i].setBounds(110 + 120 * i, 450, 100, 40);
                 else if (i < 7) btn[i].setBounds(230 + (i-5)*190, 380, 150, 50);
                 else if (i < 10) btn[i].setBounds(350, 450, 100, 40);
                 else  btn[i].setBounds(220 + 120*(i-10), 420, 100, 50);
 
             }
+
             btn[i].addActionListener(this);
+
         }
+
 
         //테마 설정 아이콘
         themeChoiceImage = new ImageIcon[9];
         URL []themeChoiceUrl = new URL[9];
         themeLabel = new JLabel[9];
+
 
         themeChoiceUrl[0] = getClass().getResource("/icon/themeIcon1.png");
         themeChoiceUrl[1] = getClass().getResource("/icon/themeIcon2.png");
@@ -274,7 +212,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
         for (int i=0; i<9; i++) {
             if (themeChoiceUrl[i] == null) {
-                // URL 객체가 null인 경우
+                // URL 객체가 null 경우
                 System.out.println("Error: Could not find image file for themeChoice : " + i);
                 continue;
             }
@@ -298,7 +236,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
         for (int i=0; i<5; i++) {
             if (characterChoiceUrl[i] == null) {
-                // URL 객체가 null인 경우
+                // URL 객체가 null 경우
                 System.out.println("Error: Could not find image file for ship" + (i+1) + ".png");
                 continue;
             }
@@ -308,16 +246,18 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             characterLabel[i].addMouseListener(this);
         }
 
+
         //메인화면 버튼 생성
         for(int i=0; i<7; i++) {
             this.add(btn[i]);
             btn[i].setVisible(true);
         }
+
     }
 
     /**
      * 메인 화면 버튼 관리*/
-    public void btnManager() {
+    public void manageComponent() {
         //다른 곳의 버튼 없애기 + 메인화면에서 버튼 만들기
         if (gameState == GameState.MAIN_MENU) {
             for (int i=0; i<13; i++) btn[i].setVisible(false);
@@ -326,12 +266,14 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
             for (int i=0; i<5; i++) characterLabel[i].setVisible(false);
 
+            themeTitleLabel.setVisible(false);
+            characterTitleLabel.setVisible(false);
             rankingLabel.setVisible(false);
             rankingScrollPane.setVisible(false);
 
             setLayout(null);
             for (int i=0; i<7; i++) {
-                btn[i].setBackground(Color.decode(btnColor[theme]));
+                btn[i].setBackground(Color.decode(theme.getThemeColor()));
                 btn[i].setVisible(true);
             }
         }
@@ -346,25 +288,46 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
             if (gameState == GameState.OPTIONS) {
                 for (int i=10; i<13; i++) {
-                    btn[i].setBackground(Color.decode(btnColor[theme]));
+                    btn[i].setBackground(Color.decode(theme.getThemeColor()));
                     add(btn[i]);
                     btn[i].setVisible(true);
                 }
             }
             else if (gameState == GameState.THEME) {
-                //btn[8].setBounds(350, 450, 100, 40);
-                btn[8].setBackground(Color.decode(btnColor[theme]));
+                ImageIcon themeTitleIcon = new ImageIcon("src/main/resources/images/theme_title.png");
+                Image imgThemeTitle = themeTitleIcon.getImage();
+
+                Image changeImgThemeTitle = imgThemeTitle.getScaledInstance(260, 100, Image.SCALE_SMOOTH);
+                ImageIcon changeIconThemeTitle = new ImageIcon(changeImgThemeTitle);
+
+                themeTitleLabel = new JLabel(changeIconThemeTitle);
+                add(themeTitleLabel);
+                themeTitleLabel.setBounds(250, 110, 300, 100);
+                themeTitleLabel.setVisible(true);
+
+                btn[8].setBounds(350, 450, 100, 40);
+                btn[8].setBackground(Color.decode(theme.getThemeColor()));
                 add(btn[8]);
                 btn[8].setVisible(true);
 
-                //테마 선택 행성 아이콘
                 for (int i=0; i<9; i++) {
                     add(themeLabel[i]);
                     themeLabel[i].setVisible(true);
                 }
             }
             else if (gameState == GameState.CHARACTER) {
-                btn[9].setBackground(Color.decode(btnColor[theme]));
+                ImageIcon characterTitleIcon = new ImageIcon("src/main/resources/images/character_title.png");
+                Image imgCharacterTitle = characterTitleIcon.getImage();
+
+                Image changeImgCharacterTitle = imgCharacterTitle.getScaledInstance(300, 100, Image.SCALE_SMOOTH);
+                ImageIcon changeIconCharacterTitle = new ImageIcon(changeImgCharacterTitle);
+
+                characterTitleLabel = new JLabel(changeIconCharacterTitle);
+                add(characterTitleLabel);
+                characterTitleLabel.setBounds(250, 120, 300, 100);
+                characterTitleLabel.setVisible(true);
+
+                btn[9].setBackground(Color.decode(theme.getThemeColor()));
                 add(btn[9]);
                 btn[9].setVisible(true);
 
@@ -376,7 +339,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
             /** ranking 화면 구현 */
             else if (gameState == GameState.RANKING) {
                 // '사용자 랭킹' 텍스트 띄우기
-                ImageIcon rankingIcon = new ImageIcon("src/main/resources/images/rankingtitle.png");
+                ImageIcon rankingIcon = new ImageIcon("src/main/resources/images/ranking_title.png");
                 Image imgRankingTitle = rankingIcon.getImage();
 
                 Image changeImgRankingTitle = imgRankingTitle.getScaledInstance(300, 100, Image.SCALE_SMOOTH);
@@ -410,7 +373,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                             }
                         }
                         pairs.sort((x, y) -> {return x.getBestTime() - y.getBestTime();});
-                        // JTable을 생성하여 사용자 ID와 최단 클리어 시간을 표시
+
                         String[] columnNames = {"Rank", "User ID", "Best Time"};
                         Object[][] data = new Object[pairs.size()][3];
                         for (int j = 0; j < pairs.size(); j++) {
@@ -422,15 +385,15 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                             data[j][2] = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
 
                         }
-                        ranktable = new JTable(data, columnNames);
-                        ranktable.setDefaultEditor(Object.class, null);
+                        rankTable = new JTable(data, columnNames);
+                        rankTable.setDefaultEditor(Object.class, null);
                         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
                         dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-                        TableColumnModel tcm = ranktable.getColumnModel();
+                        TableColumnModel tcm = rankTable.getColumnModel();
                         for(int c = 0 ; c < tcm.getColumnCount() ; c++){
                             tcm.getColumn(c).setCellRenderer(dtcr);
                         }
-                        rankingScrollPane = new JScrollPane(ranktable);
+                        rankingScrollPane = new JScrollPane(rankTable);
                         add(rankingScrollPane);
                         rankingScrollPane.setBounds(150, 220, 500, 250);
                         rankingScrollPane.setVisible(true);
@@ -450,7 +413,7 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
     {
         Graphics2D g2d = (Graphics2D)g;
         super.paintComponent(g2d);
-        Draw(g2d);
+        draw(g2d);
     }
 
     /**스레드 */
@@ -459,19 +422,14 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         while (true){
             switch (gameState) {
                 case PLAYING:
-                    break;
 
                 case MAIN_MENU:
-                    break;
 
                 case DESCRIPTION:
-                    break;
 
                 case THEME:
-                    break;
 
                 case CHARACTER:
-                    break;
 
                 case RANKING:
                     break;
@@ -481,40 +439,40 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                     gameState = GameState.MAIN_MENU;
                     break;
             }
-
             repaint();
-
         }
     }
 
-    /**
-     * 배경화면 그리기*/
-    public void Draw(Graphics2D g2d) {
+    /** 배경화면 그리기*/
+    public void draw(Graphics2D g2d) {
+        //TODO 위에 테마 선택 텍스트 추가, 캐릭터 선택 텍스트 추가
 
         switch (gameState) {
             case PLAYING:
                 break;
 
             case MAIN_MENU:
+                g2d.drawImage(theme.getMainBackground(), 0, 0, 800, 600, null);
+                break;
 
             case OPTIONS:
-                g2d.drawImage(backgroundImage[theme][0], 0, 0, 800, 600, null);
+                g2d.drawImage(theme.getMainBackground(), 0, 0, 800, 600, null);
                 break;
 
             case DESCRIPTION:
-                g2d.drawImage(backgroundImage[theme][1], 0, 0, 800, 600, null);
+                g2d.drawImage(theme.getDescriptionBackground(), 0, 0, 800, 600, null);
                 break;
 
             case THEME:
-                g2d.drawImage(backgroundImage[theme][2], 0, 0, 800, 600, null);
+                g2d.drawImage(theme.getBackground(), 0, 0, 800, 600, null);
                 break;
 
             case CHARACTER:
-                g2d.drawImage(backgroundImage[theme][3], 0, 0, 800, 600, null);
+                g2d.drawImage(theme.getBackground(), 0, 0, 800, 600, null);
                 break;
 
             case RANKING:
-                g2d.drawImage(backgroundImage[theme][4], 0, 0, 800, 600, null);
+                g2d.drawImage(theme.getBackground(), 0, 0, 800, 600, null);
                 break;
 
             case STARTING:
@@ -524,35 +482,35 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 g2d.drawString("Loading game....", (800-g2d.getFontMetrics().stringWidth("Loading game...."))/2,280);
                 break;
         }
-
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
         //게임시작
         if (e.getSource() == btn[0]) {
             gameState = GameState.OPTIONS;
-            btnManager();
+            manageComponent();
         }
         //게임설명
         else if (e.getSource() == btn[1]) {
             gameState = GameState.DESCRIPTION;
-            btnManager();
+            manageComponent();
         }
         //테마설정
         else if (e.getSource() == btn[2]) {
             gameState = GameState.THEME;
-            btnManager();
+            manageComponent();
         }
         //캐릭터설정
         else if (e.getSource() == btn[3]) {
             gameState = GameState.CHARACTER;
-            btnManager();
+            manageComponent();
         }
         //랭킹보기
         else if (e.getSource() == btn[4]) {
             gameState = GameState.RANKING;
-            btnManager();
+            manageComponent();
         }
         //로그인
         else if (e.getSource() == btn[5]) {
@@ -567,34 +525,34 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
         //뒤로가기
         else if (e.getSource() == btn[7]) {
             gameState = GameState.MAIN_MENU;
-            btnManager();
+            manageComponent();
         }
         //테마 선택
         else if (e.getSource() == btn[8]) {
-            theme = themeChoice;
+            theme.setThemeState(themeChoice);
             gameState = GameState.MAIN_MENU;
-            btnManager();
+            manageComponent();
         }
         //캐릭터선택
         else if (e.getSource() == btn[9]) {
             character = characterChoice;
             gameState = GameState.MAIN_MENU;
-            btnManager();
+            manageComponent();
         }
         else if (e.getSource() == btn[10]) {
-            Game game = new Game(0, user, btnColor[theme], backgroundImage[theme][2]);
+            Game game = new Game(0, user, theme);
             game.requestFocus();
             Thread gameThread = new Thread(game::gameLoop);
             gameThread.start();
         }
         else if (e.getSource() == btn[11]) {
-            Game game = new Game(1, user, btnColor[theme], backgroundImage[theme][2]);
+            Game game = new Game(1, user, theme);
             game.requestFocus();
             Thread gameThread = new Thread(game::gameLoop);
             gameThread.start();
         }
         else if (e.getSource() == btn[12]) {
-            Game game = new Game(2, user, btnColor[theme], backgroundImage[theme][2]);
+            Game game = new Game(2, user, theme);
             game.requestFocus();
             Thread gameThread = new Thread(game::gameLoop);
             gameThread.start();
@@ -602,7 +560,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
     }
     @Override
     public void mouseClicked(MouseEvent e) {
-
         if (e.getSource() == themeLabel[0]) {
             themeChoice = 0;
         }
