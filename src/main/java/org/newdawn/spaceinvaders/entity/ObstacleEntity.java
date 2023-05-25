@@ -41,32 +41,19 @@ public class ObstacleEntity extends Entity {
      * @param delta The time that has elapsed since last move (ms)
      */
     public void move(long delta) {
-        // since the move tells us how much time has passed
-        // by we can use it to drive the animation, however
-        // its the not the prettiest solution
+
         lastFrameChange += delta;
-        // if we need to change the frame, update the frame number
-        // and flip over the sprite in use
+
         if (lastFrameChange > frameDuration) {
-            // reset our frame change time counter
             lastFrameChange = 0;
         }
 
-        // proceed with normal move
         super.move(delta);
 
     }
     public void doLogic() {
-        // swap over horizontal movement and move down the
-        // screen a bit
         dx = -dx;
         x -= 10;
-
-        // if we've reached the bottom of the screen then the player
-        // dies
-//        if (y > 570) {
-//            game.removeEntity(this);
-//        }
     }
 
 
@@ -79,9 +66,7 @@ public class ObstacleEntity extends Entity {
         if (used) {
             return;
         }
-        // if we've hit an alien, kill it!
         if (other instanceof ShipEntity) {
-            // remove the affected entities
             game.removeEntity(this);
             game.removeEntity(other);
             game.notifyDeath();

@@ -6,7 +6,7 @@ import org.newdawn.spaceinvaders.SpriteStore;
 
 public class BossAlienEntity extends Entity{
 
-    /** The speed at which the alient moves horizontally */
+    /** The speed at which the alien moves horizontally */
     private double moveSpeed = 75;
     /** The game in which the entity exists */
     private Game game;
@@ -19,17 +19,14 @@ public class BossAlienEntity extends Entity{
     /** The current frame of animation being displayed */
     private int frameNumber;
 
-    private int life = 100;
-
-
-
+    static public int life = 100;
 
     /**
      * Create a new alien entity
      *
      * @param game The game in which this entity is being created
-     * @param x    The intial x location of this alien
-     * @param y    The intial y location of this alient
+     * @param x    The initial x location of this alien
+     * @param y    The initial y location of this alien
      */
     public BossAlienEntity(Game game, int x, int y) {
         super("images/ufo_boss_alien.png", x, y);
@@ -43,20 +40,20 @@ public class BossAlienEntity extends Entity{
         dx = -moveSpeed;
 
         if (game.getGameDifficulty() == 0) {
-            this.life = 50; //50
+            this.life = 100;
         }
         else if (game.getGameDifficulty() == 1) {
-            this.life = 100; //100
+            this.life = 200;
         }
         else {
-            this.life = 150; //150
+            this.life = 300;
         }
     }
 
     public void move(long delta) {
         // since the move tells us how much time has passed
         // by we can use it to drive the animation, however
-        // its the not the prettiest solution
+        // it's not the prettiest solution
         lastFrameChange += delta;
 
         // if we need to change the frame, update the frame number
@@ -79,11 +76,13 @@ public class BossAlienEntity extends Entity{
         if ((dx < 0) && (x < 10)) {
             game.updateLogic();
         }
+
         // and vice vesa, if we have reached the right hand side of
         // the screen and are moving right, request a logic update
         if ((dx > 0) && (x > 750 - sprite.getWidth())) {
             game.updateLogic();
         }
+
         // proceed with normal move
         super.move(delta);
     }
@@ -113,7 +112,7 @@ public class BossAlienEntity extends Entity{
             life--;
             sprite = SpriteStore.get().getSprite("images/ufo_boss_alien4.png");
 
-            if (life < 0) {
+            if (life <= 0) {
                 game.removeEntity(this);
 
 

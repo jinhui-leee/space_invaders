@@ -1,11 +1,10 @@
 package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.Game;
+import org.newdawn.spaceinvaders.Life;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The entity that represents the players ship
@@ -15,8 +14,6 @@ import java.util.concurrent.TimeUnit;
 public class ShipEntity extends Entity {
 	/** The game in which the ship exists */
 	private Game game;
-
-	private int life = 1;
 
 	private boolean used = false;
 
@@ -34,13 +31,6 @@ public class ShipEntity extends Entity {
 		this.game = game;
 	}
 
-	public int getLife() {
-		return life;
-	}
-
-	public void setLife(int life) {
-		this.life = life;
-	}
 
 	/**
 	 * Request that the ship move itself based on an elapsed ammount of
@@ -74,14 +64,15 @@ public class ShipEntity extends Entity {
 			return;
 		}
 
-		// if its an alien, notify the game that the player
+		// if it's an alien, notify the game that the player
 		// is dead
 		if (other instanceof AlienEntity || other instanceof BossAlienEntity || other instanceof BossShotEntity) {
 
-			if (life > 1){
-				life--;
+			if (Life.get().getLifeCnt() > 1){
+
+				Life.get().setLifeCnt(Life.get().getLifeCnt()-1);
 				used = true;
-				System.out.println("life = " + life);
+				System.out.println("life = " + Life.get().getLifeCnt());
 				Timer timer = new Timer();
 				timer.schedule(new TimerTask() {
 					@Override
@@ -90,16 +81,16 @@ public class ShipEntity extends Entity {
 					}
 				}, 1000); //1초간 무적
 			}
-			if(game.itemact3){
+			if(game.isItem3Activated()){
 				used = true;
-				System.out.println("life = " + life);
+				System.out.println("life = " + Life.get().getLifeCnt());
 				Timer timer = new Timer();
 				timer.schedule(new TimerTask() {
 					@Override
 					public void run() {
 						used = false;
 					}
-				}, 5000); //1초간 무적
+				}, 10000); //10초간 무적
 			}
 			else {
 				game.notifyDeath();
