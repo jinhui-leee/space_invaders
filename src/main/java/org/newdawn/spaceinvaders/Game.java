@@ -374,6 +374,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
                 if (itemStore.purchaseITem(3) == 1) {
                     SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
+                    lifeLabel[4 - Life.get().getLifeCnt()].setVisible(true);
                     if (user != null) {
                         user.setGold(Gold.get().getGoldCnt());
                     }
