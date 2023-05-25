@@ -101,8 +101,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private  ImageIcon changeIconAudioOff;
     private ImageIcon changeIconAudioOn;
 
-    public ImageIcon changeGoldIcon;
-
     private static User user;
 
     private JLabel goldLabel;
@@ -125,15 +123,9 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     private JLabel[] itemStoreLabel;
 
-    private int shipEntityLife;
-
-    private int []itemPurchaseCnt;
-
     private Theme theme;
 
-
-
-    ItemStore itemStore;
+    private final ItemStore itemStore;
 
 
 
@@ -240,8 +232,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
         Image changeImgGetGold = imgGetGold.getScaledInstance(20,20, Image.SCALE_SMOOTH);
         ImageIcon changeIconGetGold = new ImageIcon(changeImgGetGold);
 
-        this.changeGoldIcon = changeIconGetGold;
-
         JLabel imageGetGoldLabel = new JLabel(changeIconGetGold);
         imageGetGoldLabel.setBounds(655,25,20,20);
         panel.add(imageGetGoldLabel);
@@ -306,10 +296,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
         timeLabel.setFont(font_basic_bold_size_14);
         timeLabel.setBounds(20,20,70,25);
         panel.add(timeLabel);
-
-
-        itemPurchaseCnt = new int[5];
-        Arrays.fill(itemPurchaseCnt, 0);
 
         panel.add(this);
 
@@ -946,13 +932,13 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
 
         //아이템 사용 종류와 개수
-        g.drawString("총 구매 아이템 개수 : " + itemPurchaseCnt[4], (800-g.getFontMetrics().stringWidth("총 구매 아이템 개수 : " + itemPurchaseCnt[4]))/2, 250);
+        g.drawString("총 구매 아이템 개수 : " + itemStore.getTotalItemPurchaseCnt(), (800-g.getFontMetrics().stringWidth("총 구매 아이템 개수 : " + itemStore.getTotalItemPurchaseCnt()))/2, 250);
 
-        g.drawString("ship 속도 증가 : " + itemPurchaseCnt[0] + "  총알 속도 증가 : " + itemPurchaseCnt[1],
-                (800-g.getFontMetrics().stringWidth("ship 속도 증가 : " + itemPurchaseCnt[0] + "  총알 속도 증가 : " + itemPurchaseCnt[1]))/2, 290);
+        g.drawString("ship 속도 증가 : " + itemStore.getItemPurchaseCnt(0) + "  총알 속도 증가 : " + itemStore.getItemPurchaseCnt(1),
+                (800-g.getFontMetrics().stringWidth("ship 속도 증가 : " + itemStore.getItemPurchaseCnt(0) + "  총알 속도 증가 : " + itemStore.getItemPurchaseCnt(1)))/2, 290);
 
-        g.drawString("총알 발사 간격 감소 : " + itemPurchaseCnt[2] + "  생명 추가 : " + itemPurchaseCnt[3],
-                (800-g.getFontMetrics().stringWidth("총알 발사 간격 감소 : " + itemPurchaseCnt[2] + "  생명 추가 : " + itemPurchaseCnt[3]))/2, 310);
+        g.drawString("총알 발사 간격 감소 : " + itemStore.getItemPurchaseCnt(2) + "  생명 추가 : " + itemStore.getItemPurchaseCnt(3),
+                (800-g.getFontMetrics().stringWidth("총알 발사 간격 감소 : " + itemStore.getItemPurchaseCnt(2) + "  생명 추가 : " + itemStore.getItemPurchaseCnt(3)))/2, 310);
 
 
         g.setFont(font4);

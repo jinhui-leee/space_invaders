@@ -11,13 +11,6 @@ public class ItemStore {
 
     private int totalItemPurchaseCnt = 0;
 
-    private int shotSpeedIncreaseItem;
-
-    private int shipSpeedIncreaseItem;
-
-    private int shotFiringIntervalReduceItem;
-
-    private int lifeAddItem;
 
     public ItemStore(Game game) {
         this.game = game;
@@ -86,7 +79,19 @@ public class ItemStore {
         return -1;
     }
 
+    public int getItemPurchaseCnt(int item) {
+        return itemPurchaseCnt[item];
+    }
 
+    public void setItemPurchaseCnt(int item, int itemPurchaseCnt) {
+        this.itemPurchaseCnt[item] = itemPurchaseCnt;
+    }
 
+    public int getTotalItemPurchaseCnt() {
+        return totalItemPurchaseCnt;
+    }
 
+    public void setTotalItemPurchaseCnt(int totalItemPurchaseCnt) {
+        this.totalItemPurchaseCnt = totalItemPurchaseCnt;
+    }
 }
