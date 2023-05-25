@@ -112,6 +112,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     private String totalClearTime ="";
     private Integer totalClearTimeInt = 0;
 
+
     private final int gameDifficulty;
 
     private JButton []itemPurchaseBtn;
@@ -134,7 +135,10 @@ public class Game extends Canvas implements ActionListener, WindowListener
      */
     public Game(int gameDifficulty, User user, Theme theme) {
         this.gameDifficulty = gameDifficulty;
-        if(user != null) Game.user = user;
+        if(user != null) {
+            Game.user = user;
+            Gold.get().setGoldCnt(user.getGold());
+        }
         this.theme = theme;
         container = new JFrame("Space Invaders 102");
         setBounds(0,0,800,600);
@@ -169,7 +173,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
         if (user!=null){
             // 로그인한 사용자 표시 (로그인 시 사용한 ID를 통해 파이어베이스에서 사용자 정보 가져옴)
             userNameLabel = new JLabel(user.getName());
-            //int nameLength = user.getName().length();
 
             // 획득 골드 숫자 표시
             goldLabel = new JLabel(user.getGold().toString());
@@ -303,6 +306,30 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     // 음악 재생 및 정지
     public void actionPerformed(ActionEvent e) {
+
+        for (int i = 0; i < 4; i++) {
+            if (e.getSource() == itemPurchaseBtn[i]) {
+                if (i == 3) {
+                    if (Life.get().getLifeCnt() >= 5) {
+                        JOptionPane.showMessageDialog(null, "생명은 최대 5개입니다.");
+                    }
+                }
+
+                if (itemStore.purchaseITem(i) == 1) {
+                    SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
+                    if (user != null) {
+                        user.setGold(Gold.get().getGoldCnt());
+                    }
+                    if (i == 3) lifeLabel[4 - Life.get().getLifeCnt()].setVisible(true);
+
+                }
+                else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
+                break;
+            }
+        }
+
+
+
         // 오디오 버튼 클릭 시 이미지 변경 및 소리 조절
         if (e.getSource() == audioBtn) {
             if (backgroundMusic.isPlaying()) {
@@ -314,6 +341,8 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
             }
         }
+
+
         //아이템 구매 : ship +20 속도 증가, 20원
         else if (e.getSource() == itemPurchaseBtn[0]) {
 
@@ -399,8 +428,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
     @Override
     public void windowOpened(WindowEvent e) {
-        // 윈도우 창이 열릴 때 처리할 내용
-//		music.playMusic();
+
     }
 
     @Override
@@ -538,9 +566,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
 
     }
 
-
-
-
     public void updateLogic() {
         logicRequiredThisLoop = true;
     }
@@ -597,10 +622,12 @@ public class Game extends Canvas implements ActionListener, WindowListener
     public void notifyAlienKilled() {
         // reduce the alien count, if there are none left, the player has won!
         alienCount--;
+        Gold.get().setGoldCnt(Gold.get().getGoldCnt()+1);
+
         if (user != null) {
             String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
             // 몬스터 죽일 때마다 골드 1 증가
-            user.setGold(user.getGold()+1);
+            user.setGold(Gold.get().getGoldCnt());
 
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference ref = database.getReference();
@@ -612,20 +639,15 @@ public class Game extends Canvas implements ActionListener, WindowListener
             userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                    if (databaseError != null) {
-//						Log.d(TAG, "Data could not be saved: " + databaseError.getMessage());
-                    } else {
-//						Log.d(TAG, "Data saved successfully.");
-                    }
                 }
             });
-            // update the UI with the new gold value
-            SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(user.getGold())));
         }
-        else{
-            Gold.get().setGoldCnt(Gold.get().getGoldCnt()+1);
-            SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
-        }
+
+        SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
+
+
+
+
         if (alienCount <= 0) {
             notifyWin();
         }
@@ -878,6 +900,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
             }
         }
     }
+
     public void drawGameClear() {
         Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 
@@ -967,9 +990,7 @@ public class Game extends Canvas implements ActionListener, WindowListener
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if (databaseError != null) {
-//						Log.d(TAG, "Data could not be saved: " + databaseError.getMessage());
                         } else {
-//						Log.d(TAG, "Data saved successfully.");
                         }
                     }
                 });
@@ -1146,7 +1167,6 @@ public class Game extends Canvas implements ActionListener, WindowListener
     }
 
     public static void main(String[] argv) {
-
         new Window();
     }
 }
