@@ -66,11 +66,14 @@ public class ObstacleEntity extends Entity {
         if (used) {
             return;
         }
+        /*
         if (other instanceof ShipEntity) {
             game.removeEntity(this);
             game.removeEntity(other);
             game.notifyDeath();
             used = true;
         }
+
+         */
     }
 }
