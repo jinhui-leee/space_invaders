@@ -66,11 +66,28 @@ public class ShipEntity extends Entity {
 
 		// if it's an alien, notify the game that the player
 		// is dead
-		if (other instanceof AlienEntity || other instanceof BossAlienEntity || other instanceof BossShotEntity) {
+		if (other instanceof AlienEntity || other instanceof BossAlienEntity || other instanceof BossShotEntity || other instanceof ObstacleEntity) {
+
+			if(game.isItem3Activated()){
+				used = true;
+
+				/*
+				Timer timer = new Timer();
+				timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						used = false;
+					}
+				}, 10000); //10초간 무적
+
+				 */
+				return;
+			}
 
 			if (Life.get().getLifeCnt() > 1){
 
 				Life.get().setLifeCnt(Life.get().getLifeCnt()-1);
+				Life.get().setLifeReduced(true);
 				used = true;
 				System.out.println("life = " + Life.get().getLifeCnt());
 				Timer timer = new Timer();
@@ -81,17 +98,7 @@ public class ShipEntity extends Entity {
 					}
 				}, 1000); //1초간 무적
 			}
-			if(game.isItem3Activated()){
-				used = true;
-				System.out.println("life = " + Life.get().getLifeCnt());
-				Timer timer = new Timer();
-				timer.schedule(new TimerTask() {
-					@Override
-					public void run() {
-						used = false;
-					}
-				}, 10000); //10초간 무적
-			}
+
 			else {
 				game.notifyDeath();
 			}

@@ -10,7 +10,7 @@ public class ItemEntity extends Entity{
 
     private Game game;
 
-    private boolean isItemActivated = false;
+    private boolean isItem1Activated = false;
     private boolean isItem2Activated = false;
     private boolean isItem3Activated = false;
 
@@ -27,7 +27,6 @@ public class ItemEntity extends Entity{
     @Override
     public void collidedWith(Entity other) {
         isItemBoxAcquired = true;
-
         if(other instanceof ShipEntity){
             game.removeEntity(this);
             useItem();
@@ -38,10 +37,12 @@ public class ItemEntity extends Entity{
     public void useItem(){
 
         int itemRandomNum=(int)(Math.random()*3)+1;
+        //int itemRandomNum = 1;
         if (itemRandomNum==1){
-            isItemActivated =true;
+            isItem1Activated =true;
         }
         else if(itemRandomNum==2){
+            game.setDefaultFiringInterval(game.getFiringInterval());
             game.setFiringInterval(game.getFiringInterval()-250);
             isItem2Activated =true;
         }
@@ -53,28 +54,28 @@ public class ItemEntity extends Entity{
                 @Override
                 public void run() {
                     isItem3Activated = false;}
-            }, 3000); //3초간 무적
+            }, 10000); //10초간 무적
         }
     }
 
     public void resetItem(){
         game.setFiringInterval(game.getDefaultFiringInterval());
-        isItemActivated = false;
+        isItem1Activated = false;
         isItem2Activated = false;
         isItem3Activated = false;
     }
 
-    public boolean isItemActivated() {
-        return isItemActivated;
+    public int isItemActivated() {
+        if (isItem1Activated) return 1;
+        else if (isItem2Activated) return  2;
+        else return 0;
     }
 
     public void setItemActivated(boolean itemActivated) {
-        isItemActivated = itemActivated;
+        isItem1Activated = itemActivated;
     }
 
-    public boolean isItem2Activated() {
-        return isItem2Activated;
-    }
+
 
     public void setItem2Activated(boolean item2Activated) {
         isItem2Activated = item2Activated;

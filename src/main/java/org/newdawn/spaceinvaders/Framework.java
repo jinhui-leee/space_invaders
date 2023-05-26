@@ -452,8 +452,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 break;
 
             case MAIN_MENU:
-                g2d.drawImage(theme.getMainBackground(), 0, 0, 800, 600, null);
-                break;
 
             case OPTIONS:
                 g2d.drawImage(theme.getMainBackground(), 0, 0, 800, 600, null);
@@ -464,12 +462,8 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
                 break;
 
             case THEME:
-                g2d.drawImage(theme.getBackground(), 0, 0, 800, 600, null);
-                break;
 
             case CHARACTER:
-                g2d.drawImage(theme.getBackground(), 0, 0, 800, 600, null);
-                break;
 
             case RANKING:
                 g2d.drawImage(theme.getBackground(), 0, 0, 800, 600, null);

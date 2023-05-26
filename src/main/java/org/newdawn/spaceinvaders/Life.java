@@ -9,6 +9,8 @@ public class Life {
 
     private int lifeCnt = 1;
 
+    private boolean isLifeReduced = false;
+
 
     public int getLifeCnt() {
         return lifeCnt;
@@ -16,5 +18,13 @@ public class Life {
 
     public void setLifeCnt(int lifeCnt) {
         this.lifeCnt = lifeCnt;
+    }
+
+    public boolean isLifeReduced() {
+        return isLifeReduced;
+    }
+
+    public void setLifeReduced(boolean lifeReduced) {
+        isLifeReduced = lifeReduced;
     }
 }
