@@ -51,8 +51,6 @@ public class Game extends Canvas implements ActionListener
     /** The message to display which waiting for a key press */
     private String message = "";
     private String messageEnemyCnt = "";
-    private String messageBossLifeCnt = "";
-    private String messageStageLevel = "";
 
     /** True if we're holding up game play until a key has been pressed */
     private boolean waitingForKeyPress = true;
@@ -101,13 +99,7 @@ public class Game extends Canvas implements ActionListener
 
     private JLabel goldLabel;
 
-    /** 경과 시간 초기값 = 0 */
     private JLabel timeLabel;
-    private String timeString = "";
-    private Integer bestTimeInt = 0;
-
-    private String totalClearTime ="";
-    private Integer totalClearTimeInt = 0;
 
 
     private final int gameDifficulty;
@@ -492,24 +484,8 @@ public class Game extends Canvas implements ActionListener
         waitingForKeyPress = true;
     }
 
-    // String 형으로 된 시간을 Int 형으로 변환
-    public int convertTimeStringToInt(String timeStr) {
-        String[] tokens = timeStr.split(":");
-        int minutes = Integer.parseInt(tokens[0]);
-        int seconds = Integer.parseInt(tokens[1]);
-        int millis = Integer.parseInt(tokens[2]);
-        int timeInt = minutes * 60 * 1000 + seconds * 1000 + millis;
-        return timeInt;
-    }
 
-    // Int 형으로 된 시간을 String 형으로 변환
-    public String convertTimeIntToString(int timeInt) {
-        int minutes = timeInt / 1000 / 60;
-        int seconds = (timeInt / 1000) % 60;
-        int millis = timeInt % 1000;
-        String timeStr = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
-        return timeStr;
-    }
+
     /**
      * Notification that the player has won since all the aliens
      * are dead.
@@ -517,16 +493,17 @@ public class Game extends Canvas implements ActionListener
     public void notifyWin() {
         stageLevel++;
         if(stageLevel >= (bossStageLevel+1)) {
-            message = "Well done! You Win!" + " Boss Stage Clear ! " + " clear time : " + timeString;
+            message = "Well done! You Win!" + " Boss Stage Clear ! " + " clear time : " + Time.get().getTimeString();
         }
         else{
-            message = "Well done! You Win!" + "  stage level : " + (stageLevel+1) + " clear time : " + timeString;
+            message = "Well done! You Win!" + "  stage level : " + (stageLevel+1) + " clear time : " + Time.get().getTimeString();
         }
         // 새로운 기록을 누적값에 추가
-        Integer timeInt = convertTimeStringToInt(timeString);
-        totalClearTimeInt += timeInt;
-        totalClearTime = convertTimeIntToString(totalClearTimeInt);
+        //Integer timeInt = convertTimeStringToInt(timeString);
+        //totalClearTimeInt += timeInt;
+        //totalClearTime = convertTimeIntToString(totalClearTimeInt);
 
+        Time.get().calculateTotalTime(Time.get().getTimeString());
         waitingForKeyPress = true;
     }
     /**
@@ -620,6 +597,7 @@ public class Game extends Canvas implements ActionListener
 
         int stringWidth = g.getFontMetrics().stringWidth(messageEnemyCnt);
 
+        String messageStageLevel = "";
         if(stageLevel<bossStageLevel) {
             messageStageLevel = "현재 스테이지 " + (stageLevel + 1);
             messageEnemyCnt = "남은 적 수 " + alienCount;
@@ -628,7 +606,7 @@ public class Game extends Canvas implements ActionListener
         }
         else{
             messageStageLevel = "보스 스테이지";
-            messageBossLifeCnt = "보스 HP " + BossAlienEntity.life/2;
+            String messageBossLifeCnt = "보스 HP " + BossAlienEntity.life / 2;
             g.drawString(messageStageLevel, ((getWidth() - stringWidth) / 2)-100, 37);
             g.drawString(messageBossLifeCnt, ((getWidth() - stringWidth) / 2), 37);
         }
@@ -641,15 +619,7 @@ public class Game extends Canvas implements ActionListener
         }
     }
 
-    public void calculateTime(long elapsedTime) {
-        int minutes=(int)(elapsedTime/1000)/60;
-        int seconds=(int)(elapsedTime/1000)%60;
-        int millis=(int)(elapsedTime%1000);
 
-        timeString = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
-
-        SwingUtilities.invokeLater(() -> timeLabel.setText(timeString));
-    }
 
 
     public void gameLoop() {
@@ -662,7 +632,11 @@ public class Game extends Canvas implements ActionListener
             elapsedTime += delta;
             lastLoopTime = SystemTimer.getTime();
 
-            calculateTime(elapsedTime);
+            //calculateTime(elapsedTime);
+            Time.get().calculateTime(elapsedTime);
+            SwingUtilities.invokeLater(() -> timeLabel.setText(Time.get().getTimeString()));
+
+
 
             // update the frame counter
             lastFpsTime += delta;
@@ -836,13 +810,15 @@ public class Game extends Canvas implements ActionListener
         if(user!=null) {
             if(!user.getBestTime().isEmpty()) {
                 String bestTime = user.getBestTime();
-                bestTimeInt = convertTimeStringToInt(bestTime);
-                totalClearTimeInt = convertTimeStringToInt(totalClearTime);
+                Integer bestTimeInt = Time.get().convertTimeStringToInt(bestTime);
+                Integer totalClearTimeInt = Time.get().getTotalClearTimeInt();
+
+
                 // Best Time 갱신인 경우 사용자 DB bestTime에 저장
                 if (totalClearTimeInt < bestTimeInt) {
                     g.drawString("Best Time 갱신 !!", (800 - g.getFontMetrics().stringWidth("Best Time 갱신 !!")) / 2, 360);
                     g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
-                    g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
+                    g.drawString("최종 클리어 시간 : " + Time.get().getTotalClearTime(), (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
 
                     String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -850,7 +826,7 @@ public class Game extends Canvas implements ActionListener
                     DatabaseReference userRef = ref.child("Users").child(encodedEmail);
 
                     Map<String, Object> updates = new HashMap<>();
-                    updates.put("/" + encodedEmail + "/bestTime", totalClearTime);
+                    updates.put("/" + encodedEmail + "/bestTime", Time.get().getTotalClearTime());
 
                     userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
                         @Override
@@ -861,13 +837,14 @@ public class Game extends Canvas implements ActionListener
                 // 갱신하지 못한 경우
                 else{
                     g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
-                    g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
+                    g.drawString("최종 클리어 시간 : " + Time.get().getTotalClearTime(), (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
                 }
             }
             // 게임 처음 실행인 경우
             else{
-                totalClearTimeInt = convertTimeStringToInt(totalClearTime);
-                g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 410);
+                //totalClearTimeInt = convertTimeStringToInt(Time.get().getTotalClearTime());
+                Time.get().resetTime();
+                g.drawString("최종 클리어 시간 : " + Time.get().getTotalClearTime(), (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 410);
 
                 String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -875,7 +852,7 @@ public class Game extends Canvas implements ActionListener
                 DatabaseReference userRef = ref.child("Users").child(encodedEmail);
 
                 Map<String, Object> updates = new HashMap<>();
-                updates.put("/" + encodedEmail + "/bestTime", totalClearTime);
+                updates.put("/" + encodedEmail + "/bestTime", Time.get().getTotalClearTime());
 
                 userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
                     @Override
@@ -886,7 +863,7 @@ public class Game extends Canvas implements ActionListener
         }
         // 게스트는 최종 클리어 시간만 띄움
         else{
-            g.drawString("최종 클리어 시간 : " + totalClearTime, (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
+            g.drawString("최종 클리어 시간 : " + Time.get().getTotalClearTime(), (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
         }
 
         g.dispose();
