@@ -869,7 +869,7 @@ public class Game extends Canvas implements ActionListener
         g.dispose();
         strategy.show();
 
-        }
+    }
 
     public void drawStoreMenu() {
         // 이미지1을 배경으로 하는 화면 그리기

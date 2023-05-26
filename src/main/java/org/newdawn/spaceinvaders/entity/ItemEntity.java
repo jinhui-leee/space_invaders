@@ -36,8 +36,7 @@ public class ItemEntity extends Entity{
 
     public void useItem(){
 
-        //int itemRandomNum=(int)(Math.random()*3)+1;
-        int itemRandomNum = 1;
+        int itemRandomNum=(int)(Math.random()*3)+1;
         if (itemRandomNum==1){
             isItem1Activated =true;
         }
