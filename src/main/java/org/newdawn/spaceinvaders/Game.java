@@ -294,22 +294,6 @@ public class Game extends Canvas implements ActionListener
         panel.add(this);
     }
 
-    // DB 골드 차감
-    public void consumeGold(){
-        String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference();
-        DatabaseReference userRef = ref.child("Users").child(encodedEmail);
-
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("/" + encodedEmail + "/gold", user.getGold());
-
-        userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-            }
-        });
-    }
 
     public void actionPerformed(ActionEvent e) {
         // 오디오 버튼 클릭 시 이미지 변경 및 소리 조절
@@ -330,7 +314,7 @@ public class Game extends Canvas implements ActionListener
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
-                    consumeGold();
+                    //consumeGold();
                 }
             } else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
         }
@@ -340,7 +324,7 @@ public class Game extends Canvas implements ActionListener
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
-                    consumeGold();
+                    //consumeGold();
                 }
             } else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
         }
@@ -350,7 +334,7 @@ public class Game extends Canvas implements ActionListener
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
-                    consumeGold();
+                    //consumeGold();
                 }
             } else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
         }
@@ -363,7 +347,7 @@ public class Game extends Canvas implements ActionListener
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
-                    consumeGold();
+                    //consumeGold();
                 }
                 lifeLabel[5 - Life.get().getLifeCnt()].setVisible(true);
             }
