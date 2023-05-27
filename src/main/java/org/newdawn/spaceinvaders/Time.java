@@ -52,14 +52,13 @@ public class Time {
         int timeInt = minutes * 60 * 1000 + seconds * 1000 + millis;
         totalClearTimeInt += timeInt;
 
-        minutes = timeInt / 1000 / 60;
-        seconds = (timeInt / 1000) % 60;
-        millis = timeInt % 1000;
-        timeStr = String.format("%02d:%02d:%02d", minutes, seconds, millis/10);
+        minutes = totalClearTimeInt / 1000 / 60;
+        seconds = (totalClearTimeInt / 1000) % 60;
+        millis = totalClearTimeInt % 1000 / 10;
+        timeStr = String.format("%02d:%02d:%02d", minutes, seconds, millis);
         totalClearTime = timeStr;
         return totalClearTime;
     }
-
 
     public String getTimeString() {
         return timeString;

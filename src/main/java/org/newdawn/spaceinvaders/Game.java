@@ -286,6 +286,47 @@ public class Game extends Canvas implements ActionListener
         panel.add(this);
     }
 
+    WindowListener windowListener = new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            // 윈도우 창이 닫힐 때 처리할 내용
+            if (backgroundMusic.isPlaying()) {
+                backgroundMusic.stopMusic();
+            }
+        }
+    };
+
+    public void putGoldUserData(){
+        String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference();
+        DatabaseReference userRef = ref.child("Users").child(encodedEmail);
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("/" + encodedEmail + "/gold", user.getGold());
+
+        userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+            }
+        });
+    }
+
+    public void putBestTimeUserData(String totalClearTime){
+        String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference();
+        DatabaseReference userRef = ref.child("Users").child(encodedEmail);
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("/" + encodedEmail + "/bestTime", totalClearTime);
+
+        userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+            }
+        });
+    }
 
     public void actionPerformed(ActionEvent e) {
         // 오디오 버튼 클릭 시 이미지 변경 및 소리 조절
@@ -306,7 +347,7 @@ public class Game extends Canvas implements ActionListener
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
-                    //consumeGold();
+                    putGoldUserData();
                 }
             } else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
         }
@@ -316,7 +357,7 @@ public class Game extends Canvas implements ActionListener
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
-                    //consumeGold();
+                    putGoldUserData();
                 }
             } else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
         }
@@ -326,7 +367,7 @@ public class Game extends Canvas implements ActionListener
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
-                    //consumeGold();
+                    putGoldUserData();
                 }
             } else JOptionPane.showMessageDialog(null, "코인 부족으로 구매할 수 없습니다.");
         }
@@ -339,7 +380,7 @@ public class Game extends Canvas implements ActionListener
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
-                    //consumeGold();
+                    putGoldUserData();
                 }
                 lifeLabel[5 - Life.get().getLifeCnt()].setVisible(true);
             }
@@ -375,15 +416,6 @@ public class Game extends Canvas implements ActionListener
 
         }
     }
-    WindowListener windowListener = new WindowAdapter() {
-        @Override
-        public void windowClosing(WindowEvent e) {
-            // 윈도우 창이 닫힐 때 처리할 내용
-            if (backgroundMusic.isPlaying()) {
-                backgroundMusic.stopMusic();
-            }
-        }
-    };
 
     public void requestFocus() {
         container.requestFocus();
@@ -479,12 +511,10 @@ public class Game extends Canvas implements ActionListener
     }
 
     public void notifyDeath() {
-        message = "Oh no! They got you, try again? " + " stage level : " + (stageLevel+1);
+        message = "Oh no! They got you, try again?";
         stageLevel = 0;
         waitingForKeyPress = true;
     }
-
-
 
     /**
      * Notification that the player has won since all the aliens
@@ -496,14 +526,14 @@ public class Game extends Canvas implements ActionListener
             message = "Well done! You Win!" + " Boss Stage Clear ! " + " clear time : " + Time.get().getTimeString();
         }
         else{
-            message = "Well done! You Win!" + "  stage level : " + (stageLevel+1) + " clear time : " + Time.get().getTimeString();
+            message = "Well done! You Win!" + "  stage level : " + stageLevel + " clear time : " + Time.get().getTimeString();
         }
         // 새로운 기록을 누적값에 추가
         //Integer timeInt = convertTimeStringToInt(timeString);
         //totalClearTimeInt += timeInt;
         //totalClearTime = convertTimeIntToString(totalClearTimeInt);
-
         Time.get().calculateTotalTime(Time.get().getTimeString());
+
         waitingForKeyPress = true;
     }
     /**
@@ -515,22 +545,9 @@ public class Game extends Canvas implements ActionListener
         Gold.get().setGoldCnt(Gold.get().getGoldCnt()+1);
 
         if (user != null) {
-            String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
             // 몬스터 죽일 때마다 골드 1 증가
             user.setGold(Gold.get().getGoldCnt());
-
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference ref = database.getReference();
-            DatabaseReference userRef = ref.child("Users").child(encodedEmail);
-
-            Map<String, Object> updates = new HashMap<>();
-            updates.put("/" + encodedEmail + "/gold", user.getGold());
-
-            userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                }
-            });
+            putGoldUserData();
         }
         SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
 
@@ -571,11 +588,7 @@ public class Game extends Canvas implements ActionListener
             entities.add(shot);
             Music.playShotAudio();
         }
-
-
     }
-
-
 
     public void shootShip() {
         for (int i=0; i<3; i++) {
@@ -620,8 +633,6 @@ public class Game extends Canvas implements ActionListener
     }
 
 
-
-
     public void gameLoop() {
         long lastLoopTime = SystemTimer.getTime();
         long startTime = lastLoopTime;
@@ -635,8 +646,6 @@ public class Game extends Canvas implements ActionListener
             //calculateTime(elapsedTime);
             Time.get().calculateTime(elapsedTime);
             SwingUtilities.invokeLater(() -> timeLabel.setText(Time.get().getTimeString()));
-
-
 
             // update the frame counter
             lastFpsTime += delta;
@@ -656,7 +665,6 @@ public class Game extends Canvas implements ActionListener
                 lastFpsTime = 0;
                 fps = 0;
             }
-
 
             Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
             draw(g);
@@ -682,7 +690,6 @@ public class Game extends Canvas implements ActionListener
                     if (me.collidesWith(him)) {
                         me.collidedWith(him);
                         him.collidedWith(me);
-
                     }
                 }
             }
@@ -820,19 +827,7 @@ public class Game extends Canvas implements ActionListener
                     g.drawString("기존 최종 클리어 시간 : " + bestTime, (800 - g.getFontMetrics().stringWidth("기존 최종 클리어 시간 : 00:00:00")) / 2, 410);
                     g.drawString("최종 클리어 시간 : " + Time.get().getTotalClearTime(), (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 460);
 
-                    String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
-                    FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference ref = database.getReference();
-                    DatabaseReference userRef = ref.child("Users").child(encodedEmail);
-
-                    Map<String, Object> updates = new HashMap<>();
-                    updates.put("/" + encodedEmail + "/bestTime", Time.get().getTotalClearTime());
-
-                    userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
-                        @Override
-                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        }
-                    });
+                    putBestTimeUserData(Time.get().getTotalClearTime());
                 }
                 // 갱신하지 못한 경우
                 else{
@@ -846,19 +841,7 @@ public class Game extends Canvas implements ActionListener
                 Time.get().resetTime();
                 g.drawString("최종 클리어 시간 : " + Time.get().getTotalClearTime(), (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 410);
 
-                String encodedEmail = Base64.getEncoder().encodeToString(user.getEmail().getBytes());
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference ref = database.getReference();
-                DatabaseReference userRef = ref.child("Users").child(encodedEmail);
-
-                Map<String, Object> updates = new HashMap<>();
-                updates.put("/" + encodedEmail + "/bestTime", Time.get().getTotalClearTime());
-
-                userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                    }
-                });
+                putGoldUserData();
             }
         }
         // 게스트는 최종 클리어 시간만 띄움

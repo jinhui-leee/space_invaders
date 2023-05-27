@@ -74,8 +74,6 @@ public class ItemEntity extends Entity{
         isItem1Activated = itemActivated;
     }
 
-
-
     public void setItem2Activated(boolean item2Activated) {
         isItem2Activated = item2Activated;
     }

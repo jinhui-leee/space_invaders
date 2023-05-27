@@ -57,21 +57,6 @@ public class User {
 
     public void setGold(Integer gold) {
         this.gold = gold;
-
-        String encodedEmail = Base64.getEncoder().encodeToString(getEmail().getBytes());
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference();
-        DatabaseReference userRef = ref.child("Users").child(encodedEmail);
-
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("/" + encodedEmail + "/gold", getGold());
-
-        userRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-            }
-        });
-
     }
 
     public String getBestTime() {
