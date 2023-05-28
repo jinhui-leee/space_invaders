@@ -445,7 +445,6 @@ public class Framework extends JLabel implements ActionListener, MouseListener {
 
     /** 배경화면 그리기*/
     public void draw(Graphics2D g2d) {
-        //TODO 위에 테마 선택 텍스트 추가, 캐릭터 선택 텍스트 추가
 
         switch (gameState) {
             case PLAYING:

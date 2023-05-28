@@ -841,7 +841,7 @@ public class Game extends Canvas implements ActionListener
                 Time.get().resetTime();
                 g.drawString("최종 클리어 시간 : " + Time.get().getTotalClearTime(), (800 - g.getFontMetrics().stringWidth("최종 클리어 시간 : 00:00:00")) / 2, 410);
 
-                putGoldUserData();
+                putBestTimeUserData(Time.get().getTotalClearTime());
             }
         }
         // 게스트는 최종 클리어 시간만 띄움
