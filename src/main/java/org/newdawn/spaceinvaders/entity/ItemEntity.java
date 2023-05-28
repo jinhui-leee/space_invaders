@@ -30,7 +30,6 @@ public class ItemEntity extends Entity{
         if(other instanceof ShipEntity){
             game.removeEntity(this);
             useItem();
-
         }
     }
 

@@ -2,7 +2,9 @@ package org.newdawn.spaceinvaders.entity;
 
 import org.newdawn.spaceinvaders.Game;
 import org.newdawn.spaceinvaders.Life;
+import org.newdawn.spaceinvaders.Time;
 
+import javax.swing.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -59,28 +61,14 @@ public class ShipEntity extends Entity {
 	 * @param other The entity with which the ship has collided
 	 */
 	public void collidedWith(Entity other) {
-
 		if (used) {
 			return;
 		}
-
-		// if it's an alien, notify the game that the player
-		// is dead
+		// 충돌 처리
 		if (other instanceof AlienEntity || other instanceof BossAlienEntity || other instanceof BossShotEntity || other instanceof ObstacleEntity) {
-
-			if(game.isItem3Activated()){
+			if (game.isItem3Activated()) {
+				// 무적 아이템을 사용 중인 경우
 				used = true;
-
-				/*
-				Timer timer = new Timer();
-				timer.schedule(new TimerTask() {
-					@Override
-					public void run() {
-						used = false;
-					}
-				}, 10000); //10초간 무적
-
-				 */
 				return;
 			}
 
@@ -89,22 +77,17 @@ public class ShipEntity extends Entity {
 				Life.get().setLifeCnt(Life.get().getLifeCnt()-1);
 				Life.get().setLifeReduced(true);
 				used = true;
-				System.out.println("life = " + Life.get().getLifeCnt());
 				Timer timer = new Timer();
 				timer.schedule(new TimerTask() {
 					@Override
 					public void run() {
 						used = false;
 					}
-				}, 1000); //1초간 무적
+				}, 10000); //10초간 무적
 			}
-
 			else {
 				game.notifyDeath();
 			}
-
 		}
-
-
 	}
 }

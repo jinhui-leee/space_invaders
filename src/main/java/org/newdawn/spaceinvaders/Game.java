@@ -495,7 +495,6 @@ public class Game extends Canvas implements ActionListener
             alienCount++;
         }
         createItemEntities();
-        Life.get().setLifeCnt(1);
     }
     private void createItemEntities(){
         itemEntity = new ItemEntity(this,"images/item.gif");
@@ -528,10 +527,6 @@ public class Game extends Canvas implements ActionListener
         else{
             message = "Well done! You Win!" + "  stage level : " + stageLevel + " clear time : " + Time.get().getTimeString();
         }
-        // 새로운 기록을 누적값에 추가
-        //Integer timeInt = convertTimeStringToInt(timeString);
-        //totalClearTimeInt += timeInt;
-        //totalClearTime = convertTimeIntToString(totalClearTimeInt);
         Time.get().calculateTotalTime(Time.get().getTimeString());
 
         waitingForKeyPress = true;
@@ -690,6 +685,12 @@ public class Game extends Canvas implements ActionListener
                     if (me.collidesWith(him)) {
                         me.collidedWith(him);
                         him.collidedWith(me);
+                        if ((me instanceof ShipEntity  || him instanceof ShipEntity) &&
+                                (me instanceof AlienEntity || him instanceof AlienEntity
+                                        || me instanceof BossAlienEntity || him instanceof BossAlienEntity
+                                        || me instanceof BossShotEntity || him instanceof BossShotEntity)) {
+                            lifeLabel[4- Life.get().getLifeCnt()].setVisible(false);
+                        }
                     }
                 }
             }
@@ -742,7 +743,7 @@ public class Game extends Canvas implements ActionListener
                     shootShip();
                 }
             }
-            if(gameTimer %200==0) {
+            if(gameTimer%200==0) {
                 addObstacle();
             }
 
@@ -753,7 +754,6 @@ public class Game extends Canvas implements ActionListener
 
             SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
         }
-
 
         // 스테이지 종료 후, 아이템 상점
         if (stageLevel <= bossStageLevel) {
