@@ -67,6 +67,8 @@ public class ItemStore {
 
                 Life.get().setLifeCnt(Life.get().getLifeCnt()+1);
 
+                System.out.println(Life.get().getLifeCnt());
+
                 itemPurchaseCnt[3]++;
                 totalItemPurchaseCnt++;
 

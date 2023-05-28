@@ -376,7 +376,7 @@ public class Game extends Canvas implements ActionListener
             if (Life.get().getLifeCnt() >= 5) {
                 JOptionPane.showMessageDialog(null, "생명은 최대 5개입니다.");
             }
-            if (itemStore.purchaseITem(3) == 1) {
+            else if (itemStore.purchaseITem(3) == 1) {
                 SwingUtilities.invokeLater(() -> goldLabel.setText(Integer.toString(Gold.get().getGoldCnt())));
                 if (user != null) {
                     user.setGold(Gold.get().getGoldCnt());
